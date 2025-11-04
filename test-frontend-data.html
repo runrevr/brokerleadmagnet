@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Frontend Data</title>
+</head>
+<body>
+    <h1>Open Console (F12) and click the button</h1>
+    <button onclick="testData()">Test Data Structure</button>
+
+    <script>
+        function testData() {
+            // Simulate what the frontend sends
+            const responses = {
+                company_name: "Test Brokerage",
+                agent_count: "26-50",
+                monthly_deals: "51-100",
+                location: "Austin, TX",
+                contract_oversight: "TC + Broker share",
+                // ... other responses
+            };
+
+            const scores = {
+                transactionOversight: 25,
+                operationalSystems: 28,
+                knowledgeManagement: 18,
+                clientExperience: 22,
+                riskManagement: 27,
+                growthReadiness: 22,
+                overall: 68,
+                riskLevel: "HIGH",
+                percentile: "Top 50%"
+            };
+
+            const assessmentData = {
+                companyInfo: {
+                    company_name: responses.company_name,
+                    agent_count: responses.agent_count,
+                    monthly_deals: responses.monthly_deals,
+                    location: responses.location
+                },
+                responses,
+                scores,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log("=== DATA STRUCTURE ===");
+            console.log(JSON.stringify(assessmentData, null, 2));
+
+            console.log("\n=== VALIDATIONS ===");
+            console.log("companyInfo exists?", !!assessmentData.companyInfo);
+            console.log("responses exists?", !!assessmentData.responses);
+            console.log("scores exists?", !!assessmentData.scores);
+            console.log("company_name?", assessmentData.companyInfo.company_name);
+            console.log("agent_count?", assessmentData.companyInfo.agent_count);
+            console.log("monthly_deals?", assessmentData.companyInfo.monthly_deals);
+            console.log("location?", assessmentData.companyInfo.location);
+            console.log("scores.overall?", assessmentData.scores.overall);
+            console.log("scores.riskLevel?", assessmentData.scores.riskLevel);
+            console.log("scores.percentile?", assessmentData.scores.percentile);
+        }
+    </script>
+</body>
+</html>

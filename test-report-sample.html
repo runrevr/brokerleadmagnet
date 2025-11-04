@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phase 5 Test - Sample Report Preview</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; }
+            .shadow-lg { box-shadow: none !important; }
+            canvas { max-width: 100%; }
+            .print-break { page-break-before: always; }
+            @page { margin: 0.5in; }
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Sample data for testing (without API call)
+        const mockReportData = {
+            id: "test-123",
+            timestamp: new Date().toISOString(),
+            companyInfo: {
+                company_name: "Test Realty Group",
+                agent_count: "26-50",
+                monthly_deals: "51-100",
+                location: "Austin, TX"
+            },
+            scores: {
+                overall: 68,
+                transactionOversight: 22,
+                knowledgeManagement: 18,
+                clientExperience: 15,
+                riskManagement: 20,
+                riskLevel: "HIGH",
+                percentile: "Top 50%"
+            },
+            responses: {
+                company_name: "Test Realty Group",
+                agent_count: "26-50",
+                monthly_deals: "51-100",
+                location: "Austin, TX",
+                review_capacity: "5-15",
+                review_time: "2-3 days",
+                deadline_tracking: "Transaction Software",
+                failed_deal_analysis: "Written reports",
+                knowledge_sharing: "Training sessions",
+                contract_standards: "Shared drive",
+                update_response_time: "Within 2-4 hours",
+                communication_channels: "Portal access",
+                transparency_level: "Weekly updates",
+                deadline_reminders: "2-3 days before",
+                contract_quality: "Checklist system",
+                eo_claims: "1-2"
+            }
+        };
+
+        const TestReportPage = () => {
+            const chartRef = useRef(null);
+            const radarChartRef = useRef(null);
+            const chartInstance = useRef(null);
+            const radarChartInstance = useRef(null);
+
+            useEffect(() => {
+                // Clean up existing charts
+                if (chartInstance.current) {
+                    chartInstance.current.destroy();
+                }
+                if (radarChartInstance.current) {
+                    radarChartInstance.current.destroy();
+                }
+
+                // Draw gauge chart
+                if (chartRef.current) {
+                    const ctx = chartRef.current.getContext('2d');
+                    chartInstance.current = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [mockReportData.scores.overall, 100 - mockReportData.scores.overall],
+                                backgroundColor: [
+                                    mockReportData.scores.overall >= 85 ? '#10B981' :
+                                    mockReportData.scores.overall >= 70 ? '#F59E0B' :
+                                    mockReportData.scores.overall >= 50 ? '#EF4444' : '#991B1B',
+                                    '#E5E7EB'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            circumference: 180,
+                            rotation: 270,
+                            cutout: '75%',
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false }
+                            }
+                        }
+                    });
+                }
+
+                // Draw radar chart
+                if (radarChartRef.current) {
+                    const ctx = radarChartRef.current.getContext('2d');
+                    radarChartInstance.current = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: [
+                                'Transaction Oversight',
+                                'Knowledge Management',
+                                'Client Experience',
+                                'Risk Management'
+                            ],
+                            datasets: [{
+                                label: 'Your Score',
+                                data: [
+                                    mockReportData.scores.transactionOversight,
+                                    mockReportData.scores.knowledgeManagement,
+                                    mockReportData.scores.clientExperience,
+                                    mockReportData.scores.riskManagement
+                                ],
+                                backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                                borderColor: 'rgb(59, 130, 246)',
+                                pointBackgroundColor: 'rgb(59, 130, 246)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(59, 130, 246)'
+                            }, {
+                                label: 'Top 5% Benchmark',
+                                data: [32, 32, 32, 32],
+                                backgroundColor: 'rgba(34, 197, 94, 0.2)',
+                                borderColor: 'rgb(34, 197, 94)',
+                                pointBackgroundColor: 'rgb(34, 197, 94)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(34, 197, 94)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 35
+                                }
+                            }
+                        }
+                    });
+                }
+
+                return () => {
+                    if (chartInstance.current) chartInstance.current.destroy();
+                    if (radarChartInstance.current) radarChartInstance.current.destroy();
+                };
+            }, []);
+
+            const gaps = [
+                { name: 'Transaction Oversight', score: mockReportData.scores.transactionOversight, max: 35 },
+                { name: 'Knowledge Management', score: mockReportData.scores.knowledgeManagement, max: 35 },
+                { name: 'Client Experience', score: mockReportData.scores.clientExperience, max: 35 },
+                { name: 'Risk Management', score: mockReportData.scores.riskManagement, max: 35 }
+            ].sort((a, b) => (a.score/a.max) - (b.score/b.max)).slice(0, 3);
+
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-8">
+                    {/* Test Banner */}
+                    <div className="no-print max-w-6xl mx-auto px-4 mb-4">
+                        <div className="bg-yellow-100 border-l-4 border-yellow-500 p-4 rounded">
+                            <div className="flex items-center">
+                                <div className="text-yellow-700 font-semibold">⚠️ TEST MODE</div>
+                                <div className="ml-4 text-sm text-yellow-700">
+                                    This is a sample report using mock data. Use this to test print/PDF functionality without API calls.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Action Buttons */}
+                        <div className="no-print mb-4 flex justify-end gap-2">
+                            <button
+                                onClick={() => window.print()}
+                                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 flex items-center gap-2"
+                            >
+                                <span>📄</span> Test PDF Download
+                            </button>
+                            <button
+                                onClick={() => alert('In production, this would copy the report URL')}
+                                className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 flex items-center gap-2"
+                            >
+                                <span>🔗</span> Test Share
+                            </button>
+                        </div>
+
+                        {/* Report Content */}
+                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+                            <div className="text-center mb-8">
+                                <h1 className="text-4xl font-bold text-gray-900 mb-2">
+                                    Brokerage Intelligence Report
+                                </h1>
+                                <p className="text-xl text-gray-600">{mockReportData.companyInfo.company_name}</p>
+                                <p className="text-sm text-gray-500 mt-2">
+                                    Generated: {new Date(mockReportData.timestamp).toLocaleDateString()}
+                                </p>
+                            </div>
+
+                            {/* Charts Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-semibold mb-4">Overall Score</h2>
+                                    <div className="relative inline-block">
+                                        <canvas ref={chartRef} width="250" height="150"></canvas>
+                                        <div className="absolute inset-0 flex items-center justify-center mt-8">
+                                            <div>
+                                                <div className="text-5xl font-bold text-gray-900">{mockReportData.scores.overall}</div>
+                                                <div className="text-sm text-gray-600">out of 100</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={`mt-4 inline-block px-4 py-2 rounded-full text-white font-semibold ${
+                                        mockReportData.scores.riskLevel === 'LOW' ? 'bg-green-500' :
+                                        mockReportData.scores.riskLevel === 'MODERATE' ? 'bg-yellow-500' :
+                                        mockReportData.scores.riskLevel === 'HIGH' ? 'bg-orange-500' : 'bg-red-500'
+                                    }`}>
+                                        Risk Level: {mockReportData.scores.riskLevel}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl font-semibold mb-4">Performance Breakdown</h2>
+                                    <canvas ref={radarChartRef} width="300" height="300"></canvas>
+                                </div>
+                            </div>
+
+                            {/* Category Scores */}
+                            <div className="bg-gray-50 rounded-lg p-6 mb-6">
+                                <h3 className="text-xl font-semibold mb-3">Your Market Position</h3>
+                                <p className="text-lg mb-4">
+                                    Your brokerage ranks in the <span className="font-bold text-blue-600">{mockReportData.scores.percentile}</span> of brokerages assessed.
+                                </p>
+                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                                    <div className="bg-white rounded p-3 text-center">
+                                        <div className="text-2xl font-bold text-blue-600">{mockReportData.scores.transactionOversight}/35</div>
+                                        <div className="text-sm text-gray-600">Transaction Oversight</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center">
+                                        <div className="text-2xl font-bold text-blue-600">{mockReportData.scores.knowledgeManagement}/35</div>
+                                        <div className="text-sm text-gray-600">Knowledge Mgmt</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center">
+                                        <div className="text-2xl font-bold text-blue-600">{mockReportData.scores.clientExperience}/35</div>
+                                        <div className="text-sm text-gray-600">Client Experience</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center">
+                                        <div className="text-2xl font-bold text-blue-600">{mockReportData.scores.riskManagement}/35</div>
+                                        <div className="text-sm text-gray-600">Risk Management</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Gaps */}
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                                <h3 className="text-xl font-semibold mb-3 text-red-900">Critical Gaps to Address</h3>
+                                <ul className="space-y-2">
+                                    {gaps.map((gap, index) => (
+                                        <li key={index} className="flex items-start">
+                                            <span className="text-red-500 mr-2">⚠️</span>
+                                            <div>
+                                                <span className="font-semibold">{gap.name}:</span> Scoring {gap.score}/{gap.max}
+                                                <span className="text-gray-600 ml-2">({Math.round((gap.score/gap.max)*100)}% of best practices)</span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        </div>
+
+                        {/* Test Checklist */}
+                        <div className="no-print bg-white rounded-lg shadow-lg p-8">
+                            <h2 className="text-2xl font-bold mb-4">Phase 5 Test Checklist</h2>
+                            <div className="space-y-2 text-sm">
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test1" />
+                                    <label htmlFor="test1">Charts render correctly on screen</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test2" />
+                                    <label htmlFor="test2">All data displays properly (scores, company info, gaps)</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test3" />
+                                    <label htmlFor="test3">Print button opens print dialog</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test4" />
+                                    <label htmlFor="test4">PDF preview shows clean layout (no shadows, white background)</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test5" />
+                                    <label htmlFor="test5">Charts appear in PDF preview</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test6" />
+                                    <label htmlFor="test6">Action buttons are hidden in PDF</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test7" />
+                                    <label htmlFor="test7">Colors are preserved in PDF</label>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <input type="checkbox" id="test8" />
+                                    <label htmlFor="test8">Page looks professional when saved as PDF</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.render(<TestReportPage />, document.getElementById('root'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+Vercel CLI 48.8.1
+Retrieving project…
+Deploying contre-ai/leadmagnet
+Uploading [--------------------] (0.0B/71B)
+Uploading [====================] (71.0B/71B)
+Inspect: https://vercel.com/contre-ai/leadmagnet/6zAVfCLid61AYh5XWiV7FHx2YEPt [2s]
+Production: https://leadmagnet-ktkern3ru-contre-ai.vercel.app [2s]
+https://leadmagnet-ktkern3ru-contre-ai.vercel.appQueued
+Building
+Completing
+
+Common next commands:
+- `vercel inspect leadmagnet-ktkern3ru-contre-ai.vercel.app --logs`
+- `vercel redeploy leadmagnet-ktkern3ru-contre-ai.vercel.app`

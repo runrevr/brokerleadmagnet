@@ -1,0 +1,1149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brokerage Intelligence Assessment Platform</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'spruce': '#264E36',
+                        'river-stone': '#78909C',
+                        'sea-glass': '#9DBFBF',
+                        'mist': '#F5F7F7',
+                        'storm-gray': '#37474F',
+                        'fern': '#607D3B',
+                        'bark-brown': '#6F4E37',
+                        'signal-red': '#CC0000',
+                        'amber': '#F59E0B'
+                    },
+                    fontFamily: {
+                        'bebas': ['Bebas Neue', 'sans-serif'],
+                        'manrope': ['Manrope', 'sans-serif'],
+                        'jetbrains': ['JetBrains Mono', 'monospace']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Print-specific styles for PDF generation */
+        @media print {
+            /* Hide elements that shouldn't appear in PDF */
+            .no-print {
+                display: none !important;
+            }
+
+            /* Reset backgrounds for printing */
+            body {
+                background: white !important;
+            }
+
+            /* Remove shadows for cleaner print */
+            .shadow-lg, .shadow, .shadow-sm {
+                box-shadow: none !important;
+            }
+
+            /* Ensure charts render properly */
+            canvas {
+                max-width: 100%;
+                page-break-inside: avoid;
+            }
+
+            /* Page breaks */
+            .print-break {
+                page-break-before: always;
+            }
+
+            .print-avoid-break {
+                page-break-inside: avoid;
+            }
+
+            /* Adjust margins for print */
+            @page {
+                margin: 0.5in;
+            }
+
+            /* Ensure colored backgrounds print */
+            * {
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+        }
+        /* Base typography */
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        h1, h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            letter-spacing: 0.02em;
+        }
+
+        h3, h4, h5 {
+            font-family: 'Manrope', sans-serif;
+        }
+
+        .font-mono, .score-display {
+            font-family: 'JetBrains Mono', monospace;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // Assessment Questions Data Structure (from Broker Questionnaire.pdf)
+        const assessmentQuestions = {
+            companyInfo: {
+                title: "Company Information",
+                questions: [
+                    {
+                        id: "company_name",
+                        label: "Brokerage Name",
+                        type: "text",
+                        required: true
+                    },
+                    {
+                        id: "agent_count",
+                        label: "Number of Agents",
+                        type: "select",
+                        options: ["1-10", "11-25", "26-50", "51-100", "100+"],
+                        required: true
+                    },
+                    {
+                        id: "monthly_deals",
+                        label: "Average Monthly Transactions",
+                        type: "select",
+                        options: ["1-10", "11-20", "21-50", "51-100", "101-200", "200+"],
+                        required: true
+                    },
+                    {
+                        id: "location",
+                        label: "Primary Market/City",
+                        type: "text",
+                        required: true
+                    }
+                ]
+            },
+            transactionOversight: {
+                title: "Transaction Oversight Excellence",
+                questions: [
+                    {
+                        id: "contract_oversight",
+                        label: "Who is responsible for contract oversight in your brokerage?",
+                        type: "select",
+                        options: ["Agent only", "Transaction Coordinator only", "Broker only", "TC + Broker share", "Everyone + AI verification"],
+                        scoring: { "Agent only": 5, "Transaction Coordinator only": 10, "Broker only": 15, "TC + Broker share": 25, "Everyone + AI verification": 33 }
+                    },
+                    {
+                        id: "document_review_time",
+                        label: "How long does it take to effectively review ALL documents in a typical transaction?",
+                        type: "select",
+                        options: ["5+ hours", "3-5 hours", "2-3 hours", "1-2 hours", "Under 30 minutes with AI"],
+                        scoring: { "5+ hours": 5, "3-5 hours": 10, "2-3 hours": 15, "1-2 hours": 25, "Under 30 minutes with AI": 33 }
+                    },
+                    {
+                        id: "agent_document_reading",
+                        label: "Are agents expected to read every line of HOAs, title reports, inspection reports? If yes, what percentage actually do it?",
+                        type: "select",
+                        options: ["Not expected to", "Expected but <25% do", "Expected but 25-50% do", "Expected but 50-75% do", "Expected and >75% do", "AI reads everything, agents review summaries"],
+                        scoring: { "Not expected to": 0, "Expected but <25% do": 5, "Expected but 25-50% do": 10, "Expected but 50-75% do": 20, "Expected and >75% do": 28, "AI reads everything, agents review summaries": 34 }
+                    }
+                ]
+            },
+            operationalSystems: {
+                title: "Operational Systems Maturity",
+                questions: [
+                    {
+                        id: "deadline_tracking_system",
+                        label: "Do you have a system to track all transaction deadlines?",
+                        type: "select",
+                        options: ["No system - agent responsibility", "Manual calendars/spreadsheets", "Basic transaction software", "Automated deadline tracking", "AI-extracted with smart alerts"],
+                        scoring: { "No system - agent responsibility": 5, "Manual calendars/spreadsheets": 10, "Basic transaction software": 20, "Automated deadline tracking": 28, "AI-extracted with smart alerts": 33 }
+                    },
+                    {
+                        id: "missed_deadlines",
+                        label: "How many transaction deadlines were missed last quarter?",
+                        type: "select",
+                        options: ["Not tracked", "10+", "6-10", "3-5", "1-2", "None"],
+                        scoring: { "Not tracked": 0, "10+": 5, "6-10": 10, "3-5": 18, "1-2": 25, "None": 33 }
+                    },
+                    {
+                        id: "deal_losses",
+                        label: "Have you ever lost a deal or made brokerage concessions at closing due to issues identified too late?",
+                        type: "select",
+                        options: ["Too often to count", "Frequently (10+ times per year)", "Regularly (6-10 times per year)", "Occasionally (3-5 times per year)", "Rarely (1-2 times per year)", "Never happens"],
+                        scoring: { "Too often to count": 0, "Frequently (10+ times per year)": 5, "Regularly (6-10 times per year)": 10, "Occasionally (3-5 times per year)": 18, "Rarely (1-2 times per year)": 25, "Never happens": 34 }
+                    }
+                ]
+            },
+            knowledgeManagement: {
+                title: "Knowledge Management & Training",
+                questions: [
+                    {
+                        id: "agent_training_frequency",
+                        label: "How often do you conduct mandatory agent training on forms/contracts?",
+                        type: "select",
+                        options: ["Never - agents learn on their own", "Annually", "Quarterly", "Monthly", "Weekly/Ongoing", "AI provides real-time guidance instead"],
+                        scoring: { "Never - agents learn on their own": 0, "Annually": 10, "Quarterly": 18, "Monthly": 25, "Weekly/Ongoing": 30, "AI provides real-time guidance instead": 33 }
+                    },
+                    {
+                        id: "procedure_questions",
+                        label: "When agents have questions about company procedures or standards, they:",
+                        type: "select",
+                        options: ["Figure it out themselves", "Ask whoever's available", "Check scattered emails/documents", "Access a central knowledge base", "Get instant AI-powered answers"],
+                        scoring: { "Figure it out themselves": 5, "Ask whoever's available": 10, "Check scattered emails/documents": 15, "Access a central knowledge base": 25, "Get instant AI-powered answers": 33 }
+                    },
+                    {
+                        id: "legal_questions",
+                        label: "When contract or state law questions arise, your agents:",
+                        type: "select",
+                        options: ["Google it", "Call the broker (interrupting their day)", "Consult external legal hotline ($$$)", "Search internal resources", "AI instantly provides cited answers"],
+                        scoring: { "Google it": 2, "Call the broker (interrupting their day)": 8, "Consult external legal hotline ($$$)": 15, "Search internal resources": 23, "AI instantly provides cited answers": 34 }
+                    }
+                ]
+            },
+            clientExperience: {
+                title: "Client Experience & Transparency",
+                questions: [
+                    {
+                        id: "client_deadlines_breakdown",
+                        label: "Do you provide clients with a comprehensive breakdown of their deadlines and responsibilities?",
+                        type: "select",
+                        options: ["No formal system", "Agent explains verbally", "Email key dates as needed", "Standard timeline template", "Digital portal with all dates", "AI-powered dashboard with alerts"],
+                        scoring: { "No formal system": 0, "Agent explains verbally": 8, "Email key dates as needed": 15, "Standard timeline template": 22, "Digital portal with all dates": 28, "AI-powered dashboard with alerts": 33 }
+                    },
+                    {
+                        id: "client_document_understanding",
+                        label: "What percentage of your clients actually read and understand all transaction documents?",
+                        type: "select",
+                        options: ["Under 10%", "10-25%", "25-50%", "50-75%", "Over 75%", "We ensure understanding with AI summaries"],
+                        scoring: { "Under 10%": 3, "10-25%": 10, "25-50%": 17, "50-75%": 24, "Over 75%": 29, "We ensure understanding with AI summaries": 33 }
+                    },
+                    {
+                        id: "brokerage_liability",
+                        label: "How much liability does your brokerage assume for ensuring clients fully understand all documents?",
+                        type: "select",
+                        options: ["Complete liability - it's on us", "Significant liability", "Moderate - shared with agent", "Minimal - client signs they've read", "Protected - we document everything", "Protected with AI-verified comprehension"],
+                        scoring: { "Complete liability - it's on us": 5, "Significant liability": 10, "Moderate - shared with agent": 18, "Minimal - client signs they've read": 23, "Protected - we document everything": 28, "Protected with AI-verified comprehension": 34 }
+                    }
+                ]
+            },
+            riskManagement: {
+                title: "Risk Management & Protection",
+                questions: [
+                    {
+                        id: "revenue_loss",
+                        label: "Estimated revenue lost to missed deadlines/failed deals last year?",
+                        type: "select",
+                        options: ["Not calculated", "Over $500K", "$200K-$500K", "$100K-$200K", "$50K-$100K", "Under $50K"],
+                        scoring: { "Not calculated": 0, "Over $500K": 5, "$200K-$500K": 12, "$100K-$200K": 20, "$50K-$100K": 27, "Under $50K": 33 }
+                    },
+                    {
+                        id: "eo_claims",
+                        label: "Number of E&O claims in last 3 years?",
+                        type: "select",
+                        options: ["5+", "3-4", "1-2", "0", "0 with proactive monitoring"],
+                        scoring: { "5+": 5, "3-4": 15, "1-2": 25, "0": 30, "0 with proactive monitoring": 34 }
+                    }
+                ]
+            },
+            growthReadiness: {
+                title: "BONUS: Growth Acceleration",
+                questions: [
+                    {
+                        id: "verified_seller_leads",
+                        label: "If you could receive 100% verified seller leads (only pay at contract), would you be interested?",
+                        type: "select",
+                        options: ["No, we can't handle more volume", "Probably not", "Maybe, need more details", "Yes, depending on pricing", "Absolutely - sign us up"],
+                        scoring: { "No, we can't handle more volume": 0, "Probably not": 5, "Maybe, need more details": 15, "Yes, depending on pricing": 25, "Absolutely - sign us up": 33 }
+                    },
+                    {
+                        id: "lead_followup_system",
+                        label: "Do you have a system to ensure agents follow up with leads in a timely manner?",
+                        type: "select",
+                        options: ["No system - trust agents to handle", "Manual tracking by managers", "Basic CRM reminders", "Automated follow-up sequences", "AI-powered lead nurturing", "Full automation with accountability"],
+                        scoring: { "No system - trust agents to handle": 0, "Manual tracking by managers": 8, "Basic CRM reminders": 15, "Automated follow-up sequences": 22, "AI-powered lead nurturing": 28, "Full automation with accountability": 34 }
+                    }
+                ]
+            }
+        };
+
+        // Scoring calculation function
+        const calculateScores = (responses) => {
+            let scores = {
+                transactionOversight: 0,
+                operationalSystems: 0,
+                knowledgeManagement: 0,
+                clientExperience: 0,
+                riskManagement: 0,
+                growthReadiness: 0,
+                overall: 0
+            };
+
+            // Calculate category scores
+            Object.entries(assessmentQuestions).forEach(([category, data]) => {
+                if (category !== 'companyInfo') {
+                    let categoryScore = 0;
+                    data.questions.forEach(question => {
+                        if (question.scoring && responses[question.id]) {
+                            categoryScore += question.scoring[responses[question.id]] || 0;
+                        }
+                    });
+                    scores[category] = categoryScore;
+                }
+            });
+
+            // Calculate overall score (out of 100)
+            // Max possible: 100+100+100+100+67 = 467 (excluding bonus)
+            const coreTotal = scores.transactionOversight + scores.operationalSystems +
+                             scores.knowledgeManagement + scores.clientExperience +
+                             scores.riskManagement;
+
+            scores.overall = Math.round((coreTotal / 467) * 100);
+
+            // Determine risk level
+            if (scores.overall >= 85) scores.riskLevel = "LOW";
+            else if (scores.overall >= 70) scores.riskLevel = "MODERATE";
+            else if (scores.overall >= 50) scores.riskLevel = "HIGH";
+            else scores.riskLevel = "CRITICAL";
+
+            // Determine percentile
+            if (scores.overall >= 85) scores.percentile = "Top 5%";
+            else if (scores.overall >= 70) scores.percentile = "Top 25%";
+            else if (scores.overall >= 50) scores.percentile = "Top 50%";
+            else scores.percentile = "Bottom 50%";
+
+            return scores;
+        };
+
+        // Main App Component
+        const BrokerageIntelligenceApp = () => {
+            const [currentStep, setCurrentStep] = useState(0);
+            const [responses, setResponses] = useState({});
+            const [scores, setScores] = useState(null);
+            const [showReport, setShowReport] = useState(false);
+            const [email, setEmail] = useState('');
+            const [emailCaptured, setEmailCaptured] = useState(false);
+
+            const categories = Object.keys(assessmentQuestions);
+            const currentCategory = categories[currentStep];
+            const currentQuestions = assessmentQuestions[currentCategory];
+            const progress = ((currentStep + 1) / categories.length) * 100;
+
+            const handleInputChange = (questionId, value) => {
+                setResponses(prev => ({
+                    ...prev,
+                    [questionId]: value
+                }));
+            };
+
+            const handleNext = () => {
+                if (currentStep < categories.length - 1) {
+                    setCurrentStep(currentStep + 1);
+                } else {
+                    // Calculate scores and show report
+                    const calculatedScores = calculateScores(responses);
+                    setScores(calculatedScores);
+                    setShowReport(true);
+                }
+            };
+
+            const handlePrevious = () => {
+                if (currentStep > 0) {
+                    setCurrentStep(currentStep - 1);
+                }
+            };
+
+            const isCurrentStepValid = () => {
+                const questions = currentQuestions.questions;
+                return questions.every(q => !q.required || responses[q.id]);
+            };
+
+            const handleEmailSubmit = async (e) => {
+                e.preventDefault();
+
+                try {
+                    // Step 1: Save assessment to database
+                    const assessmentData = {
+                        companyInfo: {
+                            company_name: responses.company_name,
+                            agent_count: responses.agent_count,
+                            monthly_deals: responses.monthly_deals,
+                            location: responses.location
+                        },
+                        responses,
+                        scores,
+                        timestamp: new Date().toISOString()
+                    };
+
+                    const submitResponse = await fetch('/api/assessment-submit', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(assessmentData)
+                    });
+
+                    if (!submitResponse.ok) {
+                        throw new Error('Failed to save assessment');
+                    }
+
+                    const submitResult = await submitResponse.json();
+                    const assessmentId = submitResult.assessmentId;
+
+                    console.log('✅ Assessment saved:', assessmentId);
+
+                    // Step 2: Capture email and trigger ActiveCampaign
+                    const emailData = {
+                        email,
+                        assessmentId,
+                        reportData: {
+                            companyName: responses.company_name,
+                            brokerageSize: responses.agent_count,
+                            city: responses.location,
+                            overallScore: scores.overall,
+                            riskLevel: scores.riskLevel,
+                            monthlyTransactions: responses.monthly_deals
+                        }
+                    };
+
+                    const emailResponse = await fetch('/api/email-capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(emailData)
+                    });
+
+                    if (!emailResponse.ok) {
+                        throw new Error('Failed to capture email');
+                    }
+
+                    const emailResult = await emailResponse.json();
+                    console.log('✅ Email captured:', emailResult);
+
+                    // Store assessment ID and report URL for display
+                    window.assessmentId = assessmentId;
+                    window.reportUrl = `${window.location.origin}/report.html?id=${assessmentId}`;
+
+                    setEmailCaptured(true);
+
+                } catch (error) {
+                    console.error('❌ Error submitting assessment:', error);
+                    alert('There was an error saving your assessment. Please try again.');
+                }
+            };
+
+            if (showReport) {
+                return <ReportView 
+                    responses={responses} 
+                    scores={scores} 
+                    emailCaptured={emailCaptured}
+                    email={email}
+                    setEmail={setEmail}
+                    handleEmailSubmit={handleEmailSubmit}
+                />;
+            }
+
+            return (
+                <div className="min-h-screen bg-mist">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm no-print">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                            <h1 className="text-2xl font-bebas text-storm-gray">Brokerage Intelligence Assessment</h1>
+                        </div>
+                    </header>
+
+                    {/* Progress Bar */}
+                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
+                        <div className="bg-white rounded-lg shadow p-6">
+                            <div className="mb-4">
+                                <div className="flex justify-between text-sm font-manrope font-medium text-storm-gray mb-2">
+                                    <span>Progress</span>
+                                    <span className="font-jetbrains">{Math.round(progress)}% Complete</span>
+                                </div>
+                                <div className="w-full bg-sea-glass/30 rounded-full h-2">
+                                    <div
+                                        className="bg-spruce h-2 rounded-full transition-all duration-300"
+                                        style={{ width: `${progress}%` }}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Current Section */}
+                            <div className="mb-6">
+                                <h2 className="text-xl font-manrope font-bold text-storm-gray mb-4">
+                                    {currentQuestions.title}
+                                </h2>
+                                
+                                {/* Questions */}
+                                <div className="space-y-4">
+                                    {currentQuestions.questions.map((question) => (
+                                        <div key={question.id} className="mb-4">
+                                            <label className="block text-sm font-manrope font-medium text-storm-gray mb-2">
+                                                {question.label}
+                                                {question.required && <span className="text-signal-red ml-1">*</span>}
+                                            </label>
+
+                                            {question.type === 'text' && (
+                                                <input
+                                                    type="text"
+                                                    className="w-full px-3 py-2 border-2 border-sea-glass rounded-md focus:outline-none focus:ring-2 focus:ring-spruce focus:border-spruce font-manrope text-storm-gray"
+                                                    value={responses[question.id] || ''}
+                                                    onChange={(e) => handleInputChange(question.id, e.target.value)}
+                                                    required={question.required}
+                                                />
+                                            )}
+
+                                            {question.type === 'select' && (
+                                                <select
+                                                    className="w-full px-3 py-2 border-2 border-sea-glass rounded-md focus:outline-none focus:ring-2 focus:ring-spruce focus:border-spruce font-manrope text-storm-gray"
+                                                    value={responses[question.id] || ''}
+                                                    onChange={(e) => handleInputChange(question.id, e.target.value)}
+                                                    required={question.required}
+                                                >
+                                                    <option value="">Select an option</option>
+                                                    {question.options.map(option => (
+                                                        <option key={option} value={option}>{option}</option>
+                                                    ))}
+                                                </select>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Navigation Buttons */}
+                            <div className="flex justify-between">
+                                <button
+                                    onClick={handlePrevious}
+                                    disabled={currentStep === 0}
+                                    className="px-4 py-2 bg-sea-glass/50 text-storm-gray font-manrope font-semibold rounded-md hover:bg-sea-glass disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    Previous
+                                </button>
+                                <button
+                                    onClick={handleNext}
+                                    disabled={!isCurrentStepValid()}
+                                    className="px-6 py-2 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-spruce disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                >
+                                    {currentStep === categories.length - 1 ? 'See Your Results' : 'Next'}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Report Component
+        const ReportView = ({ responses, scores, emailCaptured, email, setEmail, handleEmailSubmit }) => {
+            const chartRef = useRef(null);
+            const radarChartRef = useRef(null);
+
+            useEffect(() => {
+                // Draw gauge chart for overall score
+                if (chartRef.current) {
+                    const ctx = chartRef.current.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [scores.overall, 100 - scores.overall],
+                                backgroundColor: [
+                                    scores.overall >= 85 ? '#607D3B' :  // Fern for LOW risk
+                                    scores.overall >= 70 ? '#F59E0B' :  // Amber for MODERATE
+                                    scores.overall >= 50 ? '#F59E0B' :  // Amber for HIGH
+                                    '#CC0000',                           // Signal Red for CRITICAL
+                                    '#9DBFBF'                            // Sea Glass for remainder
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            circumference: 180,
+                            rotation: 270,
+                            cutout: '75%',
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false }
+                            }
+                        }
+                    });
+                }
+
+                // Draw radar chart for category scores
+                if (radarChartRef.current) {
+                    const ctx = radarChartRef.current.getContext('2d');
+                    new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: [
+                                'Transaction Oversight',
+                                'Operational Systems',
+                                'Knowledge Management',
+                                'Client Experience',
+                                'Risk Management'
+                            ],
+                            datasets: [{
+                                label: 'Your Score',
+                                data: [
+                                    scores.transactionOversight,
+                                    scores.operationalSystems,
+                                    scores.knowledgeManagement,
+                                    scores.clientExperience,
+                                    scores.riskManagement
+                                ],
+                                backgroundColor: 'rgba(120, 144, 156, 0.2)',  // River Stone
+                                borderColor: 'rgb(120, 144, 156)',            // River Stone
+                                pointBackgroundColor: 'rgb(120, 144, 156)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(120, 144, 156)'
+                            }, {
+                                label: 'Top 5% Benchmark',
+                                data: [95, 95, 95, 95, 60],
+                                backgroundColor: 'rgba(96, 125, 59, 0.2)',    // Fern
+                                borderColor: 'rgb(96, 125, 59)',              // Fern
+                                pointBackgroundColor: 'rgb(96, 125, 59)',
+                                pointBorderColor: '#fff',
+                                pointHoverBackgroundColor: '#fff',
+                                pointHoverBorderColor: 'rgb(96, 125, 59)'
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                }
+            }, [scores]);
+
+            // Identify top gaps
+            const gaps = [
+                { name: 'Transaction Oversight', score: scores.transactionOversight, max: 100 },
+                { name: 'Operational Systems', score: scores.operationalSystems, max: 100 },
+                { name: 'Knowledge Management', score: scores.knowledgeManagement, max: 100 },
+                { name: 'Client Experience', score: scores.clientExperience, max: 100 },
+                { name: 'Risk Management', score: scores.riskManagement, max: 67 }
+            ].sort((a, b) => (a.score/a.max) - (b.score/b.max)).slice(0, 3);
+
+            return (
+                <div className="min-h-screen bg-mist py-8">
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Report Header */}
+                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
+                            <div className="text-center mb-8">
+                                <h1 className="text-4xl font-bebas text-spruce mb-2 tracking-wide">
+                                    Brokerage Intelligence Report
+                                </h1>
+                                <p className="text-xl font-manrope font-semibold text-storm-gray">
+                                    {responses.company_name || 'Your Brokerage'}
+                                </p>
+                            </div>
+
+                            {/* Overall Score Section */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                                <div className="text-center">
+                                    <h2 className="text-2xl font-manrope font-bold text-storm-gray mb-4">Overall Score</h2>
+                                    <div className="relative inline-block">
+                                        <canvas ref={chartRef} width="250" height="150"></canvas>
+                                        <div className="absolute inset-0 flex items-center justify-center mt-8">
+                                            <div>
+                                                <div className="text-5xl font-jetbrains font-bold text-spruce">{scores.overall}</div>
+                                                <div className="text-sm font-manrope text-storm-gray">out of 100</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className={`mt-4 inline-block px-4 py-2 rounded-full text-white font-manrope font-semibold ${
+                                        scores.riskLevel === 'LOW' ? 'bg-fern' :
+                                        scores.riskLevel === 'MODERATE' ? 'bg-amber' :
+                                        scores.riskLevel === 'HIGH' ? 'bg-amber' : 'bg-signal-red'
+                                    }`}>
+                                        Risk Level: {scores.riskLevel}
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h2 className="text-2xl font-manrope font-bold text-storm-gray mb-4">Performance Breakdown</h2>
+                                    <canvas ref={radarChartRef} width="300" height="300"></canvas>
+                                </div>
+                            </div>
+
+                            {/* Market Position */}
+                            <div className="bg-mist rounded-lg p-6 mb-6">
+                                <h3 className="text-xl font-manrope font-bold text-storm-gray mb-3">Your Market Position</h3>
+                                <p className="text-lg font-manrope text-storm-gray">
+                                    Your brokerage ranks in the <span className="font-bold text-spruce">{scores.percentile}</span> of brokerages assessed.
+                                </p>
+                                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
+                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.transactionOversight}/100</div>
+                                        <div className="text-sm font-manrope text-storm-gray">Transaction Oversight</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
+                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.operationalSystems}/100</div>
+                                        <div className="text-sm font-manrope text-storm-gray">Operational Systems</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
+                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.knowledgeManagement}/100</div>
+                                        <div className="text-sm font-manrope text-storm-gray">Knowledge Mgmt</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
+                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.clientExperience}/100</div>
+                                        <div className="text-sm font-manrope text-storm-gray">Client Experience</div>
+                                    </div>
+                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
+                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.riskManagement}/67</div>
+                                        <div className="text-sm font-manrope text-storm-gray">Risk Management</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Top Gaps */}
+                            <div className="bg-signal-red/10 border-2 border-signal-red rounded-lg p-6 mb-6">
+                                <h3 className="text-xl font-manrope font-bold mb-3 text-signal-red">Critical Gaps to Address</h3>
+                                <ul className="space-y-2">
+                                    {gaps.map((gap, index) => (
+                                        <li key={index} className="flex items-start">
+                                            <span className="text-signal-red mr-2">⚠️</span>
+                                            <div className="font-manrope text-storm-gray">
+                                                <span className="font-semibold">{gap.name}:</span> <span className="font-jetbrains">Scoring {gap.score}/{gap.max}</span>
+                                                <span className="text-storm-gray/70 ml-2">({Math.round((gap.score/gap.max)*100)}% of best practices)</span>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+
+                            {/* Email Capture or Full Report Access */}
+                            {!emailCaptured ? (
+                                <div className="bg-spruce/10 border-2 border-spruce rounded-lg p-6">
+                                    <div className="flex items-center gap-3 mb-4">
+                                        <div className="text-3xl">📊</div>
+                                        <h3 className="text-xl font-manrope font-bold text-spruce">Your Personalized Analysis is Ready</h3>
+                                    </div>
+
+                                    <p className="font-manrope text-storm-gray mb-4 font-semibold">
+                                        Based on your assessment, our AI has generated a comprehensive report revealing how top-performing brokerages operate differently.
+                                    </p>
+
+                                    <div className="bg-white rounded-lg p-5 mb-4 border-2 border-sea-glass">
+                                        <p className="font-manrope text-sm text-storm-gray mb-3">
+                                            <span className="font-bold text-spruce">Get instant access to:</span>
+                                        </p>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-spruce">✓</span>
+                                                <span className="text-sm text-storm-gray">How top 5% of brokerages handle transaction complexity</span>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-spruce">✓</span>
+                                                <span className="text-sm text-storm-gray">Operational strategies that separate leaders from the rest</span>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-spruce">✓</span>
+                                                <span className="text-sm text-storm-gray">Your competitive positioning vs. top performers in {responses.location}</span>
+                                            </div>
+                                            <div className="flex items-start gap-2">
+                                                <span className="text-spruce">✓</span>
+                                                <span className="text-sm text-storm-gray">Estimated savings potential based on your responses</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <form onSubmit={handleEmailSubmit} className="flex gap-2">
+                                        <input
+                                            type="email"
+                                            placeholder="Enter your work email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            required
+                                            className="flex-1 px-4 py-3 border-2 border-sea-glass rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope"
+                                        />
+                                        <button
+                                            type="submit"
+                                            className="px-6 py-3 bg-spruce text-white font-manrope font-semibold rounded-md hover:bg-storm-gray transition-colors whitespace-nowrap"
+                                        >
+                                            Get Full Report →
+                                        </button>
+                                    </form>
+
+                                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-storm-gray">
+                                        <div className="flex items-center gap-1">
+                                            <span>✓</span>
+                                            <span>Instant access</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <span>✓</span>
+                                            <span>No credit card</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            <span>✓</span>
+                                            <span>Based on 1,000+ assessments</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="bg-fern/10 border-2 border-fern rounded-lg p-6">
+                                    <h3 className="text-xl font-manrope font-bold mb-3 text-fern">✅ Report Saved!</h3>
+                                    <p className="font-manrope text-storm-gray mb-4">
+                                        Your assessment has been saved. Check your email for the complete intelligence report, or access it anytime using the link below.
+                                    </p>
+
+                                    {window.reportUrl && (
+                                        <div className="bg-white border-2 border-sea-glass rounded-md p-4 mb-4">
+                                            <p className="text-sm font-manrope font-medium text-storm-gray mb-2">Your Report URL:</p>
+                                            <div className="flex items-center gap-2">
+                                                <input
+                                                    type="text"
+                                                    value={window.reportUrl}
+                                                    readOnly
+                                                    className="flex-1 px-3 py-2 text-sm font-jetbrains bg-mist border-2 border-sea-glass rounded"
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        navigator.clipboard.writeText(window.reportUrl);
+                                                        alert('Report link copied to clipboard!');
+                                                    }}
+                                                    className="px-4 py-2 bg-storm-gray text-white text-sm font-manrope font-semibold rounded hover:bg-spruce transition-colors"
+                                                >
+                                                    Copy
+                                                </button>
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    <p className="text-sm font-manrope text-storm-gray mb-4">You'll also receive via email:</p>
+                                    <ul className="list-disc list-inside font-manrope text-storm-gray text-sm mb-4">
+                                        <li>Your full intelligence report with detailed insights</li>
+                                        <li>Weekly industry insights and best practices</li>
+                                        <li>Exclusive benchmarking updates</li>
+                                    </ul>
+
+                                    <div className="flex flex-wrap gap-3 no-print">
+                                        {window.reportUrl && (
+                                            <a
+                                                href={window.reportUrl}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="px-6 py-2 bg-fern text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
+                                            >
+                                                <span>📊</span> View Full Report
+                                            </a>
+                                        )}
+                                        <button
+                                            onClick={() => window.print()}
+                                            className="px-6 py-2 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
+                                        >
+                                            <span>📄</span> Download PDF
+                                        </button>
+                                        <button
+                                            onClick={() => {
+                                                const urlToCopy = window.reportUrl || window.location.href;
+                                                navigator.clipboard.writeText(urlToCopy);
+                                                alert('Report link copied! Share it with your team.');
+                                            }}
+                                            className="px-6 py-2 bg-storm-gray text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
+                                        >
+                                            <span>🔗</span> Share Report
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* What Top Performers Do Section (visible after email) */}
+                        {emailCaptured && (
+                            <div className="bg-white rounded-lg shadow-lg p-8 mb-6 print-break">
+                                <h2 className="text-2xl font-bebas text-spruce mb-6 tracking-wide">What the Top 5% Do Differently</h2>
+
+                                <div className="space-y-6">
+                                    <div className="border-l-4 border-spruce pl-4">
+                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Transaction Oversight</h3>
+                                        <p className="font-manrope text-storm-gray">
+                                            Elite brokerages use AI-powered monitoring that reviews 100% of transactions in real-time,
+                                            catching issues before they become problems. They maintain less than 1% error rate compared
+                                            to the industry average of 15%.
+                                        </p>
+                                    </div>
+
+                                    <div className="border-l-4 border-spruce pl-4">
+                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Knowledge Management</h3>
+                                        <p className="font-manrope text-storm-gray">
+                                            Top performers capture every lesson learned and encode it into their systems. New agents
+                                            reach full productivity in 6 weeks versus the 6-month industry average.
+                                        </p>
+                                    </div>
+
+                                    <div className="border-l-4 border-spruce pl-4">
+                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Client Experience</h3>
+                                        <p className="font-manrope text-storm-gray">
+                                            Leading brokerages provide 24/7 transaction visibility through AI chatbots and portals,
+                                            resulting in 67% more referrals from satisfied clients.
+                                        </p>
+                                    </div>
+
+                                    <div className="border-l-4 border-spruce pl-4">
+                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Risk Management</h3>
+                                        <p className="font-manrope text-storm-gray">
+                                            Elite firms predict and prevent issues with AI risk scoring, reducing E&O claims by 80%
+                                            and saving an average of $45,000 annually in liability costs.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Action Plan */}
+                                <div className="mt-8 bg-mist rounded-lg p-6">
+                                    <h3 className="text-xl font-manrope font-bold text-storm-gray mb-4">Your 30-Day Quick Wins</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div className="bg-white rounded p-4 border-2 border-sea-glass">
+                                            <div className="font-manrope font-bold text-spruce mb-2">Week 1</div>
+                                            <ul className="text-sm font-manrope text-storm-gray space-y-1">
+                                                <li>• Implement deadline checklist</li>
+                                                <li>• Create contract templates</li>
+                                                <li>• Set up daily huddles</li>
+                                            </ul>
+                                        </div>
+                                        <div className="bg-white rounded p-4 border-2 border-sea-glass">
+                                            <div className="font-manrope font-bold text-spruce mb-2">Week 2-3</div>
+                                            <ul className="text-sm font-manrope text-storm-gray space-y-1">
+                                                <li>• Build knowledge library</li>
+                                                <li>• Launch client portal</li>
+                                                <li>• Train on best practices</li>
+                                            </ul>
+                                        </div>
+                                        <div className="bg-white rounded p-4 border-2 border-sea-glass">
+                                            <div className="font-manrope font-bold text-spruce mb-2">Week 4</div>
+                                            <ul className="text-sm font-manrope text-storm-gray space-y-1">
+                                                <li>• Measure improvements</li>
+                                                <li>• Gather agent feedback</li>
+                                                <li>• Plan automation phase</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* ROI Calculator Preview */}
+                                <div className="mt-8 bg-spruce/10 rounded-lg p-6 border-2 border-spruce">
+                                    <h3 className="text-xl font-manrope font-bold text-spruce mb-4">Potential ROI from Improvements</h3>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <p className="font-manrope text-storm-gray mb-2">Based on {responses.agent_count} agents and {responses.monthly_deals} monthly deals:</p>
+                                            <ul className="space-y-2 font-manrope text-storm-gray">
+                                                <li>• Time savings: <span className="font-semibold font-jetbrains">600 hours/month</span></li>
+                                                <li>• Risk reduction: <span className="font-semibold font-jetbrains">$36,000/year saved</span></li>
+                                                <li>• Deal saves: <span className="font-semibold font-jetbrains">5 deals/month recovered</span></li>
+                                            </ul>
+                                        </div>
+                                        <div className="bg-white rounded p-4 text-center border-2 border-sea-glass">
+                                            <div className="text-3xl font-jetbrains font-bold text-fern">$58,000</div>
+                                            <div className="font-manrope text-storm-gray">Monthly Value Created</div>
+                                            <div className="mt-2 text-2xl font-jetbrains font-bold text-spruce">38X ROI</div>
+                                            <div className="font-manrope text-storm-gray">on Technology Investment</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        // Backend Integration Guide Component
+        const IntegrationGuide = () => {
+            return (
+                <div className="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-lg mt-8">
+                    <h2 className="text-2xl font-bold mb-6">Backend Integration Guide</h2>
+                    
+                    <div className="space-y-6">
+                        <div className="border-l-4 border-blue-500 pl-4">
+                            <h3 className="font-semibold text-lg mb-2">1. Database Schema (Supabase)</h3>
+                            <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{`-- assessments table
+CREATE TABLE assessments (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email TEXT NOT NULL,
+    company_name TEXT,
+    agent_count TEXT,
+    monthly_deals TEXT,
+    location TEXT,
+    created_at TIMESTAMP DEFAULT NOW(),
+    report_url TEXT
+);
+
+-- scores table
+CREATE TABLE scores (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    assessment_id UUID REFERENCES assessments(id),
+    overall_score INTEGER,
+    transaction_oversight_score INTEGER,
+    knowledge_management_score INTEGER,
+    client_experience_score INTEGER,
+    risk_management_score INTEGER,
+    risk_level TEXT,
+    percentile TEXT
+);
+
+-- responses table
+CREATE TABLE responses (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    assessment_id UUID REFERENCES assessments(id),
+    question_id TEXT,
+    response_value TEXT
+);
+
+-- gaps table
+CREATE TABLE gaps (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    assessment_id UUID REFERENCES assessments(id),
+    gap_category TEXT,
+    gap_description TEXT,
+    severity INTEGER
+);`}
+                            </pre>
+                        </div>
+
+                        <div className="border-l-4 border-green-500 pl-4">
+                            <h3 className="font-semibold text-lg mb-2">2. ActiveCampaign Integration</h3>
+                            <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{`// API endpoint to handle submission
+app.post('/api/assessment/submit', async (req, res) => {
+    const { email, responses, scores } = req.body;
+    
+    // Save to Supabase
+    const { data: assessment } = await supabase
+        .from('assessments')
+        .insert({
+            email,
+            company_name: responses.company_name,
+            agent_count: responses.agent_count,
+            monthly_deals: responses.monthly_deals,
+            location: responses.location
+        })
+        .select()
+        .single();
+    
+    // Save scores
+    await supabase
+        .from('scores')
+        .insert({
+            assessment_id: assessment.id,
+            ...scores
+        });
+    
+    // Send to ActiveCampaign
+    const acData = {
+        contact: {
+            email,
+            fieldValues: [
+                { field: 'COMPANY', value: responses.company_name },
+                { field: 'SCORE', value: scores.overall },
+                { field: 'RISK_LEVEL', value: scores.riskLevel },
+                { field: 'AGENT_COUNT', value: responses.agent_count },
+                { field: 'REPORT_URL', value: \`/report/\${assessment.id}\` }
+            ]
+        }
+    };
+    
+    // Add tags based on score
+    const tags = [];
+    if (scores.overall >= 85) tags.push('Score: Elite');
+    else if (scores.overall >= 70) tags.push('Score: Strong');
+    else if (scores.overall >= 50) tags.push('Score: Average');
+    else tags.push('Score: At-Risk');
+    
+    // Trigger automation
+    await activeCampaign.createContact(acData);
+    await activeCampaign.addTags(email, tags);
+    await activeCampaign.triggerAutomation(email, 'assessment_followup');
+    
+    res.json({ success: true, reportId: assessment.id });
+});`}
+                            </pre>
+                        </div>
+
+                        <div className="border-l-4 border-purple-500 pl-4">
+                            <h3 className="font-semibold text-lg mb-2">3. Report Generation Endpoint</h3>
+                            <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{`app.get('/api/report/:id', async (req, res) => {
+    const { id } = req.params;
+    
+    // Fetch assessment data
+    const { data: assessment } = await supabase
+        .from('assessments')
+        .select('*, scores(*), responses(*), gaps(*)')
+        .eq('id', id)
+        .single();
+    
+    // Generate custom insights with GPT-4
+    const insights = await generateInsights(assessment);
+    
+    // Return report data
+    res.json({
+        assessment,
+        insights,
+        benchmarks: getBenchmarkData(),
+        recommendations: getRecommendations(assessment.scores)
+    });
+});`}
+                            </pre>
+                        </div>
+
+                        <div className="border-l-4 border-yellow-500 pl-4">
+                            <h3 className="font-semibold text-lg mb-2">4. Email Campaign Examples</h3>
+                            <pre className="bg-gray-100 p-4 rounded text-sm overflow-x-auto">
+{`// ActiveCampaign Automation Sequences
+
+// Day 1: Score-specific email
+Subject: "Your {{SCORE}}/100 Intelligence Score for {{COMPANY}}"
+Body: Reference their specific gaps and provide one quick win
+
+// Day 3: Biggest gap focus
+Subject: "Why {{GAP_CATEGORY}} is Costing You Deals"
+Body: Deep dive into their weakest area with solutions
+
+// Day 7: Peer comparison
+Subject: "How {{COMPANY}} Compares to Similar Brokerages"
+Body: Show where they rank among peers
+
+// Day 14: Risk alert
+Subject: "{{RISK_LEVEL}} Risk Alert for {{COMPANY}}"
+Body: Specific risks based on their score
+
+// Day 21: Consultation offer
+Subject: "Custom Roadmap for {{COMPANY}}'s Growth"
+Body: Offer personalized consultation based on their data`}
+                            </pre>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(
+            <div>
+                <BrokerageIntelligenceApp />
+                {/* Uncomment to see integration guide */}
+                {/* <IntegrationGuide /> */}
+            </div>,
+            document.getElementById('root')
+        );
+    </script>
+</body>
+</html>

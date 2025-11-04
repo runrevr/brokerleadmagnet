@@ -1,0 +1,37 @@
+{
+  "name": "brokerage-intelligence-platform",
+  "version": "1.0.0",
+  "description": "Lead magnet assessment platform for real estate brokerages",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server-local.js",
+    "dev": "node server-local.js",
+    "deploy": "vercel --prod",
+    "test:db": "node test-db-connection.js",
+    "test:api": "node test-api.js",
+    "test:ai": "node test-ai-integration.js",
+    "test": "node test-db-connection.js && node test-api.js"
+  },
+  "keywords": [
+    "lead-magnet",
+    "assessment",
+    "brokerage",
+    "real-estate"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0",
+    "@supabase/supabase-js": "^2.39.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^5.1.0",
+    "node-fetch": "^2.7.0"
+  },
+  "devDependencies": {
+    "@vercel/node": "^3.0.12"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
