@@ -108,11 +108,11 @@
         // Assessment Questions Data Structure
         const assessmentQuestions = {
             companyInfo: {
-                title: "Company Information",
+                title: "Let's Get Started!!",
                 questions: [
                     {
                         id: "company_name",
-                        label: "Brokerage Name",
+                        label: "What's Your Brokerage Name?",
                         type: "text",
                         required: true
                     },
@@ -556,88 +556,60 @@
             };
 
             return (
-                <div className="min-h-screen bg-gray-50">
-                    {/* Header */}
-                    <header className="bg-white shadow-sm">
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                            <h1 className="text-2xl font-bebas text-gray-800">Risk Assessment</h1>
+                <div className="min-h-screen bg-gray-50 py-12 px-4">
+                    <div className="max-w-4xl mx-auto">
+                        {/* Small Header */}
+                        <div className="text-center mb-6">
+                            <p className="text-sm text-gray-600 font-manrope font-medium">Risk Assessment Quiz</p>
                         </div>
-                    </header>
 
-                    {/* Progress Bar */}
-                    <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
-                        <div className="bg-white rounded-lg shadow p-6">
-                            <div className="mb-4">
-                                <div className="flex justify-between text-sm font-manrope font-medium text-gray-700 mb-2">
-                                    <span>Progress</span>
-                                    <span className="font-jetbrains">{Math.round(progress)}% Complete</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-2">
-                                    <div
-                                        className="bg-lime-green h-2 rounded-full transition-all duration-300"
-                                        style={{ width: `${progress}%` }}
+                        {/* Main Card */}
+                        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
+                            {/* Title */}
+                            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-8 font-manrope">
+                                {currentStep === 0 ? "Let's Get Started!!" : "Find Your Bottleneck"}
+                            </h1>
+
+                            {/* Question */}
+                            <h2 className="text-xl md:text-2xl text-gray-700 text-center mb-12 font-manrope font-medium">
+                                {currentQuestions.questions[0].label}
+                            </h2>
+
+                            {/* Answer Area */}
+                            <div className="max-w-2xl mx-auto mb-12">
+                                {currentQuestions.questions[0].type === 'text' && (
+                                    <input
+                                        type="text"
+                                        className="w-full px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-lg text-gray-800 text-center"
+                                        placeholder="Enter your brokerage name..."
+                                        value={responses[currentQuestions.questions[0].id] || ''}
+                                        onChange={(e) => handleInputChange(currentQuestions.questions[0].id, e.target.value)}
+                                        required={currentQuestions.questions[0].required}
                                     />
-                                </div>
+                                )}
                             </div>
 
-                            {/* Current Section */}
-                            <div className="mb-6">
-                                <h2 className="text-xl font-manrope font-bold text-gray-800 mb-4">
-                                    {currentQuestions.title}
-                                </h2>
-
-                                {/* Questions */}
-                                <div className="space-y-4">
-                                    {currentQuestions.questions.map((question) => (
-                                        <div key={question.id} className="mb-4">
-                                            <label className="block text-sm font-manrope font-medium text-gray-700 mb-2">
-                                                {question.label}
-                                                {question.required && <span className="text-red-500 ml-1">*</span>}
-                                            </label>
-
-                                            {question.type === 'text' && (
-                                                <input
-                                                    type="text"
-                                                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-gray-800"
-                                                    value={responses[question.id] || ''}
-                                                    onChange={(e) => handleInputChange(question.id, e.target.value)}
-                                                    required={question.required}
-                                                />
-                                            )}
-
-                                            {question.type === 'select' && (
-                                                <select
-                                                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-gray-800"
-                                                    value={responses[question.id] || ''}
-                                                    onChange={(e) => handleInputChange(question.id, e.target.value)}
-                                                    required={question.required}
-                                                >
-                                                    <option value="">Select an option</option>
-                                                    {question.options.map(option => (
-                                                        <option key={option} value={option}>{option}</option>
-                                                    ))}
-                                                </select>
-                                            )}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            {/* Navigation Buttons */}
-                            <div className="flex justify-between">
+                            {/* Navigation */}
+                            <div className="flex justify-between items-center pt-8 border-t border-gray-200">
                                 <button
                                     onClick={handlePrevious}
                                     disabled={currentStep === 0}
-                                    className="px-4 py-2 bg-gray-200 text-gray-700 font-manrope font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="flex items-center gap-2 text-slate-blue font-manrope font-medium disabled:opacity-0 disabled:cursor-not-allowed hover:text-slate-blue/80 transition-colors"
                                 >
-                                    Previous
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                                    </svg>
+                                    Back
                                 </button>
                                 <button
                                     onClick={handleNext}
                                     disabled={!isCurrentStepValid()}
-                                    className="px-6 py-2 bg-slate-blue text-white font-manrope font-semibold rounded-md hover:bg-slate-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="flex items-center gap-2 bg-slate-blue text-white px-8 py-3 rounded-lg font-manrope font-semibold hover:bg-slate-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
-                                    {currentStep === categories.length - 1 ? 'See Your Results' : 'Next'}
+                                    Next
+                                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                    </svg>
                                 </button>
                             </div>
                         </div>
