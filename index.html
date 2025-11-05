@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Transaction Intelligence Benchmark - Contre.ai</title>
+    <title>Hidden Risk Revealed - Brokerage Risk Assessment</title>
 
     <!-- React and Dependencies -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -14,7 +14,7 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -24,10 +24,14 @@
                 extend: {
                     colors: {
                         'spruce': '#264E36',
+                        'dark-green': '#1A3A2C',
+                        'forest-green': '#27543D',
                         'river-stone': '#78909C',
                         'sea-glass': '#9DBFBF',
                         'mist': '#F5F7F7',
                         'storm-gray': '#37474F',
+                        'slate-blue': '#5B7A8F',
+                        'lime-green': '#7BA428',
                         'fern': '#607D3B',
                         'bark-brown': '#6F4E37',
                         'signal-red': '#CC0000',
@@ -46,397 +50,22 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        :root {
-            /* Contre.ai Pacific Northwest Color Palette */
-            --spruce: #264E36;
-            --river-stone: #78909C;
-            --sea-glass: #9DBFBF;
-            --mist: #F5F7F7;
-            --storm-gray: #37474F;
-            --fern: #607D3B;
-            --bark-brown: #6F4E37;
-            --signal-red: #CC0000;
-            --amber: #F59E0B;
-        }
-
         body {
             font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             font-weight: 400;
             line-height: 1.6;
-            color: var(--storm-gray);
-            background: var(--mist);
+            color: #37474F;
+            background: #ffffff;
         }
 
-        /* Typography */
-        h1, h2 {
+        h1, h2, h3 {
             font-family: 'Bebas Neue', sans-serif;
             font-weight: 400;
             letter-spacing: 0.5px;
         }
 
-        h3, h4, h5 {
-            font-family: 'Manrope', sans-serif;
-        }
-
-        h3 { font-weight: 700; }
-        h4 { font-weight: 600; }
-        h5 { font-weight: 500; }
-
-        .mono {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
         .font-mono, .score-display {
             font-family: 'JetBrains Mono', monospace;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        /* Landing Page Styles */
-        .header {
-            background: linear-gradient(135deg, var(--spruce) 0%, #1E3D2A 100%);
-            color: white;
-            padding: 60px 0;
-            text-align: center;
-        }
-
-        .warning-badge {
-            display: inline-block;
-            background: var(--signal-red);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
-
-        .landing-h1 {
-            font-size: 52px;
-            margin-bottom: 20px;
-            line-height: 1.1;
-            text-transform: uppercase;
-        }
-
-        .subheadline {
-            font-size: 20px;
-            opacity: 0.95;
-            max-width: 800px;
-            margin: 0 auto 30px;
-            font-weight: 400;
-        }
-
-        .cta-button {
-            display: inline-block;
-            background: var(--fern);
-            color: white;
-            padding: 18px 40px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-size: 18px;
-            font-weight: 600;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(96, 125, 59, 0.3);
-            cursor: pointer;
-            border: none;
-        }
-
-        .cta-button:hover {
-            background: #4E6430;
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(96, 125, 59, 0.4);
-        }
-
-        .time-commitment {
-            margin-top: 15px;
-            opacity: 0.9;
-            font-size: 14px;
-        }
-
-        .stats-section {
-            background: white;
-            padding: 50px 0;
-            text-align: center;
-            border-bottom: 1px solid var(--sea-glass);
-        }
-
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 40px;
-            margin-top: 30px;
-        }
-
-        .stat-card {
-            background: var(--mist);
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--sea-glass);
-            transition: all 0.3s;
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(120, 144, 156, 0.15);
-        }
-
-        .stat-number {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 36px;
-            font-weight: 600;
-            color: var(--spruce);
-            margin-bottom: 10px;
-        }
-
-        .stat-label {
-            color: var(--river-stone);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .discovery-section {
-            padding: 60px 0;
-            background: var(--mist);
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 42px;
-            margin-bottom: 20px;
-            color: var(--spruce);
-            text-transform: uppercase;
-        }
-
-        .section-subtitle {
-            text-align: center;
-            color: var(--river-stone);
-            font-size: 18px;
-            margin-bottom: 50px;
-            max-width: 700px;
-            margin-left: auto;
-            margin-right: auto;
-            font-weight: 500;
-        }
-
-        .discovery-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-
-        .discovery-card {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            border: 1px solid var(--sea-glass);
-            border-left: 4px solid var(--spruce);
-            transition: all 0.3s;
-        }
-
-        .discovery-card:hover {
-            box-shadow: 0 10px 30px rgba(38, 78, 54, 0.1);
-        }
-
-        .discovery-card h3 {
-            color: var(--spruce);
-            margin-bottom: 15px;
-            font-size: 20px;
-        }
-
-        .discovery-card p {
-            color: var(--storm-gray);
-            line-height: 1.6;
-        }
-
-        .highlight {
-            background: linear-gradient(180deg, transparent 60%, rgba(96, 125, 59, 0.2) 60%);
-            padding: 2px 0;
-            font-weight: 600;
-        }
-
-        .benefits-section {
-            background: white;
-            border: 2px solid var(--spruce);
-            border-radius: 12px;
-            padding: 40px;
-            margin: 50px auto;
-            max-width: 1000px;
-        }
-
-        .benefits-title {
-            color: var(--spruce);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 38px;
-            text-transform: uppercase;
-        }
-
-        .benefits-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-            gap: 30px;
-        }
-
-        .benefit-item h3 {
-            color: var(--spruce);
-            margin-bottom: 15px;
-        }
-
-        .benefit-item p {
-            color: var(--storm-gray);
-            line-height: 1.6;
-        }
-
-        .testimonial-box {
-            background: rgba(157, 191, 191, 0.2);
-            padding: 25px;
-            border-radius: 8px;
-            margin-top: 30px;
-            text-align: center;
-            border-left: 3px solid var(--spruce);
-        }
-
-        .testimonial-quote {
-            color: var(--spruce);
-            font-weight: 600;
-            font-size: 18px;
-            margin-bottom: 10px;
-            font-style: italic;
-        }
-
-        .testimonial-author {
-            color: var(--river-stone);
-            font-size: 14px;
-        }
-
-        .warning-box {
-            background: rgba(245, 158, 11, 0.1);
-            border: 2px solid var(--amber);
-            border-radius: 12px;
-            padding: 30px;
-            margin: 40px auto;
-            max-width: 900px;
-        }
-
-        .warning-title {
-            color: var(--bark-brown);
-            font-size: 24px;
-            font-weight: 600;
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-        }
-
-        .warning-icon {
-            margin-right: 10px;
-            font-size: 28px;
-        }
-
-        .sample-section {
-            background: white;
-            padding: 60px 0;
-        }
-
-        .sample-questions {
-            background: var(--mist);
-            border-radius: 12px;
-            padding: 40px;
-            max-width: 800px;
-            margin: 0 auto;
-            box-shadow: 0 4px 20px rgba(120, 144, 156, 0.08);
-        }
-
-        .question-preview {
-            margin: 25px 0;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            border-left: 3px solid var(--spruce);
-        }
-
-        .question-number {
-            color: var(--spruce);
-            font-weight: 700;
-            font-size: 14px;
-            margin-bottom: 8px;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .question-text {
-            font-size: 16px;
-            color: var(--storm-gray);
-            font-weight: 500;
-        }
-
-        .question-context {
-            color: var(--river-stone);
-            font-size: 14px;
-            margin-top: 10px;
-            font-style: italic;
-        }
-
-        .trust-section {
-            padding: 50px 0;
-            text-align: center;
-            background: var(--mist);
-        }
-
-        .trust-badges {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 40px;
-            margin-top: 30px;
-            flex-wrap: wrap;
-        }
-
-        .trust-badge {
-            color: var(--river-stone);
-            font-size: 14px;
-            font-weight: 500;
-        }
-
-        .bottom-cta {
-            background: linear-gradient(135deg, var(--storm-gray) 0%, var(--spruce) 100%);
-            color: white;
-            padding: 60px 0;
-            text-align: center;
-        }
-
-        .urgency-text {
-            color: var(--fern);
-            font-size: 18px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        .bottom-cta h2 {
-            font-size: 42px;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-        }
-
-        .competitor-warning {
-            font-size: 16px;
-            opacity: 0.9;
-            margin-bottom: 30px;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .logo {
-            font-family: 'Bebas Neue', sans-serif;
-            font-size: 32px;
-            color: white;
-            margin-bottom: 20px;
-            letter-spacing: 2px;
         }
 
         /* Print-specific styles for PDF generation */
@@ -467,15 +96,6 @@
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
             }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .landing-h1 { font-size: 36px; }
-            .section-title { font-size: 32px; }
-            .discovery-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .benefits-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -709,169 +329,189 @@
             return scores;
         };
 
-        // Landing Page Component
+        // New Landing Page Component (based on Figma design)
         const LandingPage = ({ onStartAssessment }) => {
             return (
-                <div>
-                    {/* Header Hero Section */}
-                    <section className="header">
-                        <div className="container">
-                            <div className="warning-badge">⚠️ INDUSTRY ALERT: 15% of Real Estate Deals Fail Due to Preventable Errors</div>
-                            <h1 className="landing-h1">Is Your Brokerage Operating<br/>Like It's 2015 or 2025?</h1>
-                            <p className="subheadline">Get Your Free Transaction Intelligence Benchmark Report and see exactly how you stack up against the top 10% of brokerages (spoiler: most are shocked by the gaps)</p>
-                            <button onClick={onStartAssessment} className="cta-button">Get My Free Benchmark Report →</button>
-                            <p className="time-commitment">Takes 3-5 minutes • Instant results • 100% Confidential</p>
+                <div className="bg-white">
+                    {/* Hero Section */}
+                    <section className="bg-gradient-to-b from-gray-50 to-white py-12 px-4">
+                        <div className="max-w-4xl mx-auto text-center">
+                            {/* Small label at top */}
+                            <div className="text-sm text-gray-500 uppercase tracking-wider mb-6 font-manrope font-medium">
+                                Hidden Risk Revealed
+                            </div>
+
+                            {/* Main Headline */}
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas text-gray-800 mb-4 leading-tight">
+                                WHAT 6-FIGURE MISTAKES MOST BROKERS MAKE{' '}
+                                <span className="text-lime-green">(AND HOW THE TOP 10% AVOID THEM)</span>
+                            </h1>
+
+                            {/* Subheading */}
+                            <p className="text-base md:text-lg text-gray-600 mb-8 max-w-2xl mx-auto font-manrope">
+                                Top firms treat risk management as a competitive edge. Take the quiz to learn how your current approach stacks up—and what you're missing.
+                            </p>
+
+                            {/* CTA Button */}
+                            <button
+                                onClick={onStartAssessment}
+                                className="inline-flex items-center gap-2 bg-slate-blue hover:bg-slate-blue/90 text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                            >
+                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                    <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
+                                </svg>
+                                Take the Free Risk Assessment
+                            </button>
                         </div>
                     </section>
 
-                    {/* Stats Section */}
-                    <section className="stats-section">
-                        <div className="container">
-                            <div className="stats-grid">
-                                <div className="stat-card">
-                                    <div className="stat-number">Nearly 50%</div>
-                                    <div className="stat-label">Of brokerages lack systematic deadline tracking</div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-number">Up to $2.3M</div>
-                                    <div className="stat-label">Annual revenue lost to preventable deal failures</div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-number">18 mo</div>
-                                    <div className="stat-label">Time before new agents perform like veterans (industry avg)</div>
-                                </div>
-                                <div className="stat-card">
-                                    <div className="stat-number">Majority</div>
-                                    <div className="stat-label">Of clients don't thoroughly read their transaction documents</div>
-                                </div>
-                            </div>
+                    {/* Hero Image Section */}
+                    <section className="py-8 px-4">
+                        <div className="max-w-5xl mx-auto">
+                            <img
+                                src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1200&h=600&fit=crop"
+                                alt="House with storm clouds representing hidden risks"
+                                className="w-full h-auto rounded-lg shadow-2xl"
+                            />
                         </div>
                     </section>
 
-                    {/* What You'll Discover */}
-                    <section className="discovery-section">
-                        <div className="container">
-                            <h2 className="section-title">Your Custom Report Reveals:</h2>
-                            <p className="section-subtitle">Based on industry best practices and market research</p>
-
-                            <div className="discovery-grid">
-                                <div className="discovery-card">
-                                    <h3>📊 Your Percentile Ranking</h3>
-                                    <p>See exactly where you rank compared to similar-sized brokerages. Most think they're in the top 25% but discover they're actually in the <span className="highlight">bottom 40%</span>.</p>
-                                </div>
-                                <div className="discovery-card">
-                                    <h3>💰 Hidden Revenue Leaks</h3>
-                                    <p>Calculate the actual dollars lost to missed deadlines, failed deals, and brokerage concessions. Many brokerages are losing <span className="highlight">six figures annually</span>.</p>
-                                </div>
-                                <div className="discovery-card">
-                                    <h3>⚡ Efficiency Gaps</h3>
-                                    <p>Discover why top brokerages review 10x more transactions with half the staff. Hint: they're not working harder, they're working <span className="highlight">completely differently</span>.</p>
-                                </div>
-                                <div className="discovery-card">
-                                    <h3>🎯 Competitive Intelligence</h3>
-                                    <p>Learn what the top 10% of brokerages are doing that you're not. These aren't incremental improvements - they're <span className="highlight">fundamental operational differences</span>.</p>
-                                </div>
-                                <div className="discovery-card">
-                                    <h3>🛡️ Liability Exposure Score</h3>
-                                    <p>Uncover your true E&O risk based on your current processes. Most brokerages are one missed HOA restriction from a <span className="highlight">six-figure claim</span>.</p>
-                                </div>
-                                <div className="discovery-card">
-                                    <h3>📈 Growth Readiness Rating</h3>
-                                    <p>See if you can scale without breaking. Most brokerages hit operational walls because their systems <span className="highlight">can't handle the complexity</span>.</p>
-                                </div>
+                    {/* Find Your Hidden Vulnerabilities Section */}
+                    <section className="py-16 px-4 bg-white">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl md:text-4xl font-bebas text-gray-800 mb-3 uppercase tracking-wide">
+                                    Find Your Hidden Vulnerabilities
+                                </h2>
+                                <p className="text-gray-600 font-manrope max-w-2xl mx-auto">
+                                    Every transaction has potential pitfalls. Our assessment helps you identify which of these common risk profiles is holding you back.
+                                </p>
                             </div>
 
-                            {/* Broker Benefits Section */}
-                            <div className="benefits-section">
-                                <h2 className="benefits-title">Why Smart Brokers Use This Assessment</h2>
-
-                                <div className="benefits-grid">
-                                    <div className="benefit-item">
-                                        <h3>🎯 Strategic Planning Tool</h3>
-                                        <p>Finally get hard data on where to invest your limited resources. Stop guessing which improvements will have the biggest impact on your bottom line. The report prioritizes fixes based on ROI, not opinions.</p>
+                            {/* 4 Cards Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+                                {/* Card 1 */}
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+                                            <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
+                                        </svg>
                                     </div>
-                                    <div className="benefit-item">
-                                        <h3>💼 Agent Retention Ammunition</h3>
-                                        <p>Show agents you're proactively improving operations. Use the report in recruiting to demonstrate you're ahead of competitors. Turn operational excellence into your recruiting advantage.</p>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Brokerage Oversight</h3>
+                                    <p className="text-sm text-gray-600 font-manrope leading-relaxed">
+                                        Are missing signatures, outdated forms, and commission errors slowing you down and creating legal exposure?
+                                    </p>
+                                </div>
+
+                                {/* Card 2 */}
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
+                                        </svg>
                                     </div>
-                                    <div className="benefit-item">
-                                        <h3>📊 Board & Investor Ready</h3>
-                                        <p>Present concrete data on operational improvements needed. Justify technology investments with industry benchmarks. Show you're managing the brokerage with data, not gut feelings.</p>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Operational Efficiency</h3>
+                                    <p className="text-sm text-gray-600 font-manrope leading-relaxed">
+                                        Is poor communication or tracking of offers and counter-offers leading to missed opportunities and client dissatisfaction?
+                                    </p>
+                                </div>
+
+                                {/* Card 3 */}
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                            <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
+                                        </svg>
                                     </div>
-                                    <div className="benefit-item">
-                                        <h3>🚀 Competitive Intelligence</h3>
-                                        <p>Learn what top performers are doing differently before it becomes "industry standard." See around corners to where the industry is heading. Position your brokerage ahead of the curve, not behind it.</p>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Agent Training & Knowledge Base</h3>
+                                    <p className="text-sm text-gray-600 font-manrope leading-relaxed">
+                                        Are you struggling to manage critical dates for inspections, financing, and closing, leading to deal collapse?
+                                    </p>
+                                </div>
+
+                                {/* Card 4 */}
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
+                                        </svg>
                                     </div>
-                                </div>
-
-                                <div className="testimonial-box">
-                                    <p className="testimonial-quote">"This assessment gave me the ammunition I needed to finally get buy-in for the operational changes I've been pushing for two years."</p>
-                                    <p className="testimonial-author">- Sarah Mitchell, Managing Broker (127 agents)</p>
-                                </div>
-                            </div>
-
-                            {/* Warning Box */}
-                            <div className="warning-box">
-                                <div className="warning-title">
-                                    <span className="warning-icon">⚠️</span>
-                                    Why This Matters Now More Than Ever
-                                </div>
-                                <p><strong>The real estate industry is splitting into two groups:</strong> Tech-forward brokerages capturing market share and traditional brokerages losing agents to competitors who "get it."</p>
-                                <br/>
-                                <p>Zillow spent $130M on ShowingTime. Compass raised $1.5B. CoStar bought Homes.com for $3B. They're not competing on commission splits anymore – they're competing on operational intelligence.</p>
-                                <br/>
-                                <p><strong>The question isn't IF you'll modernize, it's whether you'll do it before your competitors do.</strong></p>
-                            </div>
-                        </div>
-                    </section>
-
-                    {/* Sample Questions */}
-                    <section className="sample-section">
-                        <div className="container">
-                            <h2 className="section-title">Sample Assessment Questions</h2>
-                            <p className="section-subtitle">Each question is strategically designed to uncover hidden operational gaps</p>
-
-                            <div className="sample-questions">
-                                <div className="question-preview">
-                                    <div className="question-number">QUESTION 2</div>
-                                    <div className="question-text">How long does it take to effectively review ALL documents in a typical transaction?</div>
-                                    <p className="question-context">Why this matters: Top brokerages review 10x more transactions in half the time</p>
-                                </div>
-                                <div className="question-preview">
-                                    <div className="question-number">QUESTION 13</div>
-                                    <div className="question-text">Estimated revenue lost to missed deadlines/failed deals last year?</div>
-                                    <p className="question-context">Why this matters: Most brokers significantly underestimate their losses</p>
-                                </div>
-                                <div className="question-preview">
-                                    <div className="question-number">QUESTION 15</div>
-                                    <div className="question-text">How long before new agents can review contracts as well as veterans?</div>
-                                    <p className="question-context">Why this matters: Your answer reveals if you have systems or just hope</p>
+                                    <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Client Experience</h3>
+                                    <p className="text-sm text-gray-600 font-manrope leading-relaxed">
+                                        Is your client data and sensitive transaction information vulnerable to data fraud and cyber threats?
+                                    </p>
                                 </div>
                             </div>
                         </div>
                     </section>
 
-                    {/* Trust Section */}
-                    <section className="trust-section">
-                        <div className="container">
-                            <h2 className="section-title">Who's Using This Assessment?</h2>
-                            <div className="trust-badges">
-                                <div className="trust-badge">✓ Top National Franchise Brands</div>
-                                <div className="trust-badge">✓ Leading Independent Brokerages</div>
-                                <div className="trust-badge">✓ Multi-Office Operations</div>
-                                <div className="trust-badge">✓ Forward-Thinking Broker-Owners</div>
+                    {/* Your Path to Secure Transactions */}
+                    <section className="py-16 px-4 bg-gray-50">
+                        <div className="max-w-6xl mx-auto">
+                            <div className="text-center mb-12">
+                                <h2 className="text-3xl md:text-4xl font-bebas text-gray-800 mb-3 uppercase tracking-wide">
+                                    Your Path to Secure Transactions
+                                </h2>
+                                <p className="text-gray-600 font-manrope max-w-2xl mx-auto">
+                                    In just a few minutes, gain clarity and a clear action plan to protect your business and your clients.
+                                </p>
+                            </div>
+
+                            {/* 3 Step Process */}
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                                {/* Step 1 */}
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-forest-green text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 shadow-lg">
+                                        1
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Take the Quiz</h3>
+                                    <p className="text-gray-600 font-manrope text-sm leading-relaxed">
+                                        Answer a short series of questions about your current transaction process. It's quick, easy, and completely confidential.
+                                    </p>
+                                </div>
+
+                                {/* Step 2 */}
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-forest-green text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 shadow-lg">
+                                        2
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Get Your Score</h3>
+                                    <p className="text-gray-600 font-manrope text-sm leading-relaxed">
+                                        Instantly receive your personalized Transaction Risk Score and a breakdown of your primary risk profile.
+                                    </p>
+                                </div>
+
+                                {/* Step 3 */}
+                                <div className="text-center">
+                                    <div className="w-16 h-16 bg-forest-green text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 shadow-lg">
+                                        3
+                                    </div>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Implement Solutions</h3>
+                                    <p className="text-gray-600 font-manrope text-sm leading-relaxed">
+                                        Get actionable insights and tailored recommendations to mitigate your specific risks and streamline your workflow.
+                                    </p>
+                                </div>
                             </div>
                         </div>
                     </section>
 
-                    {/* Bottom CTA */}
-                    <section className="bottom-cta">
-                        <div className="container">
-                            <p className="urgency-text">🔥 Brokerages Nationwide Are Using This Data</p>
-                            <h2>Stop Guessing. Start Knowing.</h2>
-                            <p className="competitor-warning">Your competitors are using this data to recruit your agents and win more listings. Every day you wait is another day they pull ahead.</p>
-                            <button onClick={onStartAssessment} className="cta-button">Get My Benchmark Report Now →</button>
-                            <p className="time-commitment">No sales call required • Instant PDF report • Actionable insights</p>
+                    {/* Bottom CTA Section */}
+                    <section className="py-16 px-4 bg-gradient-to-br from-dark-green to-forest-green text-white">
+                        <div className="max-w-4xl mx-auto text-center">
+                            <h2 className="text-4xl md:text-5xl font-bebas mb-4 uppercase tracking-wide">
+                                Stop Guessing, Start Assessing.
+                            </h2>
+                            <p className="text-lg text-white/90 mb-8 font-manrope max-w-2xl mx-auto">
+                                Turn transaction anxiety into a competitive advantage. Discover how to protect your reputation, save money, and close more deals with confidence.
+                            </p>
+                            <button
+                                onClick={onStartAssessment}
+                                className="bg-slate-blue hover:bg-slate-blue/90 text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                            >
+                                Find My Risk Profile Now
+                            </button>
                         </div>
                     </section>
                 </div>
@@ -899,7 +539,6 @@
                 if (currentStep < categories.length - 1) {
                     setCurrentStep(currentStep + 1);
                 } else {
-                    // Calculate scores and show report
                     const calculatedScores = calculateScores(responses);
                     onComplete(responses, calculatedScores);
                 }
@@ -917,11 +556,11 @@
             };
 
             return (
-                <div className="min-h-screen bg-mist">
+                <div className="min-h-screen bg-gray-50">
                     {/* Header */}
-                    <header className="bg-white shadow-sm no-print">
+                    <header className="bg-white shadow-sm">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-                            <h1 className="text-2xl font-bebas text-storm-gray">Brokerage Intelligence Assessment</h1>
+                            <h1 className="text-2xl font-bebas text-gray-800">Risk Assessment</h1>
                         </div>
                     </header>
 
@@ -929,13 +568,13 @@
                     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 mt-8">
                         <div className="bg-white rounded-lg shadow p-6">
                             <div className="mb-4">
-                                <div className="flex justify-between text-sm font-manrope font-medium text-storm-gray mb-2">
+                                <div className="flex justify-between text-sm font-manrope font-medium text-gray-700 mb-2">
                                     <span>Progress</span>
                                     <span className="font-jetbrains">{Math.round(progress)}% Complete</span>
                                 </div>
-                                <div className="w-full bg-sea-glass/30 rounded-full h-2">
+                                <div className="w-full bg-gray-200 rounded-full h-2">
                                     <div
-                                        className="bg-spruce h-2 rounded-full transition-all duration-300"
+                                        className="bg-lime-green h-2 rounded-full transition-all duration-300"
                                         style={{ width: `${progress}%` }}
                                     />
                                 </div>
@@ -943,7 +582,7 @@
 
                             {/* Current Section */}
                             <div className="mb-6">
-                                <h2 className="text-xl font-manrope font-bold text-storm-gray mb-4">
+                                <h2 className="text-xl font-manrope font-bold text-gray-800 mb-4">
                                     {currentQuestions.title}
                                 </h2>
 
@@ -951,15 +590,15 @@
                                 <div className="space-y-4">
                                     {currentQuestions.questions.map((question) => (
                                         <div key={question.id} className="mb-4">
-                                            <label className="block text-sm font-manrope font-medium text-storm-gray mb-2">
+                                            <label className="block text-sm font-manrope font-medium text-gray-700 mb-2">
                                                 {question.label}
-                                                {question.required && <span className="text-signal-red ml-1">*</span>}
+                                                {question.required && <span className="text-red-500 ml-1">*</span>}
                                             </label>
 
                                             {question.type === 'text' && (
                                                 <input
                                                     type="text"
-                                                    className="w-full px-3 py-2 border-2 border-sea-glass rounded-md focus:outline-none focus:ring-2 focus:ring-spruce focus:border-spruce font-manrope text-storm-gray"
+                                                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-gray-800"
                                                     value={responses[question.id] || ''}
                                                     onChange={(e) => handleInputChange(question.id, e.target.value)}
                                                     required={question.required}
@@ -968,7 +607,7 @@
 
                                             {question.type === 'select' && (
                                                 <select
-                                                    className="w-full px-3 py-2 border-2 border-sea-glass rounded-md focus:outline-none focus:ring-2 focus:ring-spruce focus:border-spruce font-manrope text-storm-gray"
+                                                    className="w-full px-3 py-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-gray-800"
                                                     value={responses[question.id] || ''}
                                                     onChange={(e) => handleInputChange(question.id, e.target.value)}
                                                     required={question.required}
@@ -989,14 +628,14 @@
                                 <button
                                     onClick={handlePrevious}
                                     disabled={currentStep === 0}
-                                    className="px-4 py-2 bg-sea-glass/50 text-storm-gray font-manrope font-semibold rounded-md hover:bg-sea-glass disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="px-4 py-2 bg-gray-200 text-gray-700 font-manrope font-semibold rounded-md hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                     Previous
                                 </button>
                                 <button
                                     onClick={handleNext}
                                     disabled={!isCurrentStepValid()}
-                                    className="px-6 py-2 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-spruce disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                                    className="px-6 py-2 bg-slate-blue text-white font-manrope font-semibold rounded-md hover:bg-slate-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                                 >
                                     {currentStep === categories.length - 1 ? 'See Your Results' : 'Next'}
                                 </button>
@@ -1015,7 +654,6 @@
             const radarChartRef = useRef(null);
 
             useEffect(() => {
-                // Draw gauge chart for overall score
                 if (chartRef.current) {
                     const ctx = chartRef.current.getContext('2d');
                     new Chart(ctx, {
@@ -1045,7 +683,6 @@
                     });
                 }
 
-                // Draw radar chart for category scores
                 if (radarChartRef.current) {
                     const ctx = radarChartRef.current.getContext('2d');
                     new Chart(ctx, {
@@ -1100,7 +737,6 @@
                 e.preventDefault();
 
                 try {
-                    // Step 1: Save assessment to database
                     const assessmentData = {
                         companyInfo: {
                             company_name: responses.company_name,
@@ -1126,9 +762,6 @@
                     const submitResult = await submitResponse.json();
                     const assessmentId = submitResult.assessmentId;
 
-                    console.log('✅ Assessment saved:', assessmentId);
-
-                    // Step 2: Capture email and trigger ActiveCampaign
                     const emailData = {
                         email,
                         assessmentId,
@@ -1152,22 +785,17 @@
                         throw new Error('Failed to capture email');
                     }
 
-                    const emailResult = await emailResponse.json();
-                    console.log('✅ Email captured:', emailResult);
-
-                    // Store assessment ID and report URL for display
                     window.assessmentId = assessmentId;
                     window.reportUrl = `${window.location.origin}/report.html?id=${assessmentId}`;
 
                     setEmailCaptured(true);
 
                 } catch (error) {
-                    console.error('❌ Error submitting assessment:', error);
+                    console.error('Error submitting assessment:', error);
                     alert('There was an error saving your assessment. Please try again.');
                 }
             };
 
-            // Identify top gaps
             const gaps = [
                 { name: 'Transaction Oversight', score: scores.transactionOversight, max: 100 },
                 { name: 'Operational Systems', score: scores.operationalSystems, max: 100 },
@@ -1177,34 +805,32 @@
             ].sort((a, b) => (a.score/a.max) - (b.score/b.max)).slice(0, 3);
 
             return (
-                <div className="min-h-screen bg-mist py-8">
+                <div className="min-h-screen bg-gray-50 py-8">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                        {/* Report Header */}
                         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
                             <div className="text-center mb-8">
-                                <h1 className="text-4xl font-bebas text-spruce mb-2 tracking-wide">
-                                    Brokerage Intelligence Report
+                                <h1 className="text-4xl font-bebas text-gray-800 mb-2 tracking-wide">
+                                    Risk Assessment Report
                                 </h1>
-                                <p className="text-xl font-manrope font-semibold text-storm-gray">
+                                <p className="text-xl font-manrope font-semibold text-gray-700">
                                     {responses.company_name || 'Your Brokerage'}
                                 </p>
                             </div>
 
-                            {/* Overall Score Section */}
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
                                 <div className="text-center">
-                                    <h2 className="text-2xl font-manrope font-bold text-storm-gray mb-4">Overall Score</h2>
+                                    <h2 className="text-2xl font-manrope font-bold text-gray-800 mb-4">Overall Score</h2>
                                     <div className="relative inline-block">
                                         <canvas ref={chartRef} width="250" height="150"></canvas>
                                         <div className="absolute inset-0 flex items-center justify-center mt-8">
                                             <div>
-                                                <div className="text-5xl font-jetbrains font-bold text-spruce">{scores.overall}</div>
-                                                <div className="text-sm font-manrope text-storm-gray">out of 100</div>
+                                                <div className="text-5xl font-jetbrains font-bold text-gray-800">{scores.overall}</div>
+                                                <div className="text-sm font-manrope text-gray-600">out of 100</div>
                                             </div>
                                         </div>
                                     </div>
                                     <div className={`mt-4 inline-block px-4 py-2 rounded-full text-white font-manrope font-semibold ${
-                                        scores.riskLevel === 'LOW' ? 'bg-fern' :
+                                        scores.riskLevel === 'LOW' ? 'bg-lime-green' :
                                         scores.riskLevel === 'MODERATE' ? 'bg-amber' :
                                         scores.riskLevel === 'HIGH' ? 'bg-amber' : 'bg-signal-red'
                                     }`}>
@@ -1213,36 +839,33 @@
                                 </div>
 
                                 <div>
-                                    <h2 className="text-2xl font-manrope font-bold text-storm-gray mb-4">Performance Breakdown</h2>
+                                    <h2 className="text-2xl font-manrope font-bold text-gray-800 mb-4">Performance Breakdown</h2>
                                     <canvas ref={radarChartRef} width="300" height="300"></canvas>
                                 </div>
                             </div>
-
                         </div>
 
-                        {/* Brief Deficiency Teaser */}
-                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-signal-red">
+                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-red-500">
                             <div className="text-center">
                                 <div className="text-5xl mb-4">⚠️</div>
-                                <h2 className="text-3xl font-bebas text-signal-red mb-4 tracking-wide">
+                                <h2 className="text-3xl font-bebas text-red-600 mb-4 tracking-wide">
                                     We Identified {gaps.length} Critical Operational Gaps
                                 </h2>
-                                <p className="text-xl font-manrope text-storm-gray mb-2">
+                                <p className="text-xl font-manrope text-gray-700 mb-2">
                                     These inefficiencies are costing your brokerage an estimated{' '}
-                                    <span className="font-bold text-signal-red font-jetbrains">
+                                    <span className="font-bold text-red-600 font-jetbrains">
                                         ${scores.overall < 50 ? '127,000' : scores.overall < 70 ? '85,000' : '50,000'}+
                                     </span>{' '}
                                     per year in wasted time, missed deals, and liability exposure.
                                 </p>
-                                <p className="text-lg font-manrope text-storm-gray/80">
+                                <p className="text-lg font-manrope text-gray-600">
                                     Your complete report reveals exactly what's causing these gaps and how top brokerages have eliminated them.
                                 </p>
                             </div>
                         </div>
 
-                        {/* PROMINENT EMAIL CAPTURE */}
                         {!emailCaptured ? (
-                            <div className="bg-gradient-to-br from-spruce to-storm-gray rounded-lg shadow-2xl p-10 mb-6 text-white">
+                            <div className="bg-gradient-to-br from-dark-green to-forest-green rounded-lg shadow-2xl p-10 mb-6 text-white">
                                 <div className="text-center max-w-4xl mx-auto">
                                     <h2 className="text-4xl md:text-5xl font-bebas mb-4 tracking-wide leading-tight">
                                         Want to See Your Full Report and How Top Brokerages Are Saving $50,000+/Year Using Technology?
@@ -1251,7 +874,6 @@
                                         Discover the exact systems and capabilities your brokerage can integrate within the next 30-90 days to eliminate inefficiencies and scale profitably.
                                     </p>
 
-                                    {/* Value Props */}
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
                                         <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
                                             <div className="text-3xl mb-3">🎯</div>
@@ -1270,7 +892,6 @@
                                         </div>
                                     </div>
 
-                                    {/* Email Form */}
                                     <form onSubmit={handleEmailSubmit} className="max-w-2xl mx-auto">
                                         <div className="bg-white rounded-lg p-2 shadow-xl flex flex-col sm:flex-row gap-2">
                                             <input
@@ -1279,18 +900,17 @@
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="Enter your work email to unlock your full report"
                                                 required
-                                                className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope text-lg text-storm-gray"
+                                                className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green font-manrope text-lg text-gray-800"
                                             />
                                             <button
                                                 type="submit"
-                                                className="px-8 py-4 bg-signal-red text-white font-manrope font-bold rounded-md hover:bg-signal-red/90 transition-colors text-lg whitespace-nowrap shadow-lg"
+                                                className="px-8 py-4 bg-red-600 text-white font-manrope font-bold rounded-md hover:bg-red-700 transition-colors text-lg whitespace-nowrap shadow-lg"
                                             >
                                                 Get My Full Report →
                                             </button>
                                         </div>
                                     </form>
 
-                                    {/* Trust Indicators */}
                                     <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
                                         <div className="flex items-center gap-2">
                                             <span>✓</span>
@@ -1312,164 +932,34 @@
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-fern/10 border-2 border-fern rounded-lg p-6">
-                                <h3 className="text-xl font-manrope font-bold mb-3 text-fern">✅ Report Saved!</h3>
-                                <p className="font-manrope text-storm-gray mb-4">
-                                    Your assessment has been saved. Check your email for the complete intelligence report, or access it anytime using the link below.
+                            <div className="bg-lime-green/10 border-2 border-lime-green rounded-lg p-6">
+                                <h3 className="text-xl font-manrope font-bold mb-3 text-lime-green">✅ Report Saved!</h3>
+                                <p className="font-manrope text-gray-700 mb-4">
+                                    Your assessment has been saved. Check your email for the complete report.
                                 </p>
 
                                 {window.reportUrl && (
-                                    <div className="bg-white border-2 border-sea-glass rounded-md p-4 mb-4">
-                                        <p className="text-sm font-manrope font-medium text-storm-gray mb-2">Your Report URL:</p>
+                                    <div className="bg-white border-2 border-gray-300 rounded-md p-4 mb-4">
+                                        <p className="text-sm font-manrope font-medium text-gray-700 mb-2">Your Report URL:</p>
                                         <div className="flex items-center gap-2">
                                             <input
                                                 type="text"
                                                 value={window.reportUrl}
                                                 readOnly
-                                                className="flex-1 px-3 py-2 text-sm font-jetbrains bg-mist border-2 border-sea-glass rounded"
+                                                className="flex-1 px-3 py-2 text-sm font-jetbrains bg-gray-50 border-2 border-gray-300 rounded"
                                             />
                                             <button
                                                 onClick={() => {
                                                     navigator.clipboard.writeText(window.reportUrl);
                                                     alert('Report link copied to clipboard!');
                                                 }}
-                                                className="px-4 py-2 bg-storm-gray text-white text-sm font-manrope font-semibold rounded hover:bg-spruce transition-colors"
+                                                className="px-4 py-2 bg-gray-700 text-white text-sm font-manrope font-semibold rounded hover:bg-gray-800 transition-colors"
                                             >
                                                 Copy
                                             </button>
                                         </div>
                                     </div>
                                 )}
-
-                                <p className="text-sm font-manrope text-storm-gray mb-4">You'll also receive via email:</p>
-                                <ul className="list-disc list-inside font-manrope text-storm-gray text-sm mb-4">
-                                    <li>Your full intelligence report with detailed insights</li>
-                                    <li>Weekly industry insights and best practices</li>
-                                    <li>Exclusive benchmarking updates</li>
-                                </ul>
-
-                                <div className="flex flex-wrap gap-3 no-print">
-                                    {window.reportUrl && (
-                                        <a
-                                            href={window.reportUrl}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="px-6 py-2 bg-fern text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
-                                        >
-                                            <span>📊</span> View Full Report
-                                        </a>
-                                    )}
-                                    <button
-                                        onClick={() => window.print()}
-                                        className="px-6 py-2 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
-                                    >
-                                        <span>📄</span> Download PDF
-                                    </button>
-                                    <button
-                                        onClick={() => {
-                                            const urlToCopy = window.reportUrl || window.location.href;
-                                            navigator.clipboard.writeText(urlToCopy);
-                                            alert('Report link copied! Share it with your team.');
-                                        }}
-                                        className="px-6 py-2 bg-storm-gray text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
-                                    >
-                                        <span>🔗</span> Share Report
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-
-                        {/* What Top Performers Do Section (visible after email) */}
-                        {emailCaptured && (
-                            <div className="bg-white rounded-lg shadow-lg p-8 mb-6 print-break">
-                                <h2 className="text-2xl font-bebas text-spruce mb-6 tracking-wide">What the Top 5% Do Differently</h2>
-
-                                <div className="space-y-6">
-                                    <div className="border-l-4 border-spruce pl-4">
-                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Transaction Oversight</h3>
-                                        <p className="font-manrope text-storm-gray">
-                                            Elite brokerages use AI-powered monitoring that reviews 100% of transactions in real-time,
-                                            catching issues before they become problems. They maintain less than 1% error rate compared
-                                            to the industry average of 15%.
-                                        </p>
-                                    </div>
-
-                                    <div className="border-l-4 border-spruce pl-4">
-                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Knowledge Management</h3>
-                                        <p className="font-manrope text-storm-gray">
-                                            Top performers capture every lesson learned and encode it into their systems. New agents
-                                            reach full productivity in 6 weeks versus the 6-month industry average.
-                                        </p>
-                                    </div>
-
-                                    <div className="border-l-4 border-spruce pl-4">
-                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Client Experience</h3>
-                                        <p className="font-manrope text-storm-gray">
-                                            Leading brokerages provide 24/7 transaction visibility through AI chatbots and portals,
-                                            resulting in 67% more referrals from satisfied clients.
-                                        </p>
-                                    </div>
-
-                                    <div className="border-l-4 border-spruce pl-4">
-                                        <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Risk Management</h3>
-                                        <p className="font-manrope text-storm-gray">
-                                            Elite firms predict and prevent issues with AI risk scoring, reducing E&O claims by 80%
-                                            and saving an average of $45,000 annually in liability costs.
-                                        </p>
-                                    </div>
-                                </div>
-
-                                {/* Action Plan */}
-                                <div className="mt-8 bg-mist rounded-lg p-6">
-                                    <h3 className="text-xl font-manrope font-bold text-storm-gray mb-4">Your 30-Day Quick Wins</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="bg-white rounded p-4 border-2 border-sea-glass">
-                                            <div className="font-manrope font-bold text-spruce mb-2">Week 1</div>
-                                            <ul className="text-sm font-manrope text-storm-gray space-y-1">
-                                                <li>• Implement deadline checklist</li>
-                                                <li>• Create contract templates</li>
-                                                <li>• Set up daily huddles</li>
-                                            </ul>
-                                        </div>
-                                        <div className="bg-white rounded p-4 border-2 border-sea-glass">
-                                            <div className="font-manrope font-bold text-spruce mb-2">Week 2-3</div>
-                                            <ul className="text-sm font-manrope text-storm-gray space-y-1">
-                                                <li>• Build knowledge library</li>
-                                                <li>• Launch client portal</li>
-                                                <li>• Train on best practices</li>
-                                            </ul>
-                                        </div>
-                                        <div className="bg-white rounded p-4 border-2 border-sea-glass">
-                                            <div className="font-manrope font-bold text-spruce mb-2">Week 4</div>
-                                            <ul className="text-sm font-manrope text-storm-gray space-y-1">
-                                                <li>• Measure improvements</li>
-                                                <li>• Gather agent feedback</li>
-                                                <li>• Plan automation phase</li>
-                                            </ul>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* ROI Calculator Preview */}
-                                <div className="mt-8 bg-spruce/10 rounded-lg p-6 border-2 border-spruce">
-                                    <h3 className="text-xl font-manrope font-bold text-spruce mb-4">Potential ROI from Improvements</h3>
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        <div>
-                                            <p className="font-manrope text-storm-gray mb-2">Based on {responses.agent_count} agents and {responses.monthly_deals} monthly deals:</p>
-                                            <ul className="space-y-2 font-manrope text-storm-gray">
-                                                <li>• Time savings: <span className="font-semibold font-jetbrains">600 hours/month</span></li>
-                                                <li>• Risk reduction: <span className="font-semibold font-jetbrains">$36,000/year saved</span></li>
-                                                <li>• Deal saves: <span className="font-semibold font-jetbrains">5 deals/month recovered</span></li>
-                                            </ul>
-                                        </div>
-                                        <div className="bg-white rounded p-4 text-center border-2 border-sea-glass">
-                                            <div className="text-3xl font-jetbrains font-bold text-fern">$58,000</div>
-                                            <div className="font-manrope text-storm-gray">Monthly Value Created</div>
-                                            <div className="mt-2 text-2xl font-jetbrains font-bold text-spruce">38X ROI</div>
-                                            <div className="font-manrope text-storm-gray">on Technology Investment</div>
-                                        </div>
-                                    </div>
-                                </div>
                             </div>
                         )}
                     </div>
@@ -1508,7 +998,6 @@
             );
         };
 
-        // Render the app
         ReactDOM.render(<App />, document.getElementById('root'));
     </script>
 </body>
