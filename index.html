@@ -115,7 +115,55 @@
                         label: "What's Your Brokerage Name?",
                         type: "text",
                         required: true
-                    },
+                    }
+                ]
+            },
+            contractReview: {
+                title: "Find Your Bottleneck",
+                questions: [
+                    {
+                        id: "contract_review_process",
+                        label: "Who reviews contracts after they're signed?",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "Agent - Each agent handles their own",
+                                icon: "user",
+                                label: "Agent",
+                                description: "Each agent handles their own"
+                            },
+                            {
+                                value: "Designated Broker - Broker reviews everything",
+                                icon: "shield",
+                                label: "Designated Broker",
+                                description: "Broker reviews everything"
+                            },
+                            {
+                                value: "Transaction Coordinator - TC handles all reviews",
+                                icon: "clipboard",
+                                label: "Transaction Coordinator",
+                                description: "TC handles all reviews"
+                            },
+                            {
+                                value: "Broker & TC - TC reviews, Broker supervises",
+                                icon: "users",
+                                label: "Broker & TC",
+                                description: "TC reviews, Broker supervises"
+                            },
+                            {
+                                value: "No formal process - varies by transaction",
+                                icon: "question",
+                                label: "No formal process",
+                                description: "varies by transaction"
+                            }
+                        ]
+                    }
+                ]
+            },
+            companySize: {
+                title: "Find Your Bottleneck",
+                questions: [
                     {
                         id: "agent_count",
                         label: "Number of Agents",
@@ -576,7 +624,8 @@
                             </h2>
 
                             {/* Answer Area */}
-                            <div className="max-w-2xl mx-auto mb-12">
+                            <div className="max-w-3xl mx-auto mb-12">
+                                {/* Text Input */}
                                 {currentQuestions.questions[0].type === 'text' && (
                                     <input
                                         type="text"
@@ -586,6 +635,65 @@
                                         onChange={(e) => handleInputChange(currentQuestions.questions[0].id, e.target.value)}
                                         required={currentQuestions.questions[0].required}
                                     />
+                                )}
+
+                                {/* Card Grid */}
+                                {currentQuestions.questions[0].type === 'cards' && (
+                                    <div className="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+                                        {currentQuestions.questions[0].options.map((option, index) => {
+                                            const isSelected = responses[currentQuestions.questions[0].id] === option.value;
+                                            const IconComponent = ({ icon }) => {
+                                                const iconMap = {
+                                                    user: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />,
+                                                    shield: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />,
+                                                    clipboard: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />,
+                                                    users: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />,
+                                                    question: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                                };
+                                                return (
+                                                    <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        {iconMap[icon]}
+                                                    </svg>
+                                                );
+                                            };
+
+                                            return (
+                                                <button
+                                                    key={option.value}
+                                                    onClick={() => handleInputChange(currentQuestions.questions[0].id, option.value)}
+                                                    className={`relative p-6 rounded-xl border-2 transition-all hover:shadow-md col-span-1 ${
+                                                        isSelected
+                                                            ? 'border-lime-green bg-lime-green/5'
+                                                            : 'border-gray-300 hover:border-gray-400'
+                                                    }`}
+                                                >
+                                                    {/* Checkmark Circle */}
+                                                    <div className="absolute top-4 right-4">
+                                                        {isSelected ? (
+                                                            <div className="w-6 h-6 rounded-full bg-lime-green flex items-center justify-center">
+                                                                <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                                                                </svg>
+                                                            </div>
+                                                        ) : (
+                                                            <div className="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Icon */}
+                                                    <div className={`mb-4 ${isSelected ? 'text-lime-green' : 'text-gray-600'}`}>
+                                                        <IconComponent icon={option.icon} />
+                                                    </div>
+
+                                                    {/* Label */}
+                                                    <div className="text-left">
+                                                        <h3 className="text-lg font-bold text-gray-800 mb-1 font-manrope">{option.label}</h3>
+                                                        <p className="text-sm text-gray-600 font-manrope">{option.description}</p>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
                                 )}
                             </div>
 
