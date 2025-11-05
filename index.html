@@ -253,6 +253,26 @@
                     }
                 ]
             },
+            deadlineTracking: {
+                title: "Find Your Bottleneck",
+                questions: [
+                    {
+                        id: "deadline_tracking_method",
+                        label: "How are critical deadlines tracked across transactions?",
+                        subtext: "Inspection periods, financing contingencies, closing dates, etc.",
+                        type: "checkbox",
+                        required: true,
+                        options: [
+                            "Manual - paper/memory based. Agents track on paper or rely on memory",
+                            "Each agent uses their own - Personal calendar/reminders. No centralized tracking",
+                            "Shared calendar/spreadsheet - Agents update their own dates in shared system",
+                            "Centralized TC/Admin system - TC manually enters all dates into shared calendar/system",
+                            "Automated deadline tracking - System extracts and monitors dates automatically",
+                            "No formal tracking system - Varies by agent"
+                        ]
+                    }
+                ]
+            },
             companySize: {
                 title: "Find Your Bottleneck",
                 questions: [
@@ -711,9 +731,16 @@
                             </h1>
 
                             {/* Question */}
-                            <h2 className="text-xl md:text-2xl text-gray-700 text-center mb-12 font-manrope font-medium">
-                                {currentQuestions.questions[0].label}
-                            </h2>
+                            <div className="text-center mb-12">
+                                <h2 className="text-xl md:text-2xl text-gray-700 font-manrope font-medium">
+                                    {currentQuestions.questions[0].label}
+                                </h2>
+                                {currentQuestions.questions[0].subtext && (
+                                    <p className="text-sm text-gray-500 mt-2 font-manrope italic">
+                                        {currentQuestions.questions[0].subtext}
+                                    </p>
+                                )}
+                            </div>
 
                             {/* Answer Area */}
                             <div className="max-w-3xl mx-auto mb-12">
@@ -791,6 +818,41 @@
                                                     <div className="text-left">
                                                         <h3 className="text-lg font-bold text-gray-800 mb-1 font-manrope">{option.label}</h3>
                                                         <p className="text-sm text-gray-600 font-manrope">{option.description}</p>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {/* Checkbox List */}
+                                {currentQuestions.questions[0].type === 'checkbox' && (
+                                    <div className="space-y-3">
+                                        {currentQuestions.questions[0].options.map((option, index) => {
+                                            const isSelected = responses[currentQuestions.questions[0].id] === option;
+                                            return (
+                                                <button
+                                                    key={option}
+                                                    onClick={() => handleInputChange(currentQuestions.questions[0].id, option)}
+                                                    className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:shadow-sm ${
+                                                        isSelected
+                                                            ? 'border-lime-green bg-lime-green/5'
+                                                            : 'border-gray-300 hover:border-gray-400'
+                                                    }`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        {/* Radio Circle */}
+                                                        <div className="flex-shrink-0">
+                                                            {isSelected ? (
+                                                                <div className="w-5 h-5 rounded-full bg-lime-green flex items-center justify-center">
+                                                                    <div className="w-2 h-2 rounded-full bg-white"></div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
+                                                            )}
+                                                        </div>
+                                                        {/* Text */}
+                                                        <span className="text-gray-800 font-manrope">{option}</span>
                                                     </div>
                                                 </button>
                                             );
