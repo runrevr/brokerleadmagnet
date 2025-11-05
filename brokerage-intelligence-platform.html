@@ -683,121 +683,100 @@
                                 </div>
                             </div>
 
-                            {/* Market Position */}
-                            <div className="bg-mist rounded-lg p-6 mb-6">
-                                <h3 className="text-xl font-manrope font-bold text-storm-gray mb-3">Your Market Position</h3>
-                                <p className="text-lg font-manrope text-storm-gray">
-                                    Your brokerage ranks in the <span className="font-bold text-spruce">{scores.percentile}</span> of brokerages assessed.
+                        </div>
+
+                        {/* Brief Deficiency Teaser */}
+                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-signal-red">
+                            <div className="text-center">
+                                <div className="text-5xl mb-4">⚠️</div>
+                                <h2 className="text-3xl font-bebas text-signal-red mb-4 tracking-wide">
+                                    We Identified {gaps.length} Critical Operational Gaps
+                                </h2>
+                                <p className="text-xl font-manrope text-storm-gray mb-2">
+                                    These inefficiencies are costing your brokerage an estimated{' '}
+                                    <span className="font-bold text-signal-red font-jetbrains">
+                                        ${scores.overall < 50 ? '127,000' : scores.overall < 70 ? '85,000' : '50,000'}+
+                                    </span>{' '}
+                                    per year in wasted time, missed deals, and liability exposure.
                                 </p>
-                                <div className="mt-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.transactionOversight}/100</div>
-                                        <div className="text-sm font-manrope text-storm-gray">Transaction Oversight</div>
-                                    </div>
-                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.operationalSystems}/100</div>
-                                        <div className="text-sm font-manrope text-storm-gray">Operational Systems</div>
-                                    </div>
-                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.knowledgeManagement}/100</div>
-                                        <div className="text-sm font-manrope text-storm-gray">Knowledge Mgmt</div>
-                                    </div>
-                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.clientExperience}/100</div>
-                                        <div className="text-sm font-manrope text-storm-gray">Client Experience</div>
-                                    </div>
-                                    <div className="bg-white rounded p-3 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{scores.riskManagement}/67</div>
-                                        <div className="text-sm font-manrope text-storm-gray">Risk Management</div>
-                                    </div>
-                                </div>
+                                <p className="text-lg font-manrope text-storm-gray/80">
+                                    Your complete report reveals exactly what's causing these gaps and how top brokerages have eliminated them.
+                                </p>
                             </div>
+                        </div>
 
-                            {/* Top Gaps */}
-                            <div className="bg-signal-red/10 border-2 border-signal-red rounded-lg p-6 mb-6">
-                                <h3 className="text-xl font-manrope font-bold mb-3 text-signal-red">Critical Gaps to Address</h3>
-                                <ul className="space-y-2">
-                                    {gaps.map((gap, index) => (
-                                        <li key={index} className="flex items-start">
-                                            <span className="text-signal-red mr-2">⚠️</span>
-                                            <div className="font-manrope text-storm-gray">
-                                                <span className="font-semibold">{gap.name}:</span> <span className="font-jetbrains">Scoring {gap.score}/{gap.max}</span>
-                                                <span className="text-storm-gray/70 ml-2">({Math.round((gap.score/gap.max)*100)}% of best practices)</span>
-                                            </div>
-                                        </li>
-                                    ))}
-                                </ul>
-                            </div>
-
-                            {/* Email Capture or Full Report Access */}
-                            {!emailCaptured ? (
-                                <div className="bg-spruce/10 border-2 border-spruce rounded-lg p-6">
-                                    <div className="flex items-center gap-3 mb-4">
-                                        <div className="text-3xl">📊</div>
-                                        <h3 className="text-xl font-manrope font-bold text-spruce">Your Personalized Analysis is Ready</h3>
-                                    </div>
-
-                                    <p className="font-manrope text-storm-gray mb-4 font-semibold">
-                                        Based on your assessment, our AI has generated a comprehensive report revealing how top-performing brokerages operate differently.
+                        {/* PROMINENT EMAIL CAPTURE */}
+                        {!emailCaptured ? (
+                            <div className="bg-gradient-to-br from-spruce to-storm-gray rounded-lg shadow-2xl p-10 mb-6 text-white">
+                                <div className="text-center max-w-4xl mx-auto">
+                                    <h2 className="text-4xl md:text-5xl font-bebas mb-4 tracking-wide leading-tight">
+                                        Want to See Your Full Report and How Top Brokerages Are Saving $50,000+/Year Using Technology?
+                                    </h2>
+                                    <p className="text-xl font-manrope mb-8 text-white/90">
+                                        Discover the exact systems and capabilities your brokerage can integrate within the next 30-90 days to eliminate inefficiencies and scale profitably.
                                     </p>
 
-                                    <div className="bg-white rounded-lg p-5 mb-4 border-2 border-sea-glass">
-                                        <p className="font-manrope text-sm text-storm-gray mb-3">
-                                            <span className="font-bold text-spruce">Get instant access to:</span>
-                                        </p>
-                                        <div className="grid grid-cols-1 gap-2">
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-spruce">✓</span>
-                                                <span className="text-sm text-storm-gray">How top 5% of brokerages handle transaction complexity</span>
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-spruce">✓</span>
-                                                <span className="text-sm text-storm-gray">Operational strategies that separate leaders from the rest</span>
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-spruce">✓</span>
-                                                <span className="text-sm text-storm-gray">Your competitive positioning vs. top performers in {responses.location}</span>
-                                            </div>
-                                            <div className="flex items-start gap-2">
-                                                <span className="text-spruce">✓</span>
-                                                <span className="text-sm text-storm-gray">Estimated savings potential based on your responses</span>
-                                            </div>
+                                    {/* Value Props */}
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
+                                        <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
+                                            <div className="text-3xl mb-3">🎯</div>
+                                            <h3 className="font-bold text-lg mb-2">Detailed Gap Analysis</h3>
+                                            <p className="text-sm text-white/80">See exactly what's broken, why it matters, and the hidden costs</p>
+                                        </div>
+                                        <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
+                                            <div className="text-3xl mb-3">🗺️</div>
+                                            <h3 className="font-bold text-lg mb-2">30-90 Day Roadmap</h3>
+                                            <p className="text-sm text-white/80">Prioritized action plan with quick wins and transformational changes</p>
+                                        </div>
+                                        <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
+                                            <div className="text-3xl mb-3">💰</div>
+                                            <h3 className="font-bold text-lg mb-2">ROI Projections</h3>
+                                            <p className="text-sm text-white/80">Quantified savings based on your brokerage's actual operations</p>
                                         </div>
                                     </div>
 
-                                    <form onSubmit={handleEmailSubmit} className="flex gap-2">
-                                        <input
-                                            type="email"
-                                            placeholder="Enter your work email"
-                                            value={email}
-                                            onChange={(e) => setEmail(e.target.value)}
-                                            required
-                                            className="flex-1 px-4 py-3 border-2 border-sea-glass rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope"
-                                        />
-                                        <button
-                                            type="submit"
-                                            className="px-6 py-3 bg-spruce text-white font-manrope font-semibold rounded-md hover:bg-storm-gray transition-colors whitespace-nowrap"
-                                        >
-                                            Get Full Report →
-                                        </button>
+                                    {/* Email Form */}
+                                    <form onSubmit={handleEmailSubmit} className="max-w-2xl mx-auto">
+                                        <div className="bg-white rounded-lg p-2 shadow-xl flex flex-col sm:flex-row gap-2">
+                                            <input
+                                                type="email"
+                                                value={email}
+                                                onChange={(e) => setEmail(e.target.value)}
+                                                placeholder="Enter your work email to unlock your full report"
+                                                required
+                                                className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope text-lg text-storm-gray"
+                                            />
+                                            <button
+                                                type="submit"
+                                                className="px-8 py-4 bg-signal-red text-white font-manrope font-bold rounded-md hover:bg-signal-red/90 transition-colors text-lg whitespace-nowrap shadow-lg"
+                                            >
+                                                Get My Full Report →
+                                            </button>
+                                        </div>
                                     </form>
 
-                                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-storm-gray">
-                                        <div className="flex items-center gap-1">
+                                    {/* Trust Indicators */}
+                                    <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
+                                        <div className="flex items-center gap-2">
                                             <span>✓</span>
-                                            <span>Instant access</span>
+                                            <span>Instant access (no wait)</span>
                                         </div>
-                                        <div className="flex items-center gap-1">
+                                        <div className="flex items-center gap-2">
                                             <span>✓</span>
-                                            <span>No credit card</span>
+                                            <span>No credit card required</span>
                                         </div>
-                                        <div className="flex items-center gap-1">
+                                        <div className="flex items-center gap-2">
                                             <span>✓</span>
                                             <span>Based on 1,000+ assessments</span>
                                         </div>
+                                        <div className="flex items-center gap-2">
+                                            <span>🔒</span>
+                                            <span>Your data is 100% secure</span>
+                                        </div>
                                     </div>
                                 </div>
-                            ) : (
+                            </div>
+                        ) : (
                                 <div className="bg-fern/10 border-2 border-fern rounded-lg p-6">
                                     <h3 className="text-xl font-manrope font-bold mb-3 text-fern">✅ Report Saved!</h3>
                                     <p className="font-manrope text-storm-gray mb-4">
