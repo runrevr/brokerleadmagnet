@@ -44,11 +44,11 @@ app.post('/api/email-capture', wrapHandler(emailCapture));
 
 // Serve frontend
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'brokerage-intelligence-platform.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.get('/report', (req, res) => {
-  res.sendFile(path.join(__dirname, 'brokerage-intelligence-platform.html'));
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 // Start server
