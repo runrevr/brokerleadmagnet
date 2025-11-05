@@ -110,7 +110,47 @@
                             throw new Error(result.error || 'Failed to load report');
                         }
 
-                        setReportData(result.data);
+                        // Transform database response to expected format
+                        const rawData = result.data;
+
+                        // Build scores object from scores array
+                        const scoresMap = {};
+                        if (rawData.scores && Array.isArray(rawData.scores)) {
+                            rawData.scores.forEach(score => {
+                                const key = score.category
+                                    .replace(/\s+/g, '')
+                                    .replace(/^./, str => str.toLowerCase())
+                                    .replace(/[A-Z]/g, letter => letter.toLowerCase());
+
+                                if (score.category === 'Transaction Oversight') scoresMap.transactionOversight = score.score;
+                                else if (score.category === 'Knowledge Management') scoresMap.knowledgeManagement = score.score;
+                                else if (score.category === 'Client Experience') scoresMap.clientExperience = score.score;
+                                else if (score.category === 'Risk Management') scoresMap.riskManagement = score.score;
+                            });
+                        }
+
+                        const transformedData = {
+                            id: rawData.id,
+                            timestamp: rawData.created_at,
+                            email: rawData.email,
+                            companyInfo: {
+                                company_name: rawData.company_name,
+                                agent_count: rawData.company_size,
+                                monthly_deals: rawData.monthly_transactions,
+                                location: rawData.primary_market
+                            },
+                            scores: {
+                                overall: rawData.overall_score,
+                                riskLevel: rawData.risk_level,
+                                percentile: rawData.percentile,
+                                ...scoresMap
+                            },
+                            estimatedSavings: Math.round(rawData.overall_score < 50 ? 127000 : rawData.overall_score < 70 ? 85000 : 50000),
+                            responses: rawData.responses,
+                            gaps: rawData.gaps
+                        };
+
+                        setReportData(transformedData);
                         setLoading(false);
                     } catch (err) {
                         console.error('Error loading report:', err);
@@ -971,4 +1011,4 @@
     </script>
 </body>
 </html>
-<!-- Build: 1762301317 - Email Capture Redesign -->
+<!-- Build: 1762303936 - Fix data mapping -->
