@@ -119,6 +119,10 @@ module.exports = async (req, res) => {
     const shareableToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days from now
 
+    // Convert percentile rank string to integer for database
+    // e.g., "95th percentile" -> 95, "Bottom 10%" -> 10
+    const percentileValue = scoreResults.percentage; // Use the percentage score as percentile
+
     // Save to database WITHOUT AI content first (we'll generate it async)
     console.log('[DB] Saving assessment...');
     const { data: assessment, error: insertError } = await supabase
@@ -130,6 +134,7 @@ module.exports = async (req, res) => {
         primary_market: companyInfo.location,
         overall_score: scoreResults.totalScore,
         risk_level: scoreResults.riskProfile,
+        percentile: percentileValue,
         shareable_token: shareableToken,
         token_expires_at: expiresAt.toISOString(),
         ai_executive_summary: null, // Will be generated async
