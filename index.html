@@ -459,6 +459,55 @@
                     }
                 ]
             },
+            clientQuestions: {
+                title: "Find Your Bottleneck",
+                questions: [
+                    {
+                        id: "client_question_handling",
+                        label: "How can clients get questions answered about their transaction documents?",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "24/7 AI chatbot - Instant answers anytime, all interactions logged",
+                                icon: "robot",
+                                label: "24/7 AI chatbot",
+                                description: "Instant answers anytime, all interactions logged"
+                            },
+                            {
+                                value: "Email agent, wait for reply - Usually within 24 hours",
+                                icon: "mail",
+                                label: "Email agent, wait for reply",
+                                description: "Usually within 24 hours"
+                            },
+                            {
+                                value: "Call/text agent during business hours - Agent availability limited",
+                                icon: "phone",
+                                label: "Call/text agent during business hours",
+                                description: "Agent availability limited"
+                            },
+                            {
+                                value: "Ask at scheduled check-ins - Weekly or milestone meetings",
+                                icon: "calendar",
+                                label: "Ask at scheduled check-ins",
+                                description: "Weekly or milestone meetings"
+                            },
+                            {
+                                value: "Refer to documents/FAQs - Clients search on their own",
+                                icon: "book",
+                                label: "Refer to documents/FAQs",
+                                description: "Clients search on their own"
+                            },
+                            {
+                                value: "Hope they ask if confused - No formal system for questions",
+                                icon: "question",
+                                label: "Hope they ask if confused",
+                                description: "No formal system for questions"
+                            }
+                        ]
+                    }
+                ]
+            },
             companySize: {
                 title: "Find Your Bottleneck",
                 questions: [
@@ -974,7 +1023,9 @@
                                                     'chart-low': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z" />,
                                                     'chart-mid-low': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
                                                     'chart-mid-high': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
-                                                    'chart-high': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                                    'chart-high': <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />,
+                                                    robot: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />,
+                                                    calendar: <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                                 };
                                                 return (
                                                     <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
