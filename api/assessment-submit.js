@@ -141,6 +141,10 @@ module.exports = async (req, res) => {
       .single();
 
     if (insertError) {
+      console.error('[DB INSERT ERROR] Full error:', JSON.stringify(insertError, null, 2));
+      console.error('[DB INSERT ERROR] Error message:', insertError.message);
+      console.error('[DB INSERT ERROR] Error code:', insertError.code);
+      console.error('[DB INSERT ERROR] Error details:', insertError.details);
       throw new Error(`Database insert failed: ${insertError.message}`);
     }
 
