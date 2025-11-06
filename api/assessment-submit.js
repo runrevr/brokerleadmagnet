@@ -19,7 +19,7 @@
  *   shareableUrl: "/report.html?id={token}",
  *   expiresAt: ISO timestamp,
  *   executiveSummary: "AI-generated summary text",
- *   scores: { /* scoring results */ },
+ *   scores: { scoring results },
  *   message: "Assessment saved successfully"
  * }
  */
@@ -114,30 +114,12 @@ module.exports = async (req, res) => {
       }))
     };
 
-    // Generate AI content (executive summary and full analysis)
-    console.log('[AI] Generating executive summary...');
-    let executiveSummary, fullAnalysis;
-
-    try {
-      // Generate both in parallel
-      [executiveSummary, fullAnalysis] = await Promise.all([
-        generateExecutiveSummary(assessmentData),
-        generateFullAnalysis(assessmentData)
-      ]);
-      console.log('[AI] Content generation complete');
-    } catch (aiError) {
-      console.error('[AI ERROR] Failed to generate content:', aiError.message);
-      // Continue without AI content - we'll still save the assessment
-      executiveSummary = scoreResults.profileSummary; // Fallback to static summary
-      fullAnalysis = null;
-    }
-
     // Generate shareable token and expiration
     const crypto = require('crypto');
     const shareableToken = crypto.randomUUID();
     const expiresAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days from now
 
-    // Save to database
+    // Save to database WITHOUT AI content first (we'll generate it async)
     console.log('[DB] Saving assessment...');
     const { data: assessment, error: insertError } = await supabase
       .from('assessments')
@@ -151,8 +133,8 @@ module.exports = async (req, res) => {
         percentile_rank: scoreResults.percentileRank,
         shareable_token: shareableToken,
         token_expires_at: expiresAt.toISOString(),
-        ai_executive_summary: executiveSummary,
-        ai_full_analysis: fullAnalysis,
+        ai_executive_summary: null, // Will be generated async
+        ai_full_analysis: null, // Will be generated async
         created_at: timestamp || new Date().toISOString(),
         completed_at: null // Will be set when email is captured
       })
@@ -165,6 +147,43 @@ module.exports = async (req, res) => {
 
     const assessmentId = assessment.id;
     console.log(`[DB] Assessment saved with ID: ${assessmentId}`);
+
+    // Generate AI content ASYNCHRONOUSLY (don't wait for it)
+    console.log('[AI] Starting async AI content generation...');
+    (async () => {
+      try {
+        const [executiveSummary, fullAnalysis] = await Promise.all([
+          generateExecutiveSummary(assessmentData),
+          generateFullAnalysis(assessmentData)
+        ]);
+
+        console.log('[AI] Content generation complete, updating assessment...');
+
+        // Update the assessment with AI content
+        const { error: updateError } = await supabase
+          .from('assessments')
+          .update({
+            ai_executive_summary: executiveSummary,
+            ai_full_analysis: fullAnalysis
+          })
+          .eq('id', assessmentId);
+
+        if (updateError) {
+          console.error('[AI UPDATE ERROR]:', updateError.message);
+        } else {
+          console.log('[AI] Assessment updated with AI content');
+        }
+      } catch (aiError) {
+        console.error('[AI ERROR] Failed to generate content:', aiError.message);
+        // Update with fallback summary
+        await supabase
+          .from('assessments')
+          .update({
+            ai_executive_summary: scoreResults.profileSummary
+          })
+          .eq('id', assessmentId);
+      }
+    })();
 
     // Save category scores
     const categoryScoresData = assessmentData.categoryScores.map(cat => ({
@@ -228,16 +247,15 @@ module.exports = async (req, res) => {
 
     console.log('[SUCCESS] Assessment processing complete');
 
-    // Success response
+    // Success response (AI content will be generated in background)
     res.status(200).json({
       success: true,
       assessmentId,
       shareableToken,
       shareableUrl: `/report.html?id=${shareableToken}`,
       expiresAt: expiresAt.toISOString(),
-      executiveSummary,
       scores: scoreResults,
-      message: 'Assessment saved successfully'
+      message: 'Assessment saved successfully. AI report is being generated.'
     });
 
   } catch (error) {
@@ -263,6 +281,7 @@ function getQuestionText(questionId) {
     'deadline_impact': 'Have missed deadlines ever cost your brokerage deals or money?',
     'training_frequency': 'How often do you provide formal training to your agents?',
     'agent_question_handling': 'When agents have questions, what do they typically do?',
+    'legal_question_handling': 'How do agents get answers about contract law and state regulations?',
     'client_timeline_communication': 'How do you educate clients about the transaction timeline?',
     'client_document_reading': 'What percentage of your clients actually read the transaction documents?',
     'client_question_handling': 'How do clients get answers to their questions during a transaction?',

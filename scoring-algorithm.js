@@ -110,6 +110,21 @@ const scoringRules = {
         aiOptimized: "Check our knowledge system - Instant self-service answers"
     },
 
+    // Q9: Legal Question Handling (7 points)
+    legal_question_handling: {
+        weight: 7,
+        scores: {
+            "Contact our real estate attorney- Proper legal counsel for guidance": 7,
+            "Ask designated broker - Broker provides legal guidance": 6,
+            "Reference our legal resources - Company/MLS-approved materials": 5,
+            "Call title company or escrow - Rely on transaction partners": 3,
+            "Google or online research - Search for answers themselves": 1,
+            "Make their best judgment - Decide based on experience": 0
+        },
+        category: "training_knowledge",
+        aiOptimized: "Contact our real estate attorney- Proper legal counsel for guidance"
+    },
+
     // Q10: Client Timeline Communication (8 points)
     client_timeline_communication: {
         weight: 8,
