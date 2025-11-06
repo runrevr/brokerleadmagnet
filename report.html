@@ -273,10 +273,17 @@
         };
 
         const PreEmailSection = ({ report, gaugeRef }) => {
+            const chartInstanceRef = useRef(null);
+
             useEffect(() => {
                 if (gaugeRef.current && report) {
+                    // Destroy existing chart if it exists
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                    }
+
                     const ctx = gaugeRef.current.getContext('2d');
-                    new Chart(ctx, {
+                    chartInstanceRef.current = new Chart(ctx, {
                         type: 'doughnut',
                         data: {
                             datasets: [{
@@ -299,6 +306,14 @@
                         }
                     });
                 }
+
+                // Cleanup function
+                return () => {
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                        chartInstanceRef.current = null;
+                    }
+                };
             }, [report]);
 
             const getScoreColor = (score) => {
