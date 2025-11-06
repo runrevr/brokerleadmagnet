@@ -151,23 +151,43 @@
                     const params = new URLSearchParams(window.location.search);
                     const token = params.get('id');
 
+                    console.log('[EMAIL SUBMIT] Sending request with:', {
+                        email,
+                        assessmentId: report.assessmentId,
+                        reportData: {
+                            companyName: report.companyName,
+                            overallScore: report.overallScore,
+                            riskLevel: report.riskLevel
+                        }
+                    });
+
                     const response = await fetch('/api/email-capture', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
                             email,
-                            assessmentId: report.id,
+                            assessmentId: report.assessmentId,
                             reportData: {
                                 companyName: report.companyName,
+                                companySize: report.companySize,
                                 overallScore: report.overallScore,
-                                riskLevel: report.riskLevel
+                                riskLevel: report.riskLevel,
+                                primaryMarket: report.primaryMarket,
+                                monthlyTransactions: report.monthlyTransactions
                             }
                         })
                     });
 
+                    console.log('[EMAIL SUBMIT] Response status:', response.status);
+
                     if (!response.ok) {
-                        throw new Error('Failed to submit email');
+                        const errorData = await response.json();
+                        console.error('[EMAIL SUBMIT] Error response:', errorData);
+                        throw new Error(errorData.error || errorData.message || 'Failed to submit email');
                     }
+
+                    const data = await response.json();
+                    console.log('[EMAIL SUBMIT] Success:', data);
 
                     setEmailSubmitted(true);
 
@@ -176,8 +196,8 @@
                         document.getElementById('full-report')?.scrollIntoView({ behavior: 'smooth' });
                     }, 500);
                 } catch (err) {
-                    console.error('Error submitting email:', err);
-                    setEmailError('Failed to submit email. Please try again.');
+                    console.error('[EMAIL SUBMIT] Error:', err);
+                    setEmailError(err.message || 'Failed to submit email. Please try again.');
                 } finally {
                     setSubmittingEmail(false);
                 }
@@ -357,20 +377,21 @@
                                 </div>
                             </div>
 
-                            {/* Executive Summary */}
+                            {/* Executive Summary - Teaser Only */}
                             <div className="flex flex-col justify-center">
                                 <h2 className="text-2xl font-bebas text-gray-800 mb-4">
                                     Your Brokerage is Doing Well But We Have Identified Some Significant Changes You Can Make to Match the Top Brokerages In The Country.
                                 </h2>
-                                <div className="text-base text-gray-700 font-manrope leading-relaxed space-y-3">
-                                    {report.executiveSummary ? (
-                                        report.executiveSummary.split('\n\n').map((p, i) => (
-                                            <p key={i}>{p}</p>
-                                        ))
-                                    ) : (
-                                        <div className="flex items-center space-x-3 text-amber p-4 bg-amber-50 rounded-lg">
+                                <div className="text-base text-gray-700 font-manrope leading-relaxed">
+                                    <p>
+                                        Our AI analysis has identified critical gaps in your operations that are costing you time, money, and competitive advantage.
+                                        The full breakdown reveals specific inefficiencies in your document management, compliance tracking, and client communication systems—along with the exact dollar impact.
+                                        <span className="font-semibold text-slate-blue"> Enter your email below to see the complete analysis and your personalized 60-day roadmap.</span>
+                                    </p>
+                                    {!report.executiveSummary && (
+                                        <div className="flex items-center space-x-3 text-amber p-4 bg-amber-50 rounded-lg mt-4">
                                             <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber"></div>
-                                            <p>Our AI is generating your personalized analysis... This takes about 30 seconds.</p>
+                                            <p className="text-sm">Your detailed AI analysis is being finalized in the background...</p>
                                         </div>
                                     )}
                                 </div>
