@@ -298,6 +298,8 @@
                             }]
                         },
                         options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
                             circumference: 180,
                             rotation: 270,
                             cutout: '75%',
@@ -344,12 +346,12 @@
                         {/* Score Gauge and Summary Grid */}
                         <div className="grid md:grid-cols-2 gap-8 mb-8">
                             {/* Gauge */}
-                            <div className="text-center">
-                                <div className="relative inline-block mb-4">
-                                    <canvas ref={gaugeRef} width="300" height="180"></canvas>
-                                    <div className="absolute inset-0 flex items-center justify-center mt-12">
-                                        <div className="text-6xl font-jetbrains font-bold text-gray-800">
-                                            {report.overallScore}<span className="text-3xl text-gray-500">/100</span>
+                            <div className="flex justify-center items-center">
+                                <div className="relative w-full max-w-sm">
+                                    <canvas ref={gaugeRef} width="300" height="180" style={{maxWidth: '100%', height: 'auto'}}></canvas>
+                                    <div className="absolute inset-0 flex items-center justify-center" style={{marginTop: '48px'}}>
+                                        <div className="text-5xl font-jetbrains font-bold text-gray-800">
+                                            {report.overallScore}<span className="text-2xl text-gray-500">/100</span>
                                         </div>
                                     </div>
                                 </div>
@@ -360,7 +362,7 @@
                                 <h2 className="text-2xl font-bebas text-gray-800 mb-4">
                                     Your Brokerage is Doing Well But We Have Identified Some Significant Changes You Can Make to Match the Top Brokerages In The Country.
                                 </h2>
-                                <div className="text-gray-700 font-manrope leading-relaxed space-y-3">
+                                <div className="text-base text-gray-700 font-manrope leading-relaxed space-y-3">
                                     {report.executiveSummary ? (
                                         report.executiveSummary.split('\n\n').map((p, i) => (
                                             <p key={i}>{p}</p>
