@@ -946,10 +946,19 @@
             };
 
             const handleNext = () => {
+                console.log('[HANDLE NEXT] Current step:', currentStep);
+                console.log('[HANDLE NEXT] Total categories:', categories.length);
+                console.log('[HANDLE NEXT] Categories:', categories);
+                console.log('[HANDLE NEXT] Responses:', responses);
+
                 if (currentStep < categories.length - 1) {
+                    console.log('[HANDLE NEXT] Moving to next step...');
                     setCurrentStep(currentStep + 1);
                 } else {
+                    console.log('[HANDLE NEXT] Last step reached, calculating scores...');
                     const calculatedScores = calculateScores(responses);
+                    console.log('[HANDLE NEXT] Calculated scores:', calculatedScores);
+                    console.log('[HANDLE NEXT] Calling onComplete...');
                     onComplete(responses, calculatedScores);
                 }
             };
@@ -962,9 +971,13 @@
 
             const isCurrentStepValid = () => {
                 // Validate all required questions in the current section
-                return currentQuestions.questions.every(question =>
-                    !question.required || responses[question.id]
-                );
+                const isValid = currentQuestions.questions.every(question => {
+                    const hasResponse = !question.required || responses[question.id];
+                    console.log(`[VALIDATION] Question ${question.id}: required=${question.required}, hasResponse=${!!responses[question.id]}, valid=${hasResponse}`);
+                    return hasResponse;
+                });
+                console.log(`[VALIDATION] Current step valid: ${isValid}`);
+                return isValid;
             };
 
             return (
@@ -1190,7 +1203,7 @@
                                     disabled={!isCurrentStepValid()}
                                     className="flex items-center gap-2 bg-slate-blue text-white px-8 py-3 rounded-lg font-manrope font-semibold hover:bg-slate-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
-                                    Next
+                                    {currentStep === categories.length - 1 ? 'Submit' : 'Next'}
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                                     </svg>
@@ -1543,6 +1556,7 @@
             const [currentView, setCurrentView] = useState('landing');
             const [responses, setResponses] = useState(null);
             const [scores, setScores] = useState(null);
+            const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
             const handleStartAssessment = () => {
                 setCurrentView('assessment');
@@ -1552,6 +1566,9 @@
                 console.log('[ASSESSMENT COMPLETE] Starting immediate redirect flow...');
                 console.log('[ASSESSMENT COMPLETE] Responses:', assessmentResponses);
                 console.log('[ASSESSMENT COMPLETE] Scores:', assessmentScores);
+
+                // Show loading screen
+                setIsGeneratingReport(true);
 
                 try {
                     // Extract company info and filter out from responses
@@ -1615,6 +1632,45 @@
                     setCurrentView('report');
                 }
             };
+
+            // Loading screen while generating report
+            if (isGeneratingReport) {
+                return (
+                    <div className="min-h-screen bg-gradient-to-br from-slate-blue to-gray-800 flex items-center justify-center px-4">
+                        <div className="max-w-2xl w-full text-center">
+                            <div className="bg-white/10 backdrop-blur rounded-2xl p-12 border border-white/20">
+                                {/* Animated spinner */}
+                                <div className="flex justify-center mb-8">
+                                    <div className="relative">
+                                        <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-white"></div>
+                                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl">
+                                            🤖
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Message */}
+                                <h2 className="text-4xl font-bebas text-white mb-4 tracking-wide">
+                                    Generating Your AI-Powered Report
+                                </h2>
+                                <p className="text-xl text-white/90 font-manrope mb-6">
+                                    Our AI is analyzing your responses and creating a personalized report with actionable insights...
+                                </p>
+                                <p className="text-sm text-white/70 font-manrope">
+                                    This typically takes 30-60 seconds. Please don't close this window.
+                                </p>
+
+                                {/* Progress dots */}
+                                <div className="flex justify-center gap-2 mt-8">
+                                    <div className="w-3 h-3 bg-white/50 rounded-full animate-pulse"></div>
+                                    <div className="w-3 h-3 bg-white/50 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
+                                    <div className="w-3 h-3 bg-white/50 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
 
             return (
                 <div>
