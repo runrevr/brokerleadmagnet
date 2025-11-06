@@ -61,13 +61,26 @@
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
             const [copied, setCopied] = useState(false);
+            const [aiGenerating, setAiGenerating] = useState(false);
+            const [emailSubmitted, setEmailSubmitted] = useState(false);
+            const [email, setEmail] = useState('');
+            const [emailError, setEmailError] = useState('');
+            const [submittingEmail, setSubmittingEmail] = useState(false);
             const gaugeRef = useRef(null);
+            const pollIntervalRef = useRef(null);
 
             useEffect(() => {
                 fetchReport();
+
+                // Cleanup polling on unmount
+                return () => {
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current);
+                    }
+                };
             }, []);
 
-            const fetchReport = async () => {
+            const fetchReport = async (isPolling = false) => {
                 try {
                     const params = new URLSearchParams(window.location.search);
                     const token = params.get('id');
@@ -87,6 +100,27 @@
 
                     setReport(data.report);
                     setLoading(false);
+
+                    // Check if AI content is missing - if so, start polling
+                    if (!data.report.executiveSummary || !data.report.fullAnalysis) {
+                        if (!isPolling) {
+                            console.log('[REPORT] AI content not ready yet, starting polling...');
+                            setAiGenerating(true);
+
+                            // Poll every 3 seconds
+                            pollIntervalRef.current = setInterval(() => {
+                                fetchReport(true);
+                            }, 3000);
+                        }
+                    } else {
+                        // AI content is ready, stop polling
+                        setAiGenerating(false);
+                        if (pollIntervalRef.current) {
+                            console.log('[REPORT] AI content ready, stopping polling');
+                            clearInterval(pollIntervalRef.current);
+                            pollIntervalRef.current = null;
+                        }
+                    }
                 } catch (err) {
                     console.error('Error fetching report:', err);
                     setError(err.message);
@@ -104,6 +138,47 @@
 
             const handlePrint = () => {
                 window.print();
+            };
+
+            const handleEmailSubmit = async (e) => {
+                e.preventDefault();
+                setEmailError('');
+                setSubmittingEmail(true);
+
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const token = params.get('id');
+
+                    const response = await fetch('/api/email-capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email,
+                            assessmentId: report.id,
+                            reportData: {
+                                companyName: report.companyName,
+                                overallScore: report.overallScore,
+                                riskLevel: report.riskLevel
+                            }
+                        })
+                    });
+
+                    if (!response.ok) {
+                        throw new Error('Failed to submit email');
+                    }
+
+                    setEmailSubmitted(true);
+
+                    // Scroll to full report
+                    setTimeout(() => {
+                        document.getElementById('full-report')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 500);
+                } catch (err) {
+                    console.error('Error submitting email:', err);
+                    setEmailError('Failed to submit email. Please try again.');
+                } finally {
+                    setSubmittingEmail(false);
+                }
             };
 
             if (loading) {
@@ -138,7 +213,7 @@
                     <header className="bg-white shadow-sm no-print sticky top-0 z-50">
                         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
                             <div className="flex items-center">
-                                <img src="/ContRE_logo.png" alt="ContRE" className="h-8" />
+                                <img src="/contre-logo.png" alt="ContRE" className="h-10" />
                             </div>
                             <div className="flex gap-3">
                                 <button
@@ -166,8 +241,21 @@
                     {/* Pre-Email Section (Upper Portion from design) */}
                     <PreEmailSection report={report} gaugeRef={gaugeRef} />
 
-                    {/* Full Report (6 Sections) */}
-                    <FullReportSections report={report} />
+                    {/* Email Gate */}
+                    {!emailSubmitted ? (
+                        <EmailGateSection
+                            email={email}
+                            setEmail={setEmail}
+                            emailError={emailError}
+                            submittingEmail={submittingEmail}
+                            handleEmailSubmit={handleEmailSubmit}
+                        />
+                    ) : (
+                        <div id="full-report">
+                            {/* Full Report (6 Sections) */}
+                            <FullReportSections report={report} />
+                        </div>
+                    )}
 
                     {/* Footer */}
                     <footer className="bg-white border-t border-gray-200 mt-16 no-print">
@@ -225,7 +313,7 @@
                     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
                         {/* Logo */}
                         <div className="text-center mb-8">
-                            <img src="/ContRE_logo.png" alt="ContRE" className="h-12 mx-auto" />
+                            <img src="/contre-logo.png" alt="ContRE" className="h-16 mx-auto" />
                         </div>
 
                         {/* Congratulations Header */}
@@ -261,7 +349,10 @@
                                             <p key={i}>{p}</p>
                                         ))
                                     ) : (
-                                        <p>{report.percentileRank || 'Analysis complete'}</p>
+                                        <div className="flex items-center space-x-3 text-amber p-4 bg-amber-50 rounded-lg">
+                                            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber"></div>
+                                            <p>Our AI is generating your personalized analysis... This takes about 30 seconds.</p>
+                                        </div>
                                     )}
                                 </div>
                             </div>
@@ -279,12 +370,93 @@
             );
         };
 
+        const EmailGateSection = ({ email, setEmail, emailError, submittingEmail, handleEmailSubmit }) => {
+            return (
+                <div className="bg-gradient-to-br from-slate-blue to-gray-800 py-16">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="text-center text-white mb-8">
+                            <h2 className="text-4xl md:text-5xl font-bebas mb-4 tracking-wide">
+                                Want to See Your Full Report?
+                            </h2>
+                            <p className="text-xl font-manrope mb-8 text-white/90">
+                                Discover the exact systems and capabilities your brokerage can integrate within the next 30-90 days to eliminate inefficiencies and scale profitably.
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
+                                <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
+                                    <div className="text-3xl mb-3">🎯</div>
+                                    <h3 className="font-bold text-lg mb-2">Detailed Gap Analysis</h3>
+                                    <p className="text-sm text-white/80">See exactly what's broken, why it matters, and the hidden costs</p>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
+                                    <div className="text-3xl mb-3">🗺️</div>
+                                    <h3 className="font-bold text-lg mb-2">60-Day Roadmap</h3>
+                                    <p className="text-sm text-white/80">Prioritized action plan with quick wins and transformational changes</p>
+                                </div>
+                                <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
+                                    <div className="text-3xl mb-3">💰</div>
+                                    <h3 className="font-bold text-lg mb-2">ROI Projections</h3>
+                                    <p className="text-sm text-white/80">Quantified savings based on your brokerage's actual operations</p>
+                                </div>
+                            </div>
+
+                            <form onSubmit={handleEmailSubmit} className="max-w-2xl mx-auto">
+                                <div className="bg-white rounded-lg p-2 shadow-xl flex flex-col sm:flex-row gap-2">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Enter your work email to unlock your full report"
+                                        required
+                                        disabled={submittingEmail}
+                                        className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green font-manrope text-lg text-gray-800"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={submittingEmail}
+                                        className="px-8 py-4 bg-red-600 text-white font-manrope font-bold rounded-md hover:bg-red-700 transition-colors text-lg whitespace-nowrap shadow-lg disabled:opacity-50"
+                                    >
+                                        {submittingEmail ? 'Submitting...' : 'Get My Full Report →'}
+                                    </button>
+                                </div>
+                                {emailError && (
+                                    <p className="text-red-300 font-manrope mt-2">{emailError}</p>
+                                )}
+                            </form>
+
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
+                                <div className="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>Instant access (no wait)</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>No credit card required</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>Based on 1,000+ assessments</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span>🔒</span>
+                                    <span>Your data is 100% secure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         const FullReportSections = ({ report }) => {
             if (!report.fullAnalysis) {
                 return (
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
-                            <p className="text-gray-600 font-manrope">Full analysis is being generated...</p>
+                        <div className="bg-white rounded-lg shadow-lg p-8">
+                            <div className="flex items-center justify-center space-x-3 text-amber">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber"></div>
+                                <p className="text-lg font-manrope">Our AI is analyzing your responses and generating your comprehensive report... This takes about 30 seconds.</p>
+                            </div>
                         </div>
                     </div>
                 );
