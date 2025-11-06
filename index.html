@@ -1554,20 +1554,31 @@
                 console.log('[ASSESSMENT COMPLETE] Scores:', assessmentScores);
 
                 try {
+                    // Extract company info and filter out from responses
+                    const companyInfo = {
+                        company_name: assessmentResponses.company_name,
+                        agent_count: assessmentResponses.agent_count,
+                        monthly_deals: assessmentResponses.monthly_deals,
+                        location: assessmentResponses.location
+                    };
+
+                    // Filter responses to only include question answers (not company info)
+                    const questionResponses = {};
+                    Object.keys(assessmentResponses).forEach(key => {
+                        if (!['company_name', 'agent_count', 'monthly_deals', 'location'].includes(key)) {
+                            questionResponses[key] = assessmentResponses[key];
+                        }
+                    });
+
                     // Prepare assessment data for API submission
                     const assessmentData = {
-                        companyInfo: {
-                            company_name: assessmentResponses.company_name,
-                            agent_count: assessmentResponses.agent_count,
-                            monthly_deals: assessmentResponses.monthly_deals,
-                            location: assessmentResponses.location
-                        },
-                        responses: assessmentResponses,
-                        scores: assessmentScores,
+                        companyInfo,
+                        responses: questionResponses,
                         timestamp: new Date().toISOString()
                     };
 
                     console.log('[ASSESSMENT COMPLETE] Submitting to /api/assessment-submit...');
+                    console.log('[ASSESSMENT COMPLETE] Assessment data:', assessmentData);
 
                     // Save assessment to database
                     const submitResponse = await fetch('/api/assessment-submit', {
@@ -1586,8 +1597,8 @@
                     console.log('[ASSESSMENT COMPLETE] Submit result:', submitResult);
 
                     // Get the shareable token from the response
-                    const assessmentId = submitResult.assessmentId || submitResult.shareableToken;
-                    const reportUrl = `${window.location.origin}/report.html?id=${assessmentId}`;
+                    const shareableToken = submitResult.shareableToken;
+                    const reportUrl = `${window.location.origin}/report.html?id=${shareableToken}`;
 
                     console.log('[ASSESSMENT COMPLETE] Redirecting to:', reportUrl);
 
