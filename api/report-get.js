@@ -1,28 +1,41 @@
 /**
- * GET /api/report-get?id={uuid}
+ * GET /api/report-get?id={shareableToken}
  *
- * Retrieve a complete assessment by ID
- * Used for shareable report URLs and report retrieval
+ * Retrieve a saved assessment report by shareable token
+ * Used by report.html to display full reports
  *
- * Query params:
- * - id: Assessment UUID
+ * Query parameters:
+ * - id: shareable token (UUID)
  *
  * Response:
  * {
  *   success: true,
- *   data: {
- *     id: "uuid",
- *     company_name: "...",
- *     overall_score: 75.5,
- *     risk_level: "MODERATE",
- *     scores: [...],
- *     responses: [...],
- *     gaps: [...]
+ *   report: {
+ *     assessmentId: UUID,
+ *     companyName: string,
+ *     companySize: string,
+ *     monthlyTransactions: string,
+ *     primaryMarket: string,
+ *     overallScore: number,
+ *     riskLevel: string,
+ *     percentileRank: string,
+ *     executiveSummary: string (AI-generated),
+ *     fullAnalysis: object (AI-generated JSON),
+ *     categoryScores: array,
+ *     responses: array,
+ *     gaps: array,
+ *     createdAt: ISO timestamp,
+ *     expiresAt: ISO timestamp
  *   }
  * }
+ *
+ * Error responses:
+ * - 400: Missing token
+ * - 404: Report not found or expired
+ * - 500: Server error
  */
 
-const { getAssessment } = require('./db');
+const { supabase } = require('./db');
 
 module.exports = async (req, res) => {
   // Enable CORS
@@ -44,41 +57,111 @@ module.exports = async (req, res) => {
   }
 
   try {
-    // Get assessment ID from query params
+    // Extract token from query parameters
     const { id } = req.query;
 
-    // Validation
     if (!id) {
       return res.status(400).json({
         success: false,
-        error: 'Assessment ID required. Use ?id={uuid}'
+        error: 'Missing required parameter: id (shareable token)'
       });
     }
 
-    // Validate UUID format
-    const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-    if (!uuidRegex.test(id)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid assessment ID format'
-      });
-    }
+    console.log(`[REPORT-GET] Fetching report for token: ${id.substring(0, 8)}...`);
 
-    // Retrieve from database
-    const assessment = await getAssessment(id);
+    // Fetch assessment from database using shareable_token
+    const { data: assessment, error: assessmentError } = await supabase
+      .from('assessments')
+      .select('*')
+      .eq('shareable_token', id)
+      .single();
 
-    // Check if found
-    if (!assessment) {
+    if (assessmentError || !assessment) {
+      console.log('[REPORT-GET] Report not found');
       return res.status(404).json({
         success: false,
-        error: 'Assessment not found'
+        error: 'Report not found',
+        message: 'This report link may be invalid or expired.'
       });
     }
+
+    // Check if token is expired
+    const now = new Date();
+    const expiresAt = new Date(assessment.token_expires_at);
+
+    if (now > expiresAt) {
+      console.log('[REPORT-GET] Report expired');
+      return res.status(404).json({
+        success: false,
+        error: 'Report expired',
+        message: 'This report link has expired. Reports are available for 2 days after creation.'
+      });
+    }
+
+    // Fetch related data
+    const [scoresResult, responsesResult, gapsResult] = await Promise.all([
+      supabase
+        .from('scores')
+        .select('*')
+        .eq('assessment_id', assessment.id),
+      supabase
+        .from('responses')
+        .select('*')
+        .eq('assessment_id', assessment.id),
+      supabase
+        .from('gaps')
+        .select('*')
+        .eq('assessment_id', assessment.id)
+    ]);
+
+    const categoryScores = scoresResult.data || [];
+    const responses = responsesResult.data || [];
+    const gaps = gapsResult.data || [];
+
+    // Construct full report object
+    const report = {
+      assessmentId: assessment.id,
+      companyName: assessment.company_name,
+      companySize: assessment.company_size,
+      monthlyTransactions: assessment.monthly_transactions,
+      primaryMarket: assessment.primary_market,
+      overallScore: assessment.overall_score,
+      riskLevel: assessment.risk_level,
+      percentileRank: assessment.percentile_rank,
+      executiveSummary: assessment.ai_executive_summary,
+      fullAnalysis: assessment.ai_full_analysis,
+      categoryScores: categoryScores.map(cs => ({
+        category: cs.category,
+        score: cs.score,
+        maxScore: cs.max_score,
+        percentage: cs.percentage
+      })),
+      responses: responses.map(r => ({
+        questionId: r.question_id,
+        questionText: r.question_text,
+        answer: r.answer,
+        pointsEarned: r.points_earned
+      })),
+      gaps: gaps.map(g => ({
+        questionId: g.question_id,
+        questionText: g.question_text,
+        currentAnswer: g.current_answer,
+        aiOptimizedAnswer: g.ai_optimized_answer,
+        pointsLost: g.points_lost,
+        severity: g.severity
+      })),
+      createdAt: assessment.created_at,
+      expiresAt: assessment.token_expires_at,
+      completedAt: assessment.completed_at,
+      email: assessment.email
+    };
+
+    console.log(`[REPORT-GET] Report found for ${assessment.company_name}`);
 
     // Success response
     res.status(200).json({
       success: true,
-      data: assessment
+      report
     });
 
   } catch (error) {

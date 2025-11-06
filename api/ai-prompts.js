@@ -219,9 +219,9 @@ TASK: Generate a comprehensive analysis in JSON format with these components:
   ],
 
   "roadmap": {
-    // 90-day action plan prioritized by impact and ease
+    // 60-day action plan prioritized by impact and ease
     "quickWins": [
-      // 0-30 days, minimal investment
+      // 0-20 days, minimal investment
       {
         "action": "string (specific action item)",
         "addresses": "string (which gap/category)",
@@ -231,11 +231,11 @@ TASK: Generate a comprehensive analysis in JSON format with these components:
       }
     ],
     "foundationBuilding": [
-      // 30-60 days, moderate investment
+      // 20-40 days, moderate investment
       // Same structure as quickWins
     ],
     "transformation": [
-      // 60-90 days, significant investment
+      // 40-60 days, significant investment
       // Same structure, but frame as "this is where integrated platforms shine"
     ]
   },
@@ -267,7 +267,7 @@ TASK: Generate a comprehensive analysis in JSON format with these components:
       "totalAnnual": "string",
       "roi": "string (X:1 return if they solve these gaps)"
     },
-    "implementationNote": "string (mention how top-performing brokerages typically achieve these results - focus on their approach: 'Top 5% brokerages typically see these improvements within 90 days by implementing automated transaction intelligence systems')"
+    "implementationNote": "string (mention how top-performing brokerages typically achieve these results - focus on their approach: 'Top 5% brokerages typically see these improvements within 60 days by implementing automated transaction intelligence systems')"
   },
 
   "specificRecommendations": [

@@ -3,313 +3,199 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Your Brokerage Intelligence Report</title>
-    <!-- Version: 3.0 - Redesigned Email Capture Flow -->
+    <title>Your Transactional Risk Profile | ContRE</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <!-- React -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Custom Config -->
     <script>
         tailwind.config = {
             theme: {
                 extend: {
+                    fontFamily: {
+                        'bebas': ['"Bebas Neue"', 'cursive'],
+                        'manrope': ['Manrope', 'sans-serif'],
+                        'jetbrains': ['"JetBrains Mono"', 'monospace']
+                    },
                     colors: {
-                        'spruce': '#264E36',
-                        'river-stone': '#78909C',
-                        'sea-glass': '#9DBFBF',
-                        'mist': '#F5F7F7',
-                        'storm-gray': '#37474F',
-                        'fern': '#607D3B',
-                        'bark-brown': '#6F4E37',
+                        'lime-green': '#84cc16',
+                        'slate-blue': '#2C3E50',
                         'signal-red': '#CC0000',
                         'amber': '#F59E0B'
-                    },
-                    fontFamily: {
-                        'bebas': ['Bebas Neue', 'sans-serif'],
-                        'manrope': ['Manrope', 'sans-serif'],
-                        'jetbrains': ['JetBrains Mono', 'monospace']
                     }
                 }
             }
         }
     </script>
+
     <style>
-        body {
-            font-family: 'Manrope', sans-serif;
-        }
-
-        h1, h2 {
-            font-family: 'Bebas Neue', sans-serif;
-            letter-spacing: 0.02em;
-        }
-
-        h3, h4, h5 {
-            font-family: 'Manrope', sans-serif;
-        }
-
-        .font-mono, .score-display {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
         @media print {
             .no-print { display: none !important; }
-            body { background: white; }
-            .print-break { page-break-before: always; }
-            .shadow-lg { box-shadow: none !important; }
-            canvas { max-width: 100%; }
+            .page-break { page-break-before: always; }
+            body { font-size: 12pt; }
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-50">
     <div id="root"></div>
+
     <script type="text/babel">
         const { useState, useEffect, useRef } = React;
 
         const ReportPage = () => {
+            const [report, setReport] = useState(null);
             const [loading, setLoading] = useState(true);
             const [error, setError] = useState(null);
-            const [reportData, setReportData] = useState(null);
-            const [aiSummary, setAiSummary] = useState(null);
-            const [aiLoading, setAiLoading] = useState(false);
-            const [fullAnalysis, setFullAnalysis] = useState(null);
-            const [fullAnalysisLoading, setFullAnalysisLoading] = useState(false);
-            const [email, setEmail] = useState('');
-            const [emailSubmitting, setEmailSubmitting] = useState(false);
-            const chartRef = useRef(null);
-            const radarChartRef = useRef(null);
-            const chartInstance = useRef(null);
-            const radarChartInstance = useRef(null);
+            const [copied, setCopied] = useState(false);
+            const gaugeRef = useRef(null);
 
             useEffect(() => {
-                const loadReport = async () => {
-                    try {
-                        // Get assessment ID from URL query parameter
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const assessmentId = urlParams.get('id');
-
-                        if (!assessmentId) {
-                            setError('No report ID provided in URL');
-                            setLoading(false);
-                            return;
-                        }
-
-                        // Fetch report data from API
-                        const response = await fetch(`/api/report-get?id=${assessmentId}`);
-
-                        if (!response.ok) {
-                            throw new Error('Failed to load report');
-                        }
-
-                        const result = await response.json();
-
-                        if (!result.success) {
-                            throw new Error(result.error || 'Failed to load report');
-                        }
-
-                        // Transform database response to expected format
-                        const rawData = result.data;
-
-                        // Build scores object from scores array
-                        const scoresMap = {};
-                        if (rawData.scores && Array.isArray(rawData.scores)) {
-                            rawData.scores.forEach(score => {
-                                const key = score.category
-                                    .replace(/\s+/g, '')
-                                    .replace(/^./, str => str.toLowerCase())
-                                    .replace(/[A-Z]/g, letter => letter.toLowerCase());
-
-                                if (score.category === 'Transaction Oversight') scoresMap.transactionOversight = score.score;
-                                else if (score.category === 'Knowledge Management') scoresMap.knowledgeManagement = score.score;
-                                else if (score.category === 'Client Experience') scoresMap.clientExperience = score.score;
-                                else if (score.category === 'Risk Management') scoresMap.riskManagement = score.score;
-                            });
-                        }
-
-                        const transformedData = {
-                            id: rawData.id,
-                            timestamp: rawData.created_at,
-                            email: rawData.email,
-                            companyInfo: {
-                                company_name: rawData.company_name,
-                                agent_count: rawData.company_size,
-                                monthly_deals: rawData.monthly_transactions,
-                                location: rawData.primary_market
-                            },
-                            scores: {
-                                overall: rawData.overall_score,
-                                riskLevel: rawData.risk_level,
-                                percentile: rawData.percentile,
-                                ...scoresMap
-                            },
-                            estimatedSavings: Math.round(rawData.overall_score < 50 ? 127000 : rawData.overall_score < 70 ? 85000 : 50000),
-                            responses: rawData.responses,
-                            gaps: rawData.gaps
-                        };
-
-                        setReportData(transformedData);
-                        setLoading(false);
-                    } catch (err) {
-                        console.error('Error loading report:', err);
-                        setError(err.message);
-                        setLoading(false);
-                    }
-                };
-
-                loadReport();
+                fetchReport();
             }, []);
 
-            // Load AI insights after report data is available
-            useEffect(() => {
-                if (!reportData || !reportData.id) {
-                    console.log('[AI] Waiting for report data...', { hasReportData: !!reportData, hasId: reportData?.id });
-                    return;
-                }
-
-                console.log('[AI] Starting AI insights load for assessment:', reportData.id);
-
-                const loadAIInsights = async () => {
-                    setAiLoading(true);
-                    try {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const assessmentId = urlParams.get('id');
-
-                        console.log('[AI] Fetching from /api/ai-preview?id=' + assessmentId);
-                        const response = await fetch(`/api/ai-preview?id=${assessmentId}`);
-                        const result = await response.json();
-
-                        console.log('[AI] Response received:', result);
-
-                        if (result.success) {
-                            setAiSummary(result.summary);
-                            console.log('[AI] Summary set successfully');
-                        } else {
-                            console.error('[AI] API returned error:', result.error);
-                        }
-                    } catch (err) {
-                        console.error('[AI] Error loading AI insights:', err);
-                        // Don't block the page if AI fails
-                    } finally {
-                        setAiLoading(false);
-                        console.log('[AI] Loading complete');
-                    }
-                };
-
-                loadAIInsights();
-            }, [reportData]);
-
-            // Load full AI analysis when email is captured
-            useEffect(() => {
-                if (!reportData || !reportData.email) return;
-
-                const loadFullAnalysis = async () => {
-                    setFullAnalysisLoading(true);
-                    try {
-                        const urlParams = new URLSearchParams(window.location.search);
-                        const assessmentId = urlParams.get('id');
-
-                        console.log('[Full Analysis] Fetching from /api/ai-full-analysis?id=' + assessmentId);
-                        const response = await fetch(`/api/ai-full-analysis?id=${assessmentId}`);
-                        const result = await response.json();
-
-                        console.log('[Full Analysis] Response received:', result);
-
-                        if (result.success) {
-                            setFullAnalysis(result.analysis);
-                            console.log('[Full Analysis] Analysis loaded successfully');
-                        } else {
-                            console.error('[Full Analysis] API returned error:', result.error);
-                        }
-                    } catch (err) {
-                        console.error('[Full Analysis] Error loading full analysis:', err);
-                    } finally {
-                        setFullAnalysisLoading(false);
-                    }
-                };
-
-                loadFullAnalysis();
-            }, [reportData?.email]);
-
-            // Handle email submission to unlock full report
-            const handleEmailSubmit = async (e) => {
-                e.preventDefault();
-                setEmailSubmitting(true);
-
+            const fetchReport = async () => {
                 try {
-                    const urlParams = new URLSearchParams(window.location.search);
-                    const assessmentId = urlParams.get('id');
+                    const params = new URLSearchParams(window.location.search);
+                    const token = params.get('id');
 
-                    const emailData = {
-                        email,
-                        assessmentId,
-                        reportData: {
-                            companyName: reportData.companyInfo?.companyName,
-                            brokerageSize: reportData.companyInfo?.agentCount,
-                            city: reportData.companyInfo?.location,
-                            overallScore: reportData.scores?.overall,
-                            riskLevel: reportData.scores?.riskLevel,
-                            monthlyTransactions: reportData.companyInfo?.monthlyDeals
-                        }
-                    };
+                    if (!token) {
+                        setError('No report token provided');
+                        setLoading(false);
+                        return;
+                    }
 
-                    const response = await fetch('/api/email-capture', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(emailData)
-                    });
+                    const response = await fetch(`/api/report-get?id=${token}`);
+                    const data = await response.json();
 
                     if (!response.ok) {
-                        throw new Error('Failed to capture email');
+                        throw new Error(data.message || data.error || 'Failed to load report');
                     }
 
-                    const result = await response.json();
-                    console.log('✅ Email captured:', result);
-
-                    // Update reportData to include email
-                    setReportData({
-                        ...reportData,
-                        email: email
-                    });
-
-                    // Scroll to full report section
-                    window.scrollTo({ top: 0, behavior: 'smooth' });
-
+                    setReport(data.report);
+                    setLoading(false);
                 } catch (err) {
-                    console.error('Error submitting email:', err);
-                    alert('Failed to unlock report. Please try again.');
-                } finally {
-                    setEmailSubmitting(false);
+                    console.error('Error fetching report:', err);
+                    setError(err.message);
+                    setLoading(false);
                 }
             };
 
+            const handleShare = () => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                });
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            if (loading) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-slate-blue mx-auto mb-4"></div>
+                            <p className="text-gray-600 font-manrope">Loading your report...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center px-4">
+                        <div className="max-w-md text-center">
+                            <div className="text-6xl mb-4">⚠️</div>
+                            <h1 className="text-2xl font-bebas text-gray-800 mb-2">Report Not Found</h1>
+                            <p className="text-gray-600 font-manrope mb-4">{error}</p>
+                            <a href="/" className="inline-block bg-slate-blue text-white px-6 py-3 rounded-md font-manrope font-semibold hover:bg-slate-blue/90">
+                                Take Assessment
+                            </a>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm no-print sticky top-0 z-50">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+                            <div className="flex items-center">
+                                <img src="/ContRE_logo.png" alt="ContRE" className="h-8" />
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleShare}
+                                    className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-md font-manrope text-sm hover:bg-gray-50"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                    </svg>
+                                    {copied ? 'Copied!' : 'Share'}
+                                </button>
+                                <button
+                                    onClick={handlePrint}
+                                    className="flex items-center gap-2 px-4 py-2 bg-slate-blue text-white rounded-md font-manrope text-sm hover:bg-slate-blue/90"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                    Print / PDF
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Pre-Email Section (Upper Portion from design) */}
+                    <PreEmailSection report={report} gaugeRef={gaugeRef} />
+
+                    {/* Full Report (6 Sections) */}
+                    <FullReportSections report={report} />
+
+                    {/* Footer */}
+                    <footer className="bg-white border-t border-gray-200 mt-16 no-print">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="text-center text-gray-600 font-manrope text-sm">
+                                <p className="mb-2">Report generated by ContRE AI-Powered Brokerage Intelligence</p>
+                                <p className="text-xs text-gray-500">
+                                    This report expires on {new Date(report.expiresAt).toLocaleDateString()}
+                                </p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const PreEmailSection = ({ report, gaugeRef }) => {
             useEffect(() => {
-                if (!reportData || !reportData.scores) return;
-
-                // Clean up existing charts
-                if (chartInstance.current) {
-                    chartInstance.current.destroy();
-                }
-                if (radarChartInstance.current) {
-                    radarChartInstance.current.destroy();
-                }
-
-                // Draw gauge chart for overall score
-                if (chartRef.current) {
-                    const ctx = chartRef.current.getContext('2d');
-                    chartInstance.current = new Chart(ctx, {
+                if (gaugeRef.current && report) {
+                    const ctx = gaugeRef.current.getContext('2d');
+                    new Chart(ctx, {
                         type: 'doughnut',
                         data: {
                             datasets: [{
-                                data: [reportData.scores.overall, 100 - reportData.scores.overall],
+                                data: [report.overallScore, 100 - report.overallScore],
                                 backgroundColor: [
-                                    reportData.scores.overall >= 85 ? '#607D3B' :  // Fern for LOW risk
-                                    reportData.scores.overall >= 70 ? '#F59E0B' :  // Amber for MODERATE
-                                    reportData.scores.overall >= 50 ? '#F59E0B' :  // Amber for HIGH
-                                    '#CC0000',                                       // Signal Red for CRITICAL
-                                    '#9DBFBF'                                        // Sea Glass for remainder
+                                    getScoreColor(report.overallScore),
+                                    '#E5E7EB'
                                 ],
                                 borderWidth: 0
                             }]
@@ -325,684 +211,496 @@
                         }
                     });
                 }
+            }, [report]);
 
-                // Draw radar chart for category scores
-                if (radarChartRef.current) {
-                    const ctx = radarChartRef.current.getContext('2d');
-                    radarChartInstance.current = new Chart(ctx, {
-                        type: 'radar',
-                        data: {
-                            labels: [
-                                'Transaction Oversight',
-                                'Knowledge Management',
-                                'Client Experience',
-                                'Risk Management'
-                            ],
-                            datasets: [{
-                                label: 'Your Score',
-                                data: [
-                                    reportData.scores.transactionOversight || 0,
-                                    reportData.scores.knowledgeManagement || 0,
-                                    reportData.scores.clientExperience || 0,
-                                    reportData.scores.riskManagement || 0
-                                ],
-                                backgroundColor: 'rgba(120, 144, 156, 0.2)',  // River Stone
-                                borderColor: 'rgb(120, 144, 156)',            // River Stone
-                                pointBackgroundColor: 'rgb(120, 144, 156)',
-                                pointBorderColor: '#fff',
-                                pointHoverBackgroundColor: '#fff',
-                                pointHoverBorderColor: 'rgb(120, 144, 156)'
-                            }, {
-                                label: 'Top 5% Benchmark',
-                                data: [32, 32, 32, 32],
-                                backgroundColor: 'rgba(96, 125, 59, 0.2)',    // Fern
-                                borderColor: 'rgb(96, 125, 59)',              // Fern
-                                pointBackgroundColor: 'rgb(96, 125, 59)',
-                                pointBorderColor: '#fff',
-                                pointHoverBackgroundColor: '#fff',
-                                pointHoverBorderColor: 'rgb(96, 125, 59)'
-                            }]
-                        },
-                        options: {
-                            scales: {
-                                r: {
-                                    beginAtZero: true,
-                                    max: 35
-                                }
-                            }
-                        }
-                    });
-                }
-
-                // Cleanup function
-                return () => {
-                    if (chartInstance.current) {
-                        chartInstance.current.destroy();
-                    }
-                    if (radarChartInstance.current) {
-                        radarChartInstance.current.destroy();
-                    }
-                };
-            }, [reportData]);
-
-            if (loading) {
-                return (
-                    <div className="min-h-screen bg-mist flex items-center justify-center">
-                        <div className="text-center">
-                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-spruce"></div>
-                            <p className="mt-4 font-manrope text-storm-gray">Loading your report...</p>
-                        </div>
-                    </div>
-                );
-            }
-
-            if (error) {
-                return (
-                    <div className="min-h-screen bg-mist flex items-center justify-center">
-                        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md">
-                            <div className="text-signal-red text-5xl mb-4">⚠️</div>
-                            <h2 className="text-2xl font-bebas text-storm-gray mb-2 tracking-wide">Report Not Found</h2>
-                            <p className="font-manrope text-storm-gray mb-4">{error}</p>
-                            <a
-                                href="/"
-                                className="inline-block px-6 py-2 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-spruce transition-colors"
-                            >
-                                Take Assessment
-                            </a>
-                        </div>
-                    </div>
-                );
-            }
-
-            // Identify top gaps
-            const gaps = [
-                { name: 'Transaction Oversight', score: reportData.scores.transactionOversight || 0, max: 35 },
-                { name: 'Knowledge Management', score: reportData.scores.knowledgeManagement || 0, max: 35 },
-                { name: 'Client Experience', score: reportData.scores.clientExperience || 0, max: 35 },
-                { name: 'Risk Management', score: reportData.scores.riskManagement || 0, max: 35 }
-            ].sort((a, b) => (a.score/a.max) - (b.score/b.max)).slice(0, 3);
+            const getScoreColor = (score) => {
+                if (score >= 85) return '#84cc16'; // lime-green
+                if (score >= 70) return '#F59E0B'; // amber
+                if (score >= 50) return '#F59E0B'; // amber
+                return '#CC0000'; // signal-red
+            };
 
             return (
-                <div className="min-h-screen bg-mist py-8">
-                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-                        {/* Print/Share Actions */}
-                        <div className="no-print mb-4 flex justify-end gap-2">
-                            <button
-                                onClick={() => window.print()}
-                                className="px-4 py-2 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
-                            >
-                                <span>📄</span> Download PDF
-                            </button>
-                            <button
-                                onClick={() => {
-                                    navigator.clipboard.writeText(window.location.href);
-                                    alert('Report link copied to clipboard!');
-                                }}
-                                className="px-4 py-2 bg-storm-gray text-white font-manrope font-semibold rounded-md hover:bg-spruce flex items-center gap-2 transition-colors"
-                            >
-                                <span>🔗</span> Copy Link
-                            </button>
+                <div className="bg-white py-12">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Logo */}
+                        <div className="text-center mb-8">
+                            <img src="/ContRE_logo.png" alt="ContRE" className="h-12 mx-auto" />
                         </div>
 
-                        {/* Report Header */}
-                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
-                            <div className="text-center mb-8">
-                                <h1 className="text-4xl font-bebas text-spruce mb-2 tracking-wide">
-                                    Brokerage Intelligence Report
-                                </h1>
-                                <p className="text-xl font-manrope font-semibold text-storm-gray">
-                                    {reportData.companyInfo?.company_name || 'Your Brokerage'}
-                                </p>
-                                <p className="text-sm font-manrope text-storm-gray/70 mt-2">
-                                    Generated: {new Date(reportData.timestamp).toLocaleDateString()}
-                                </p>
-                            </div>
-
-                            {/* Overall Score Section */}
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
-                                <div className="text-center">
-                                    <h2 className="text-2xl font-manrope font-bold text-storm-gray mb-4">Overall Score</h2>
-                                    <div className="relative inline-block">
-                                        <canvas ref={chartRef} width="250" height="150"></canvas>
-                                        <div className="absolute inset-0 flex items-center justify-center mt-8">
-                                            <div>
-                                                <div className="text-5xl font-jetbrains font-bold text-spruce">{reportData.scores.overall}</div>
-                                                <div className="text-sm font-manrope text-storm-gray">out of 100</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div className={`mt-4 inline-block px-4 py-2 rounded-full text-white font-manrope font-semibold ${
-                                        reportData.scores.riskLevel === 'LOW' ? 'bg-fern' :
-                                        reportData.scores.riskLevel === 'MODERATE' ? 'bg-amber' :
-                                        reportData.scores.riskLevel === 'HIGH' ? 'bg-amber' : 'bg-signal-red'
-                                    }`}>
-                                        Risk Level: {reportData.scores.riskLevel}
-                                    </div>
-                                </div>
-
-                                <div>
-                                    <h2 className="text-2xl font-manrope font-bold text-storm-gray mb-4">Performance Breakdown</h2>
-                                    <canvas ref={radarChartRef} width="300" height="300"></canvas>
-                                </div>
-                            </div>
+                        {/* Congratulations Header */}
+                        <div className="text-center mb-8">
+                            <p className="text-gray-600 font-manrope mb-2">Congrats on Finishing Your Risk Questionnaire</p>
+                            <h1 className="text-4xl md:text-5xl font-bebas text-gray-800 tracking-wide">
+                                HERE'S YOUR<br />TRANSACTIONAL RISK<br />PROFILE
+                            </h1>
                         </div>
 
-                        {/* Brief Deficiency Teaser (not full details) */}
-                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-signal-red">
+                        {/* Score Gauge and Summary Grid */}
+                        <div className="grid md:grid-cols-2 gap-8 mb-8">
+                            {/* Gauge */}
                             <div className="text-center">
-                                <div className="text-5xl mb-4">⚠️</div>
-                                <h2 className="text-3xl font-bebas text-signal-red mb-4 tracking-wide">
-                                    We Identified {gaps.length} Critical Operational Gaps
+                                <div className="relative inline-block mb-4">
+                                    <canvas ref={gaugeRef} width="300" height="180"></canvas>
+                                    <div className="absolute inset-0 flex items-center justify-center mt-12">
+                                        <div className="text-6xl font-jetbrains font-bold text-gray-800">
+                                            {report.overallScore}<span className="text-3xl text-gray-500">/100</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Executive Summary */}
+                            <div className="flex flex-col justify-center">
+                                <h2 className="text-2xl font-bebas text-gray-800 mb-4">
+                                    Your Brokerage is Doing Well But We Have Identified Some Significant Changes You Can Make to Match the Top Brokerages In The Country.
                                 </h2>
-                                <p className="text-xl font-manrope text-storm-gray mb-2">
-                                    These inefficiencies are costing your brokerage an estimated{' '}
-                                    <span className="font-bold text-signal-red font-jetbrains">
-                                        ${reportData.estimatedSavings ? reportData.estimatedSavings.toLocaleString() : '50,000'}+
-                                    </span>{' '}
-                                    per year in wasted time, missed deals, and liability exposure.
-                                </p>
-                                <p className="text-lg font-manrope text-storm-gray/80">
-                                    Your complete report reveals exactly what's causing these gaps and how top brokerages have eliminated them.
-                                </p>
+                                <div className="text-gray-700 font-manrope leading-relaxed space-y-3">
+                                    {report.executiveSummary ? (
+                                        report.executiveSummary.split('\n\n').map((p, i) => (
+                                            <p key={i}>{p}</p>
+                                        ))
+                                    ) : (
+                                        <p>{report.percentileRank || 'Analysis complete'}</p>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
-                        {/* PROMINENT EMAIL CAPTURE - Now Position 3! */}
-                        {!reportData.email ? (
-                            <div className="bg-gradient-to-br from-spruce to-storm-gray rounded-lg shadow-2xl p-10 mb-6 text-white">
-                                <div className="text-center max-w-4xl mx-auto">
-                                    <h2 className="text-4xl md:text-5xl font-bebas mb-4 tracking-wide leading-tight">
-                                        Want to See Your Full Report and How Top Brokerages Are Saving $50,000+/Year Using Technology?
-                                    </h2>
-                                    <p className="text-xl font-manrope mb-8 text-white/90">
-                                        Discover the exact systems and capabilities your brokerage can integrate within the next 30-90 days to eliminate inefficiencies and scale profitably.
-                                    </p>
+                        {/* Tagline */}
+                        <div className="text-center mt-12 pt-8 border-t border-gray-200">
+                            <p className="text-xl font-manrope font-semibold text-gray-800">
+                                Our Proprietary AI System Has Created Your Full Report, Along With a 60<br />
+                                Day Roadmap to get you into the top 10% of US Brokerages.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
 
-                                    {/* Value Props */}
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 text-left">
-                                        <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
-                                            <div className="text-3xl mb-3">🎯</div>
-                                            <h3 className="font-bold text-lg mb-2">Detailed Gap Analysis</h3>
-                                            <p className="text-sm text-white/80">See exactly what's broken, why it matters, and the hidden costs</p>
-                                        </div>
-                                        <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
-                                            <div className="text-3xl mb-3">🗺️</div>
-                                            <h3 className="font-bold text-lg mb-2">30-90 Day Roadmap</h3>
-                                            <p className="text-sm text-white/80">Prioritized action plan with quick wins and transformational changes</p>
-                                        </div>
-                                        <div className="bg-white/10 backdrop-blur rounded-lg p-5 border border-white/20">
-                                            <div className="text-3xl mb-3">💰</div>
-                                            <h3 className="font-bold text-lg mb-2">ROI Projections</h3>
-                                            <p className="text-sm text-white/80">Quantified savings based on your brokerage's actual operations</p>
-                                        </div>
-                                    </div>
+        const FullReportSections = ({ report }) => {
+            if (!report.fullAnalysis) {
+                return (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                        <div className="bg-white rounded-lg shadow-lg p-8 text-center">
+                            <p className="text-gray-600 font-manrope">Full analysis is being generated...</p>
+                        </div>
+                    </div>
+                );
+            }
 
-                                    {/* Email Form */}
-                                    <form onSubmit={handleEmailSubmit} className="max-w-2xl mx-auto">
-                                        <div className="bg-white rounded-lg p-2 shadow-xl flex flex-col sm:flex-row gap-2">
-                                            <input
-                                                type="email"
-                                                value={email}
-                                                onChange={(e) => setEmail(e.target.value)}
-                                                placeholder="Enter your work email to unlock your full report"
-                                                required
-                                                disabled={emailSubmitting}
-                                                className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope text-lg text-storm-gray disabled:opacity-50"
-                                            />
-                                            <button
-                                                type="submit"
-                                                disabled={emailSubmitting}
-                                                className="px-8 py-4 bg-signal-red text-white font-manrope font-bold rounded-md hover:bg-signal-red/90 transition-colors text-lg whitespace-nowrap disabled:opacity-50 shadow-lg"
-                                            >
-                                                {emailSubmitting ? 'Unlocking...' : 'Get My Full Report →'}
-                                            </button>
-                                        </div>
-                                    </form>
+            const analysis = report.fullAnalysis;
 
-                                    {/* Trust Indicators */}
-                                    <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
-                                        <div className="flex items-center gap-2">
-                                            <span>✓</span>
-                                            <span>Instant access (no wait)</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span>✓</span>
-                                            <span>No credit card required</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span>✓</span>
-                                            <span>Based on 1,000+ assessments</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <span>🔒</span>
-                                            <span>Your data is 100% secure</span>
-                                        </div>
-                                    </div>
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+                    {/* Section 1: Your Operational Snapshot */}
+                    <Section1Snapshot report={report} analysis={analysis} />
+
+                    {/* Section 2: Gap Analysis */}
+                    <Section2GapAnalysis analysis={analysis} />
+
+                    {/* Section 3: Financial Impact Model */}
+                    <Section3FinancialImpact analysis={analysis} />
+
+                    {/* Section 4: 60-Day Transformation Roadmap */}
+                    <Section4Roadmap analysis={analysis} />
+
+                    {/* Section 5: Competitive Positioning */}
+                    <Section5Positioning report={report} analysis={analysis} />
+
+                    {/* Section 6: Key Insight & Next Steps */}
+                    <Section6NextSteps analysis={analysis} />
+                </div>
+            );
+        };
+
+        // SECTION 1: Operational Snapshot
+        const Section1Snapshot = ({ report, analysis }) => {
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        1. YOUR OPERATIONAL SNAPSHOT
+                    </h2>
+
+                    {/* Archetype */}
+                    {analysis.archetype && (
+                        <div className="mb-8 bg-slate-blue/5 border-l-4 border-slate-blue p-6 rounded-r-lg">
+                            <h3 className="text-xl font-manrope font-bold text-slate-blue mb-2">
+                                Your Operational Archetype: {analysis.archetype.type}
+                            </h3>
+                            <p className="text-gray-700 font-manrope mb-3">{analysis.archetype.description}</p>
+                            {analysis.archetype.typicalChallenges && (
+                                <div className="mt-4">
+                                    <p className="font-manrope font-semibold text-gray-800 mb-2">Typical Challenges:</p>
+                                    <ul className="list-disc list-inside space-y-1 text-gray-700 font-manrope">
+                                        {analysis.archetype.typicalChallenges.map((challenge, idx) => (
+                                            <li key={idx}>{challenge}</li>
+                                        ))}
+                                    </ul>
                                 </div>
-                            </div>
-                        ) : null}
+                            )}
+                        </div>
+                    )}
 
-                        {/* Brokerage Rank - Now BELOW Email Capture */}
-                        <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-spruce">
-                            <h3 className="text-2xl font-bebas text-spruce mb-6 tracking-wide text-center">How You Compare to Other Brokerages</h3>
-
-                            <div className="max-w-3xl mx-auto">
-                                {/* Percentile Display */}
-                                <div className="text-center mb-6">
-                                    <div className="text-5xl font-jetbrains font-bold text-spruce mb-2">
-                                        {reportData.scores.percentile}
+                    {/* Category Scores */}
+                    <div className="mb-8">
+                        <h3 className="text-xl font-manrope font-bold text-gray-800 mb-4">Score Breakdown by Category</h3>
+                        <div className="space-y-4">
+                            {report.categoryScores.map((cat, idx) => (
+                                <div key={idx}>
+                                    <div className="flex justify-between mb-1">
+                                        <span className="font-manrope font-semibold text-gray-700">{cat.category}</span>
+                                        <span className="font-jetbrains text-gray-600">{cat.score}/{cat.maxScore} ({cat.percentage}%)</span>
                                     </div>
-                                    <p className="text-lg font-manrope text-storm-gray">
-                                        Your brokerage ranks in the <span className="font-bold">{reportData.scores.percentile}</span> of all brokerages assessed
-                                    </p>
-                                </div>
-
-                                {/* Visual Progress Bar */}
-                                <div className="mb-8">
-                                    <div className="relative h-12 bg-gradient-to-r from-signal-red via-amber to-fern rounded-full overflow-hidden shadow-inner">
+                                    <div className="w-full bg-gray-200 rounded-full h-3">
                                         <div
-                                            className="absolute top-0 left-0 h-full flex items-center justify-center"
-                                            style={{
-                                                left: `${reportData.scores.overall}%`,
-                                                transform: 'translateX(-50%)'
-                                            }}
-                                        >
-                                            <div className="bg-white border-4 border-storm-gray rounded-full w-16 h-16 flex items-center justify-center shadow-xl">
-                                                <span className="font-jetbrains font-bold text-storm-gray text-sm">{reportData.scores.overall}</span>
+                                            className="bg-lime-green h-3 rounded-full transition-all"
+                                            style={{ width: `${cat.percentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* AI Optimization Gap */}
+                    <div className="bg-amber/10 border border-amber/30 rounded-lg p-6">
+                        <h3 className="text-xl font-manrope font-bold text-gray-800 mb-3">AI Optimization Gap</h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <p className="text-sm text-gray-600 font-manrope mb-1">Your Score</p>
+                                <p className="text-4xl font-jetbrains font-bold text-gray-800">{report.overallScore}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-600 font-manrope mb-1">AI-Optimized Benchmark</p>
+                                <p className="text-4xl font-jetbrains font-bold text-lime-green">95-100</p>
+                            </div>
+                        </div>
+                        <p className="mt-4 text-gray-700 font-manrope">
+                            Gap to AI-optimized: <span className="font-bold">{100 - report.overallScore} points</span>
+                        </p>
+                    </div>
+                </section>
+            );
+        };
+
+        // SECTION 2: Gap Analysis
+        const Section2GapAnalysis = ({ analysis }) => {
+            if (!analysis.gapAnalysis || analysis.gapAnalysis.length === 0) return null;
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        2. GAP ANALYSIS - CRITICAL OPERATIONAL GAPS
+                    </h2>
+
+                    <div className="space-y-8">
+                        {analysis.gapAnalysis.map((gap, idx) => (
+                            <div key={idx} className="border-l-4 border-signal-red pl-6 pb-6 border-b border-gray-200 last:border-b-0">
+                                <div className="flex items-start justify-between mb-3">
+                                    <h3 className="text-xl font-manrope font-bold text-gray-800">{gap.category}</h3>
+                                    <span className={`px-3 py-1 rounded-full text-xs font-manrope font-semibold ${
+                                        gap.severity === 'CRITICAL' ? 'bg-signal-red text-white' :
+                                        gap.severity === 'HIGH' ? 'bg-amber text-white' :
+                                        'bg-yellow-400 text-gray-800'
+                                    }`}>
+                                        {gap.severity}
+                                    </span>
+                                </div>
+
+                                <div className="space-y-4 text-gray-700 font-manrope">
+                                    <div>
+                                        <p className="font-semibold text-gray-800 mb-1">The Issue:</p>
+                                        <p>{gap.issue}</p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded-lg">
+                                        <p className="font-semibold text-gray-800 mb-1">Evidence from Your Assessment:</p>
+                                        <p className="italic">"{gap.evidence}"</p>
+                                    </div>
+
+                                    <div>
+                                        <p className="font-semibold text-gray-800 mb-2">Business Impact:</p>
+                                        <div className="grid md:grid-cols-3 gap-4 text-sm">
+                                            <div className="bg-red-50 p-3 rounded">
+                                                <p className="font-semibold text-gray-700 mb-1">Time Wasted:</p>
+                                                <p>{gap.businessImpact.timeWasted}</p>
+                                            </div>
+                                            <div className="bg-red-50 p-3 rounded">
+                                                <p className="font-semibold text-gray-700 mb-1">Financial Cost:</p>
+                                                <p>{gap.businessImpact.financialCost}</p>
+                                            </div>
+                                            <div className="bg-red-50 p-3 rounded">
+                                                <p className="font-semibold text-gray-700 mb-1">Risk Created:</p>
+                                                <p>{gap.businessImpact.riskCreated}</p>
                                             </div>
                                         </div>
                                     </div>
-                                    <div className="flex justify-between mt-2 text-sm font-manrope text-storm-gray/70">
-                                        <span>Bottom 50%</span>
-                                        <span>Average</span>
-                                        <span>Top 5%</span>
+
+                                    <div className="bg-lime-green/10 border-l-4 border-lime-green p-4">
+                                        <p className="font-semibold text-gray-800 mb-1">What Top 5% Do Differently:</p>
+                                        <p>{gap.industryBestPractice}</p>
                                     </div>
                                 </div>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            );
+        };
 
-                                {/* Category Scores */}
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                                    <div className="bg-mist rounded-lg p-4 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{reportData.scores.transactionOversight || 0}/35</div>
-                                        <div className="text-sm font-manrope text-storm-gray mt-1">Transaction Oversight</div>
-                                    </div>
-                                    <div className="bg-mist rounded-lg p-4 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{reportData.scores.knowledgeManagement || 0}/35</div>
-                                        <div className="text-sm font-manrope text-storm-gray mt-1">Knowledge Mgmt</div>
-                                    </div>
-                                    <div className="bg-mist rounded-lg p-4 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{reportData.scores.clientExperience || 0}/35</div>
-                                        <div className="text-sm font-manrope text-storm-gray mt-1">Client Experience</div>
-                                    </div>
-                                    <div className="bg-mist rounded-lg p-4 text-center border-2 border-sea-glass">
-                                        <div className="text-2xl font-jetbrains font-bold text-river-stone">{reportData.scores.riskManagement || 0}/35</div>
-                                        <div className="text-sm font-manrope text-storm-gray mt-1">Risk Management</div>
-                                    </div>
+        // SECTION 3: Financial Impact Model
+        const Section3FinancialImpact = ({ analysis }) => {
+            if (!analysis.financialImpact) return null;
+
+            const impact = analysis.financialImpact;
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        3. FINANCIAL IMPACT MODEL
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-8 mb-8">
+                        {/* Current State Costs */}
+                        <div className="bg-red-50 border-2 border-signal-red rounded-lg p-6">
+                            <h3 className="text-xl font-bebas text-signal-red mb-4">CURRENT STATE ANNUAL COSTS</h3>
+                            <div className="space-y-3 font-manrope text-sm">
+                                <div className="flex justify-between pb-2 border-b border-red-200">
+                                    <span className="text-gray-700">Manual Document Review:</span>
+                                    <span className="font-semibold">{impact.currentStateCosts.manualDocumentReview}</span>
                                 </div>
-
-                                {/* Company Info */}
-                                <div className="mt-6 bg-spruce/10 rounded-lg p-6 border-2 border-spruce">
-                                    <h4 className="text-lg font-manrope font-bold text-spruce mb-3 text-center">Your Brokerage Profile</h4>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="text-center">
-                                            <div className="text-sm font-manrope text-storm-gray/70">Agents</div>
-                                            <div className="text-lg font-jetbrains font-semibold text-storm-gray">{reportData.companyInfo?.agent_count || 'N/A'}</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="text-sm font-manrope text-storm-gray/70">Monthly Transactions</div>
-                                            <div className="text-lg font-jetbrains font-semibold text-storm-gray">{reportData.companyInfo?.monthly_deals || 'N/A'}</div>
-                                        </div>
-                                        <div className="text-center">
-                                            <div className="text-sm font-manrope text-storm-gray/70">Market</div>
-                                            <div className="text-lg font-manrope font-semibold text-storm-gray">{reportData.companyInfo?.location || 'N/A'}</div>
-                                        </div>
-                                    </div>
+                                <div className="flex justify-between pb-2 border-b border-red-200">
+                                    <span className="text-gray-700">Missed Deadlines:</span>
+                                    <span className="font-semibold">{impact.currentStateCosts.missedDeadlines}</span>
+                                </div>
+                                <div className="flex justify-between pb-2 border-b border-red-200">
+                                    <span className="text-gray-700">E&O Risk:</span>
+                                    <span className="font-semibold">{impact.currentStateCosts.eoRisk}</span>
+                                </div>
+                                <div className="flex justify-between pt-3 text-lg">
+                                    <span className="font-bold text-gray-800">Total Annual Leakage:</span>
+                                    <span className="font-bold text-signal-red">{impact.currentStateCosts.totalAnnual}</span>
                                 </div>
                             </div>
                         </div>
 
-                        {/* AI-Powered Analysis Section - GATED behind email */}
-                        {reportData.email && (
-                            <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-spruce">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="text-3xl">🤖</div>
-                                    <h2 className="text-2xl font-bebas text-spruce tracking-wide">AI-Powered Intelligence Analysis</h2>
+                        {/* Projected Savings */}
+                        <div className="bg-green-50 border-2 border-lime-green rounded-lg p-6">
+                            <h3 className="text-xl font-bebas text-lime-green mb-4">PROJECTED ANNUAL SAVINGS</h3>
+                            <div className="space-y-3 font-manrope text-sm">
+                                <div className="flex justify-between pb-2 border-b border-green-200">
+                                    <span className="text-gray-700">Time Reclaimed:</span>
+                                    <span className="font-semibold">{impact.projectedSavings.timeReclaimed}</span>
                                 </div>
-
-                                {aiLoading ? (
-                                    <div className="flex items-center justify-center py-12">
-                                        <div className="text-center">
-                                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-spruce mb-4"></div>
-                                            <p className="font-manrope text-storm-gray">Our AI is analyzing your assessment...</p>
-                                            <p className="font-manrope text-sm text-storm-gray/70 mt-2">This usually takes 10-15 seconds</p>
-                                        </div>
-                                    </div>
-                                ) : aiSummary ? (
-                                    <div className="prose max-w-none">
-                                        {aiSummary.split('\n\n').map((paragraph, index) => (
-                                            <p key={index} className="font-manrope text-storm-gray mb-4 leading-relaxed">
-                                                {paragraph}
-                                            </p>
-                                        ))}
-
-                                        <div className="mt-6 bg-spruce/5 border-l-4 border-spruce p-6 rounded-r-lg">
-                                            <p className="font-manrope text-sm text-storm-gray/80 italic">
-                                                💡 This analysis was generated by advanced AI trained on thousands of brokerage assessments.
-                                                It identifies patterns specific to your situation that generic scoring systems miss.
-                                            </p>
-                                        </div>
-                                    </div>
-                                ) : (
-                                    <div className="text-center py-8">
-                                        <p className="font-manrope text-storm-gray">AI analysis temporarily unavailable</p>
-                                    </div>
-                                )}
+                                <div className="flex justify-between pb-2 border-b border-green-200">
+                                    <span className="text-gray-700">Deals Protected:</span>
+                                    <span className="font-semibold">{impact.projectedSavings.dealsProtected}</span>
+                                </div>
+                                <div className="flex justify-between pb-2 border-b border-green-200">
+                                    <span className="text-gray-700">Risk Reduction:</span>
+                                    <span className="font-semibold">{impact.projectedSavings.riskReduction}</span>
+                                </div>
+                                <div className="flex justify-between pt-3 text-lg">
+                                    <span className="font-bold text-gray-800">Total Projected Savings:</span>
+                                    <span className="font-bold text-lime-green">{impact.projectedSavings.totalAnnual}</span>
+                                </div>
                             </div>
-                        )}
+                        </div>
+                    </div>
 
-                        {/* Critical Gaps Detail - GATED behind email */}
-                        {reportData.email && (
-                            <div className="bg-white rounded-lg shadow-lg p-8 mb-6 border-2 border-signal-red">
-                                <h3 className="text-2xl font-bebas text-signal-red mb-6 tracking-wide">Critical Gaps Identified</h3>
-                                <ul className="space-y-4">
-                                    {gaps.map((gap, index) => (
-                                        <li key={index} className="flex items-start bg-signal-red/5 rounded-lg p-4 border border-signal-red/20">
-                                            <span className="text-signal-red mr-3 text-2xl">⚠️</span>
-                                            <div className="font-manrope text-storm-gray flex-1">
-                                                <div className="font-semibold text-lg mb-1">{gap.name}</div>
-                                                <div className="flex items-center gap-3 text-sm">
-                                                    <span className="font-jetbrains">Scoring {gap.score}/{gap.max}</span>
-                                                    <span className="text-storm-gray/70">({Math.round((gap.score/gap.max)*100)}% of best practices)</span>
+                    {/* ROI */}
+                    {impact.projectedSavings.roi && (
+                        <div className="bg-slate-blue text-white rounded-lg p-6 text-center mb-6">
+                            <p className="text-sm font-manrope mb-2">PROJECTED ROI</p>
+                            <p className="text-4xl font-bebas">{impact.projectedSavings.roi}</p>
+                        </div>
+                    )}
+
+                    {/* Implementation Note */}
+                    {impact.implementationNote && (
+                        <div className="bg-blue-50 border-l-4 border-slate-blue p-4 rounded-r-lg">
+                            <p className="text-gray-700 font-manrope text-sm">{impact.implementationNote}</p>
+                        </div>
+                    )}
+                </section>
+            );
+        };
+
+        // SECTION 4: 60-Day Roadmap
+        const Section4Roadmap = ({ analysis }) => {
+            if (!analysis.roadmap) return null;
+
+            const roadmap = analysis.roadmap;
+            const phases = [
+                { name: 'Quick Wins', days: '0-20 Days', items: roadmap.quickWins || [], color: 'bg-green-100 border-green-400' },
+                { name: 'Foundation Building', days: '20-40 Days', items: roadmap.foundationBuilding || [], color: 'bg-blue-100 border-blue-400' },
+                { name: 'Transformation', days: '40-60 Days', items: roadmap.transformation || [], color: 'bg-purple-100 border-purple-400' }
+            ];
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        4. YOUR 60-DAY TRANSFORMATION ROADMAP
+                    </h2>
+
+                    <div className="space-y-8">
+                        {phases.map((phase, phaseIdx) => (
+                            phase.items.length > 0 && (
+                                <div key={phaseIdx}>
+                                    <div className="mb-4">
+                                        <h3 className="text-2xl font-bebas text-gray-800">{phase.name}</h3>
+                                        <p className="text-sm text-gray-600 font-manrope">{phase.days}</p>
+                                    </div>
+
+                                    <div className="space-y-4">
+                                        {phase.items.map((item, idx) => (
+                                            <div key={idx} className={`border-l-4 ${phase.color} p-4 rounded-r-lg`}>
+                                                <h4 className="font-manrope font-bold text-gray-800 mb-2">{item.action}</h4>
+                                                <div className="space-y-2 text-sm text-gray-700 font-manrope">
+                                                    <p><span className="font-semibold">Addresses:</span> {item.addresses}</p>
+                                                    <p><span className="font-semibold">Implementation:</span> {item.implementation}</p>
+                                                    <p><span className="font-semibold">Expected Outcome:</span> {item.expectedOutcome}</p>
+                                                    {item.modernApproach && (
+                                                        <div className="mt-3 bg-white/50 p-3 rounded border border-gray-200">
+                                                            <p className="text-xs font-semibold text-gray-600 mb-1">How Top Performers Do This:</p>
+                                                            <p className="text-xs">{item.modernApproach}</p>
+                                                        </div>
+                                                    )}
                                                 </div>
                                             </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )
+                        ))}
+                    </div>
+                </section>
+            );
+        };
+
+        // SECTION 5: Competitive Positioning
+        const Section5Positioning = ({ report, analysis }) => {
+            if (!analysis.competitivePositioning) return null;
+
+            const positioning = analysis.competitivePositioning;
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        5. COMPETITIVE POSITIONING
+                    </h2>
+
+                    {/* Strengths & Weaknesses */}
+                    <div className="grid md:grid-cols-2 gap-6 mb-8">
+                        {/* Strengths */}
+                        {positioning.strengths && positioning.strengths.length > 0 && (
+                            <div className="bg-green-50 border border-green-200 rounded-lg p-6">
+                                <h3 className="text-xl font-bebas text-lime-green mb-4">YOUR STRENGTHS</h3>
+                                <ul className="space-y-2 font-manrope text-sm">
+                                    {positioning.strengths.map((strength, idx) => (
+                                        <li key={idx} className="flex items-start">
+                                            <span className="text-lime-green mr-2">✓</span>
+                                            <span>{strength}</span>
                                         </li>
                                     ))}
                                 </ul>
                             </div>
                         )}
 
+                        {/* Weaknesses */}
+                        {positioning.weaknesses && positioning.weaknesses.length > 0 && (
+                            <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+                                <h3 className="text-xl font-bebas text-signal-red mb-4">GAPS TO ADDRESS</h3>
+                                <ul className="space-y-2 font-manrope text-sm">
+                                    {positioning.weaknesses.map((weakness, idx) => (
+                                        <li key={idx} className="flex items-start">
+                                            <span className="text-signal-red mr-2">⚠</span>
+                                            <span>{weakness}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+                    </div>
 
-                        {/* Full AI Analysis (Email Gated) or Static Content */}
-                        {reportData.email && fullAnalysis ? (
-                            <div className="bg-white rounded-lg shadow-lg p-8 mb-6 print-break">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="text-3xl">🎯</div>
-                                    <h2 className="text-2xl font-bebas text-spruce tracking-wide">Your Complete Intelligence Analysis</h2>
-                                </div>
+                    {/* Percentile Analysis */}
+                    {positioning.percentileAnalysis && (
+                        <div className="bg-slate-blue/5 border-l-4 border-slate-blue p-6 rounded-r-lg mb-6">
+                            <h3 className="text-lg font-manrope font-bold text-gray-800 mb-2">Where You Stand</h3>
+                            <p className="text-gray-700 font-manrope">{positioning.percentileAnalysis}</p>
+                        </div>
+                    )}
 
-                                {fullAnalysisLoading ? (
-                                    <div className="flex items-center justify-center py-12">
-                                        <div className="text-center">
-                                            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-spruce mb-4"></div>
-                                            <p className="font-manrope text-storm-gray">Loading your full analysis...</p>
+                    {/* Gap to Leaders */}
+                    {positioning.gapToLeaders && (
+                        <div className="bg-amber/10 border border-amber/30 rounded-lg p-6">
+                            <h3 className="text-lg font-manrope font-bold text-gray-800 mb-2">What Sets Top 10% Apart</h3>
+                            <p className="text-gray-700 font-manrope">{positioning.gapToLeaders}</p>
+                        </div>
+                    )}
+                </section>
+            );
+        };
+
+        // SECTION 6: Key Insight & Next Steps
+        const Section6NextSteps = ({ analysis }) => {
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        6. KEY INSIGHT & NEXT STEPS
+                    </h2>
+
+                    {/* Key Insight */}
+                    {analysis.keyInsight && (
+                        <div className="bg-gradient-to-r from-slate-blue to-slate-blue/80 text-white rounded-lg p-8 mb-8">
+                            <h3 className="text-2xl font-bebas mb-4">YOUR "AHA MOMENT"</h3>
+                            <p className="text-lg font-manrope leading-relaxed">{analysis.keyInsight}</p>
+                        </div>
+                    )}
+
+                    {/* Specific Recommendations */}
+                    {analysis.specificRecommendations && analysis.specificRecommendations.length > 0 && (
+                        <div className="mb-8">
+                            <h3 className="text-2xl font-bebas text-gray-800 mb-4">SPECIFIC RECOMMENDATIONS FOR YOU</h3>
+                            <div className="space-y-6">
+                                {analysis.specificRecommendations.map((rec, idx) => (
+                                    <div key={idx} className="border-l-4 border-lime-green pl-6 pb-6 border-b border-gray-200 last:border-b-0">
+                                        <h4 className="text-lg font-manrope font-bold text-gray-800 mb-2">{rec.recommendation}</h4>
+                                        <div className="space-y-2 text-sm text-gray-700 font-manrope">
+                                            <p><span className="font-semibold">Why:</span> {rec.rationale}</p>
+                                            <p><span className="font-semibold">Expected Outcome:</span> {rec.expectedOutcome}</p>
+                                            {rec.howTopBrokeragesDoThis && (
+                                                <div className="mt-3 bg-blue-50 p-3 rounded">
+                                                    <p className="text-xs font-semibold text-gray-600 mb-1">How Top Brokerages Do This:</p>
+                                                    <p className="text-xs">{rec.howTopBrokeragesDoThis}</p>
+                                                </div>
+                                            )}
                                         </div>
                                     </div>
-                                ) : (
-                                    <div className="space-y-8">
-                                        {/* Gap Analysis */}
-                                        {fullAnalysis.gapAnalysis && fullAnalysis.gapAnalysis.length > 0 && (
-                                            <div>
-                                                <h3 className="text-xl font-bold text-storm-gray mb-4 font-manrope">Critical Operational Gaps</h3>
-                                                <div className="space-y-4">
-                                                    {fullAnalysis.gapAnalysis.map((gap, index) => (
-                                                        <div key={index} className={`border-2 rounded-lg p-5 ${
-                                                            gap.severity === 'CRITICAL' ? 'bg-signal-red/5 border-signal-red' :
-                                                            gap.severity === 'HIGH' ? 'bg-amber/5 border-amber' :
-                                                            'bg-river-stone/5 border-river-stone'
-                                                        }`}>
-                                                            <div className="flex items-start gap-3">
-                                                                <div className="text-2xl">
-                                                                    {gap.severity === 'CRITICAL' ? '🚨' : gap.severity === 'HIGH' ? '⚠️' : 'ℹ️'}
-                                                                </div>
-                                                                <div className="flex-1">
-                                                                    <div className="flex items-center justify-between mb-2">
-                                                                        <h4 className="text-lg font-bold text-storm-gray font-manrope">{gap.category}</h4>
-                                                                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                                                                            gap.severity === 'CRITICAL' ? 'bg-signal-red text-white' :
-                                                                            gap.severity === 'HIGH' ? 'bg-amber text-white' :
-                                                                            'bg-river-stone text-white'
-                                                                        }`}>
-                                                                            {gap.severity}
-                                                                        </span>
-                                                                    </div>
-                                                                    <p className="text-storm-gray font-semibold mb-3 font-manrope">{gap.issue}</p>
-                                                                    {gap.evidence && (
-                                                                        <div className="bg-white rounded p-3 mb-3 border border-sea-glass">
-                                                                            <div className="text-sm text-storm-gray/70 mb-1 font-manrope">Evidence from your assessment:</div>
-                                                                            <div className="text-sm italic text-storm-gray font-manrope">"{gap.evidence}"</div>
-                                                                        </div>
-                                                                    )}
-                                                                    {gap.businessImpact && (
-                                                                        <div className="grid grid-cols-3 gap-3 text-sm mb-3">
-                                                                            {gap.businessImpact.timeWasted && (
-                                                                                <div>
-                                                                                    <div className="font-semibold text-storm-gray font-manrope">Time Wasted</div>
-                                                                                    <div className="text-signal-red font-jetbrains">{gap.businessImpact.timeWasted}</div>
-                                                                                </div>
-                                                                            )}
-                                                                            {gap.businessImpact.financialCost && (
-                                                                                <div>
-                                                                                    <div className="font-semibold text-storm-gray font-manrope">Financial Cost</div>
-                                                                                    <div className="text-signal-red font-jetbrains">{gap.businessImpact.financialCost}</div>
-                                                                                </div>
-                                                                            )}
-                                                                            {gap.businessImpact.riskCreated && (
-                                                                                <div>
-                                                                                    <div className="font-semibold text-storm-gray font-manrope">Risk Created</div>
-                                                                                    <div className="text-signal-red font-manrope text-sm">{gap.businessImpact.riskCreated}</div>
-                                                                                </div>
-                                                                            )}
-                                                                        </div>
-                                                                    )}
-                                                                    {gap.industryBestPractice && (
-                                                                        <div className="p-3 bg-spruce/5 border-l-4 border-spruce rounded-r">
-                                                                            <div className="text-sm font-semibold text-spruce mb-1 font-manrope">How Top Brokerages Handle This:</div>
-                                                                            <div className="text-sm text-storm-gray font-manrope">{gap.industryBestPractice}</div>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        )}
-
-                                        {/* Financial Impact */}
-                                        {fullAnalysis.financialImpact && (
-                                            <div className="bg-mist rounded-lg p-6">
-                                                <h3 className="text-xl font-bold text-storm-gray mb-4 font-manrope">Financial Impact Analysis</h3>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                                    {fullAnalysis.financialImpact.currentStateCosts && (
-                                                        <div className="bg-signal-red/5 border-2 border-signal-red rounded-lg p-5">
-                                                            <h4 className="text-lg font-bold text-signal-red mb-3 font-manrope">Current State Costs</h4>
-                                                            <div className="space-y-2">
-                                                                {Object.entries(fullAnalysis.financialImpact.currentStateCosts).map(([key, value]) => (
-                                                                    key !== 'totalAnnual' && value && (
-                                                                        <div key={key} className="flex justify-between text-sm">
-                                                                            <span className="text-storm-gray font-manrope capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                                                                            <span className="font-jetbrains text-signal-red font-semibold">{value}</span>
-                                                                        </div>
-                                                                    )
-                                                                ))}
-                                                                {fullAnalysis.financialImpact.currentStateCosts.totalAnnual && (
-                                                                    <div className="border-t-2 border-signal-red/20 pt-3 mt-3">
-                                                                        <div className="flex justify-between">
-                                                                            <span className="font-bold text-storm-gray font-manrope">Total Annual Cost:</span>
-                                                                            <span className="text-xl font-jetbrains font-bold text-signal-red">
-                                                                                {fullAnalysis.financialImpact.currentStateCosts.totalAnnual}
-                                                                            </span>
-                                                                        </div>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-
-                                                    {fullAnalysis.financialImpact.projectedSavings && (
-                                                        <div className="bg-fern/5 border-2 border-fern rounded-lg p-5">
-                                                            <h4 className="text-lg font-bold text-fern mb-3 font-manrope">Projected Savings</h4>
-                                                            <div className="space-y-2">
-                                                                {Object.entries(fullAnalysis.financialImpact.projectedSavings).map(([key, value]) => (
-                                                                    key !== 'totalAnnual' && key !== 'roi' && value && (
-                                                                        <div key={key} className="flex justify-between text-sm">
-                                                                            <span className="text-storm-gray font-manrope capitalize">{key.replace(/([A-Z])/g, ' $1').trim()}:</span>
-                                                                            <span className="font-jetbrains text-fern font-semibold">{value}</span>
-                                                                        </div>
-                                                                    )
-                                                                ))}
-                                                                {(fullAnalysis.financialImpact.projectedSavings.totalAnnual || fullAnalysis.financialImpact.projectedSavings.roi) && (
-                                                                    <div className="border-t-2 border-fern/20 pt-3 mt-3 space-y-2">
-                                                                        {fullAnalysis.financialImpact.projectedSavings.totalAnnual && (
-                                                                            <div className="flex justify-between">
-                                                                                <span className="font-bold text-storm-gray font-manrope">Total Annual Savings:</span>
-                                                                                <span className="text-xl font-jetbrains font-bold text-fern">
-                                                                                    {fullAnalysis.financialImpact.projectedSavings.totalAnnual}
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                        {fullAnalysis.financialImpact.projectedSavings.roi && (
-                                                                            <div className="flex justify-between">
-                                                                                <span className="font-bold text-storm-gray font-manrope">ROI:</span>
-                                                                                <span className="text-lg font-jetbrains font-bold text-spruce">
-                                                                                    {fullAnalysis.financialImpact.projectedSavings.roi}
-                                                                                </span>
-                                                                            </div>
-                                                                        )}
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                {fullAnalysis.financialImpact.implementationNote && (
-                                                    <div className="mt-4 bg-white border-l-4 border-spruce p-4 rounded-r">
-                                                        <p className="text-sm text-storm-gray font-manrope">{fullAnalysis.financialImpact.implementationNote}</p>
-                                                    </div>
-                                                )}
-                                            </div>
-                                        )}
-
-                                        {/* Key Insight */}
-                                        {fullAnalysis.keyInsight && (
-                                            <div className="bg-spruce/10 border-2 border-spruce rounded-lg p-6 text-center">
-                                                <div className="text-4xl mb-3">💡</div>
-                                                <h4 className="text-xl font-bold text-spruce mb-3 font-manrope">Your Key Insight</h4>
-                                                <p className="text-lg text-storm-gray italic font-manrope leading-relaxed">
-                                                    "{fullAnalysis.keyInsight}"
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        ) : (
-                            <div className="bg-white rounded-lg shadow-lg p-8 mb-6 print-break">
-                                <h2 className="text-2xl font-bebas text-spruce mb-6 tracking-wide">What the Top 5% Do Differently</h2>
-
-                            <div className="space-y-6">
-                                <div className="border-l-4 border-spruce pl-4">
-                                    <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Transaction Oversight</h3>
-                                    <p className="font-manrope text-storm-gray">
-                                        Elite brokerages use AI-powered monitoring that reviews 100% of transactions in real-time,
-                                        catching issues before they become problems. They maintain less than 1% error rate compared
-                                        to the industry average of 15%.
-                                    </p>
-                                </div>
-
-                                <div className="border-l-4 border-spruce pl-4">
-                                    <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Knowledge Management</h3>
-                                    <p className="font-manrope text-storm-gray">
-                                        Top performers capture every lesson learned and encode it into their systems. New agents
-                                        reach full productivity in 6 weeks versus the 6-month industry average.
-                                    </p>
-                                </div>
-
-                                <div className="border-l-4 border-spruce pl-4">
-                                    <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Client Experience</h3>
-                                    <p className="font-manrope text-storm-gray">
-                                        Leading brokerages provide 24/7 transaction visibility through AI chatbots and portals,
-                                        resulting in 67% more referrals from satisfied clients.
-                                    </p>
-                                </div>
-
-                                <div className="border-l-4 border-spruce pl-4">
-                                    <h3 className="font-manrope font-bold text-lg mb-2 text-storm-gray">Risk Management</h3>
-                                    <p className="font-manrope text-storm-gray">
-                                        Elite firms predict and prevent issues with AI risk scoring, reducing E&O claims by 80%
-                                        and saving an average of $45,000 annually in liability costs.
-                                    </p>
-                                </div>
-                            </div>
-
-                            {/* Action Plan */}
-                            <div className="mt-8 bg-mist rounded-lg p-6">
-                                <h3 className="text-xl font-manrope font-bold text-storm-gray mb-4">Your 30-Day Quick Wins</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div className="bg-white rounded p-4 border-2 border-sea-glass">
-                                        <div className="font-manrope font-bold text-spruce mb-2">Week 1</div>
-                                        <ul className="text-sm font-manrope text-storm-gray space-y-1">
-                                            <li>• Implement deadline checklist</li>
-                                            <li>• Create contract templates</li>
-                                            <li>• Set up daily huddles</li>
-                                        </ul>
-                                    </div>
-                                    <div className="bg-white rounded p-4 border-2 border-sea-glass">
-                                        <div className="font-manrope font-bold text-spruce mb-2">Week 2-3</div>
-                                        <ul className="text-sm font-manrope text-storm-gray space-y-1">
-                                            <li>• Build knowledge library</li>
-                                            <li>• Launch client portal</li>
-                                            <li>• Train on best practices</li>
-                                        </ul>
-                                    </div>
-                                    <div className="bg-white rounded p-4 border-2 border-sea-glass">
-                                        <div className="font-manrope font-bold text-spruce mb-2">Week 4</div>
-                                        <ul className="text-sm font-manrope text-storm-gray space-y-1">
-                                            <li>• Measure improvements</li>
-                                            <li>• Gather agent feedback</li>
-                                            <li>• Plan automation phase</li>
-                                        </ul>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* ROI Calculator */}
-                            <div className="mt-8 bg-spruce/10 rounded-lg p-6 border-2 border-spruce">
-                                <h3 className="text-xl font-manrope font-bold text-spruce mb-4">Potential ROI from Improvements</h3>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <p className="font-manrope text-storm-gray mb-2">Based on {reportData.companyInfo?.agent_count || 'your'} agents and {reportData.companyInfo?.monthly_deals || 'your'} monthly deals:</p>
-                                        <ul className="space-y-2 font-manrope text-storm-gray">
-                                            <li>• Time savings: <span className="font-semibold font-jetbrains">600 hours/month</span></li>
-                                            <li>• Risk reduction: <span className="font-semibold font-jetbrains">$36,000/year saved</span></li>
-                                            <li>• Deal saves: <span className="font-semibold font-jetbrains">5 deals/month recovered</span></li>
-                                        </ul>
-                                    </div>
-                                    <div className="bg-white rounded p-4 text-center border-2 border-sea-glass">
-                                        <div className="text-3xl font-jetbrains font-bold text-fern">$58,000</div>
-                                        <div className="font-manrope text-storm-gray">Monthly Value Created</div>
-                                        <div className="mt-2 text-2xl font-jetbrains font-bold text-spruce">38X ROI</div>
-                                        <div className="font-manrope text-storm-gray">on Technology Investment</div>
-                                    </div>
-                                </div>
+                                ))}
                             </div>
                         </div>
-                        )}
+                    )}
 
-                        {/* CTA Section (no-print) */}
-                        <div className="no-print bg-spruce rounded-lg shadow-lg p-8 text-white text-center">
-                            <h3 className="text-2xl font-bebas mb-4 tracking-wide">Ready to Close These Gaps?</h3>
-                            <p className="text-lg font-manrope mb-6">
-                                Schedule a free 15-minute consultation to discuss your customized improvement roadmap.
-                            </p>
-                            <a
-                                href="mailto:contact@yourdomain.com?subject=Brokerage Intelligence Consultation"
-                                className="inline-block px-8 py-3 bg-river-stone text-white font-manrope font-semibold rounded-md hover:bg-white hover:text-spruce transition-colors"
-                            >
-                                Schedule Your Consultation
-                            </a>
-                        </div>
+                    {/* CTA Section */}
+                    <div className="bg-gray-50 rounded-lg p-8 text-center">
+                        <h3 className="text-2xl font-bebas text-gray-800 mb-4">READY TO TRANSFORM YOUR BROKERAGE?</h3>
+                        <p className="text-gray-700 font-manrope mb-6 max-w-2xl mx-auto">
+                            See how ContRE's AI-powered platform helps top brokerages eliminate the gaps identified in your assessment.
+                            Schedule a complimentary 30-minute strategy session to discuss your specific situation.
+                        </p>
+                        <a
+                            href="https://calendly.com/contre"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-block bg-slate-blue text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg hover:bg-slate-blue/90 transition-all shadow-lg hover:shadow-xl no-print"
+                        >
+                            Schedule Your Strategy Session
+                        </a>
                     </div>
-                </div>
+                </section>
             );
         };
 
@@ -1011,4 +709,3 @@
     </script>
 </body>
 </html>
-<!-- Build: 1762303936 - Fix data mapping -->

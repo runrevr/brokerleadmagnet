@@ -1,33 +1,32 @@
 /**
  * POST /api/assessment-submit
  *
- * Save assessment results to database
+ * Save assessment results to database and generate AI content
  * Called when user completes the assessment (before email capture)
  *
  * Request body:
  * {
- *   companyName: string,
- *   companySize: string,
- *   monthlyTransactions: string,
- *   primaryMarket: string,
- *   overallScore: number,
- *   riskLevel: string,
- *   percentile: number,
- *   categoryScores: array,
- *   responses: array,
- *   criticalGaps: array
+ *   companyInfo: { company_name, agent_count, monthly_deals, location },
+ *   responses: { question_id: answer, ... },
+ *   timestamp: ISO string
  * }
  *
  * Response:
  * {
  *   success: true,
  *   assessmentId: "uuid",
+ *   shareableToken: "uuid",
+ *   shareableUrl: "/report.html?id={token}",
+ *   expiresAt: ISO timestamp,
+ *   executiveSummary: "AI-generated summary text",
+ *   scores: { /* scoring results */ },
  *   message: "Assessment saved successfully"
  * }
  */
 
-const { saveAssessment } = require('./db');
-const { assessmentQuestions } = require('../CORRECT_QUESTIONS');
+const { calculateScore } = require('../scoring-algorithm');
+const { generateExecutiveSummary, generateFullAnalysis } = require('./ai-integration');
+const { supabase } = require('./db');
 
 module.exports = async (req, res) => {
   // Enable CORS for frontend access
@@ -49,13 +48,13 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { companyInfo, responses, scores, timestamp } = req.body;
+    const { companyInfo, responses, timestamp } = req.body;
 
     // Validation: Check required fields
-    if (!companyInfo || !responses || !scores) {
+    if (!companyInfo || !responses) {
       return res.status(400).json({
         success: false,
-        error: 'Missing required fields: companyInfo, responses, or scores'
+        error: 'Missing required fields: companyInfo or responses'
       });
     }
 
@@ -67,79 +66,177 @@ module.exports = async (req, res) => {
       });
     }
 
-    // Validate score range
-    if (scores.overall < 0 || scores.overall > 100) {
-      return res.status(400).json({
-        success: false,
-        error: 'Overall score must be between 0 and 100'
-      });
-    }
+    console.log(`[ASSESSMENT] Processing for ${companyInfo.company_name}`);
 
-    // Validate risk level
-    const validRiskLevels = ['CRITICAL', 'HIGH', 'MODERATE', 'LOW'];
-    if (!validRiskLevels.includes(scores.riskLevel)) {
-      return res.status(400).json({
-        success: false,
-        error: 'Invalid risk level'
-      });
-    }
+    // Calculate scores using scoring-algorithm.js
+    const scoreResults = calculateScore(responses);
+    console.log(`[SCORING] Overall score: ${scoreResults.totalScore}/100 (${scoreResults.percentage}%)`);
 
-    // Extract percentile number from string like "Top 50%" -> 50
-    const percentileMatch = scores.percentile.match(/\d+/);
-    const percentileNumber = percentileMatch ? parseInt(percentileMatch[0]) : null;
-
-    // Transform data for database
+    // Prepare assessment data structure for AI generation
     const assessmentData = {
       companyName: companyInfo.company_name,
       companySize: companyInfo.agent_count,
       monthlyTransactions: companyInfo.monthly_deals,
       primaryMarket: companyInfo.location,
-      overallScore: scores.overall,
-      riskLevel: scores.riskLevel,
-      percentile: percentileNumber,
+      overallScore: scoreResults.totalScore,
+      riskLevel: scoreResults.riskProfile,
       categoryScores: [
-        { category: 'Transaction Oversight', score: scores.transactionOversight, maxScore: 100, percentage: Math.round((scores.transactionOversight / 100) * 100) },
-        { category: 'Operational Systems', score: scores.operationalSystems, maxScore: 100, percentage: Math.round((scores.operationalSystems / 100) * 100) },
-        { category: 'Knowledge Management', score: scores.knowledgeManagement, maxScore: 100, percentage: Math.round((scores.knowledgeManagement / 100) * 100) },
-        { category: 'Client Experience', score: scores.clientExperience, maxScore: 100, percentage: Math.round((scores.clientExperience / 100) * 100) },
-        { category: 'Risk Management', score: scores.riskManagement, maxScore: 67, percentage: Math.round((scores.riskManagement / 67) * 100) }
+        {
+          category: 'Process Efficiency',
+          score: scoreResults.categoryBreakdown.processEfficiency.score,
+          maxScore: scoreResults.categoryBreakdown.processEfficiency.max,
+          percentage: scoreResults.categoryBreakdown.processEfficiency.percentage
+        },
+        {
+          category: 'Risk Management',
+          score: scoreResults.categoryBreakdown.riskManagement.score,
+          maxScore: scoreResults.categoryBreakdown.riskManagement.max,
+          percentage: scoreResults.categoryBreakdown.riskManagement.percentage
+        },
+        {
+          category: 'Client Experience',
+          score: scoreResults.categoryBreakdown.clientExperience.score,
+          maxScore: scoreResults.categoryBreakdown.clientExperience.max,
+          percentage: scoreResults.categoryBreakdown.clientExperience.percentage
+        },
+        {
+          category: 'Training & Knowledge',
+          score: scoreResults.categoryBreakdown.trainingKnowledge.score,
+          maxScore: scoreResults.categoryBreakdown.trainingKnowledge.max,
+          percentage: scoreResults.categoryBreakdown.trainingKnowledge.percentage
+        }
       ],
-      responses: Object.entries(responses)
-        .filter(([questionId]) => !['company_name', 'agent_count', 'monthly_deals', 'location'].includes(questionId))
-        .map(([questionId, answer]) => {
-          // Find the question to get scoring info
-          let pointsEarned = 0;
-          let questionText = questionId;
-
-          for (const [categoryKey, categoryData] of Object.entries(assessmentQuestions)) {
-            if (categoryKey === 'companyInfo') continue;
-            const question = categoryData.questions.find(q => q.id === questionId);
-            if (question) {
-              questionText = question.label;
-              if (question.scoring && question.scoring[answer]) {
-                pointsEarned = question.scoring[answer];
-              }
-              break;
-            }
-          }
-
-          return {
-            questionId,
-            questionText,
-            answer,
-            pointsEarned
-          };
-        }),
-      timestamp
+      responses: scoreResults.questionResults.map(qr => ({
+        questionId: qr.questionId,
+        questionText: getQuestionText(qr.questionId),
+        answer: qr.response,
+        pointsEarned: qr.score
+      }))
     };
 
+    // Generate AI content (executive summary and full analysis)
+    console.log('[AI] Generating executive summary...');
+    let executiveSummary, fullAnalysis;
+
+    try {
+      // Generate both in parallel
+      [executiveSummary, fullAnalysis] = await Promise.all([
+        generateExecutiveSummary(assessmentData),
+        generateFullAnalysis(assessmentData)
+      ]);
+      console.log('[AI] Content generation complete');
+    } catch (aiError) {
+      console.error('[AI ERROR] Failed to generate content:', aiError.message);
+      // Continue without AI content - we'll still save the assessment
+      executiveSummary = scoreResults.profileSummary; // Fallback to static summary
+      fullAnalysis = null;
+    }
+
+    // Generate shareable token and expiration
+    const crypto = require('crypto');
+    const shareableToken = crypto.randomUUID();
+    const expiresAt = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000); // 2 days from now
+
     // Save to database
-    const assessmentId = await saveAssessment(assessmentData);
+    console.log('[DB] Saving assessment...');
+    const { data: assessment, error: insertError } = await supabase
+      .from('assessments')
+      .insert({
+        company_name: companyInfo.company_name,
+        company_size: companyInfo.agent_count,
+        monthly_transactions: companyInfo.monthly_deals,
+        primary_market: companyInfo.location,
+        overall_score: scoreResults.totalScore,
+        risk_level: scoreResults.riskProfile,
+        percentile_rank: scoreResults.percentileRank,
+        shareable_token: shareableToken,
+        token_expires_at: expiresAt.toISOString(),
+        ai_executive_summary: executiveSummary,
+        ai_full_analysis: fullAnalysis,
+        created_at: timestamp || new Date().toISOString(),
+        completed_at: null // Will be set when email is captured
+      })
+      .select()
+      .single();
+
+    if (insertError) {
+      throw new Error(`Database insert failed: ${insertError.message}`);
+    }
+
+    const assessmentId = assessment.id;
+    console.log(`[DB] Assessment saved with ID: ${assessmentId}`);
+
+    // Save category scores
+    const categoryScoresData = assessmentData.categoryScores.map(cat => ({
+      assessment_id: assessmentId,
+      category: cat.category,
+      score: cat.score,
+      max_score: cat.maxScore,
+      percentage: cat.percentage
+    }));
+
+    const { error: scoresError } = await supabase
+      .from('scores')
+      .insert(categoryScoresData);
+
+    if (scoresError) {
+      console.error('[DB] Failed to save scores:', scoresError.message);
+      // Non-critical, continue
+    }
+
+    // Save individual responses
+    const responsesData = assessmentData.responses.map(r => ({
+      assessment_id: assessmentId,
+      question_id: r.questionId,
+      question_text: r.questionText,
+      answer: r.answer,
+      points_earned: r.pointsEarned
+    }));
+
+    const { error: responsesError } = await supabase
+      .from('responses')
+      .insert(responsesData);
+
+    if (responsesError) {
+      console.error('[DB] Failed to save responses:', responsesError.message);
+      // Non-critical, continue
+    }
+
+    // Save identified gaps (low-scoring areas)
+    const gaps = scoreResults.questionResults
+      .filter(qr => qr.score <= qr.maxScore * 0.5) // 50% or lower
+      .map(qr => ({
+        assessment_id: assessmentId,
+        question_id: qr.questionId,
+        question_text: getQuestionText(qr.questionId),
+        current_answer: qr.response,
+        ai_optimized_answer: qr.aiOptimized,
+        points_lost: qr.maxScore - qr.score,
+        severity: qr.score === 0 ? 'CRITICAL' : qr.score <= qr.maxScore * 0.3 ? 'HIGH' : 'MEDIUM'
+      }));
+
+    if (gaps.length > 0) {
+      const { error: gapsError } = await supabase
+        .from('gaps')
+        .insert(gaps);
+
+      if (gapsError) {
+        console.error('[DB] Failed to save gaps:', gapsError.message);
+        // Non-critical, continue
+      }
+    }
+
+    console.log('[SUCCESS] Assessment processing complete');
 
     // Success response
     res.status(200).json({
       success: true,
       assessmentId,
+      shareableToken,
+      shareableUrl: `/report.html?id=${shareableToken}`,
+      expiresAt: expiresAt.toISOString(),
+      executiveSummary,
+      scores: scoreResults,
       message: 'Assessment saved successfully'
     });
 
@@ -153,3 +250,25 @@ module.exports = async (req, res) => {
     });
   }
 };
+
+/**
+ * Helper function to get human-readable question text from question ID
+ */
+function getQuestionText(questionId) {
+  const questionMap = {
+    'contract_review_process': 'Who is primarily responsible for reviewing contracts in your brokerage?',
+    'contract_review_time': 'How much time does a typical contract review take?',
+    'document_review_process': 'How do agents in your brokerage handle document review (HOA docs, title reports, etc.)?',
+    'deadline_tracking_method': 'How does your brokerage track transaction deadlines?',
+    'deadline_impact': 'Have missed deadlines ever cost your brokerage deals or money?',
+    'training_frequency': 'How often do you provide formal training to your agents?',
+    'agent_question_handling': 'When agents have questions, what do they typically do?',
+    'client_timeline_communication': 'How do you educate clients about the transaction timeline?',
+    'client_document_reading': 'What percentage of your clients actually read the transaction documents?',
+    'client_question_handling': 'How do clients get answers to their questions during a transaction?',
+    'client_understanding_liability': 'How well-protected are you if a client claims they didn\'t understand something?',
+    'eo_claims_history': 'What is your E&O claims history?'
+  };
+
+  return questionMap[questionId] || questionId;
+}
