@@ -1044,8 +1044,9 @@
             };
 
             const isCurrentStepValid = () => {
-                const questions = currentQuestions.questions;
-                return questions.every(q => !q.required || responses[q.id]);
+                // Only validate the first question since that's all we display
+                const question = currentQuestions.questions[0];
+                return !question.required || responses[question.id];
             };
 
             return (
