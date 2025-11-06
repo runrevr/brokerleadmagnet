@@ -130,7 +130,6 @@ module.exports = async (req, res) => {
         primary_market: companyInfo.location,
         overall_score: scoreResults.totalScore,
         risk_level: scoreResults.riskProfile,
-        percentile_rank: scoreResults.percentileRank,
         shareable_token: shareableToken,
         token_expires_at: expiresAt.toISOString(),
         ai_executive_summary: null, // Will be generated async
