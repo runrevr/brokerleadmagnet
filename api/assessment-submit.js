@@ -156,42 +156,43 @@ module.exports = async (req, res) => {
     const assessmentId = assessment.id;
     console.log(`[DB] Assessment saved with ID: ${assessmentId}`);
 
-    // Generate AI content ASYNCHRONOUSLY (don't wait for it)
-    console.log('[AI] Starting async AI content generation...');
-    (async () => {
-      try {
-        const [executiveSummary, fullAnalysis] = await Promise.all([
-          generateExecutiveSummary(assessmentData),
-          generateFullAnalysis(assessmentData)
-        ]);
+    // Generate AI content (WAIT for it to complete before responding)
+    // This is necessary in serverless environments like Vercel where the function
+    // may be killed after the response is sent
+    console.log('[AI] Starting AI content generation...');
+    try {
+      const [executiveSummary, fullAnalysis] = await Promise.all([
+        generateExecutiveSummary(assessmentData),
+        generateFullAnalysis(assessmentData)
+      ]);
 
-        console.log('[AI] Content generation complete, updating assessment...');
+      console.log('[AI] Content generation complete, updating assessment...');
 
-        // Update the assessment with AI content
-        const { error: updateError } = await supabase
-          .from('assessments')
-          .update({
-            ai_executive_summary: executiveSummary,
-            ai_full_analysis: fullAnalysis
-          })
-          .eq('id', assessmentId);
+      // Update the assessment with AI content
+      const { error: updateError } = await supabase
+        .from('assessments')
+        .update({
+          ai_executive_summary: executiveSummary,
+          ai_full_analysis: fullAnalysis
+        })
+        .eq('id', assessmentId);
 
-        if (updateError) {
-          console.error('[AI UPDATE ERROR]:', updateError.message);
-        } else {
-          console.log('[AI] Assessment updated with AI content');
-        }
-      } catch (aiError) {
-        console.error('[AI ERROR] Failed to generate content:', aiError.message);
-        // Update with fallback summary
-        await supabase
-          .from('assessments')
-          .update({
-            ai_executive_summary: scoreResults.profileSummary
-          })
-          .eq('id', assessmentId);
+      if (updateError) {
+        console.error('[AI UPDATE ERROR]:', updateError.message);
+      } else {
+        console.log('[AI] Assessment updated with AI content');
       }
-    })();
+    } catch (aiError) {
+      console.error('[AI ERROR] Failed to generate content:', aiError.message);
+      console.error('[AI ERROR] Stack:', aiError.stack);
+      // Update with fallback summary - don't fail the whole request
+      await supabase
+        .from('assessments')
+        .update({
+          ai_executive_summary: scoreResults.profileSummary
+        })
+        .eq('id', assessmentId);
+    }
 
     // Save category scores
     const categoryScoresData = assessmentData.categoryScores.map(cat => ({

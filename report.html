@@ -105,12 +105,14 @@
                     if (!data.report.executiveSummary || !data.report.fullAnalysis) {
                         if (!isPolling) {
                             console.log('[REPORT] AI content not ready yet, starting polling...');
+                            console.log('[REPORT] Has executive summary:', !!data.report.executiveSummary);
+                            console.log('[REPORT] Has full analysis:', !!data.report.fullAnalysis);
                             setAiGenerating(true);
 
-                            // Poll every 3 seconds
+                            // Poll every 5 seconds (increased from 3 to reduce server load)
                             pollIntervalRef.current = setInterval(() => {
                                 fetchReport(true);
-                            }, 3000);
+                            }, 5000);
                         }
                     } else {
                         // AI content is ready, stop polling
