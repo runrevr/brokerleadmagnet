@@ -1179,6 +1179,21 @@
                                     </div>
                                 )}
 
+                                {/* Select Dropdown */}
+                                {currentQuestions.questions[0].type === 'select' && (
+                                    <select
+                                        className="w-full px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-lg text-gray-800"
+                                        value={responses[currentQuestions.questions[0].id] || ''}
+                                        onChange={(e) => handleInputChange(currentQuestions.questions[0].id, e.target.value)}
+                                        required={currentQuestions.questions[0].required}
+                                    >
+                                        <option value="">Select an option...</option>
+                                        {currentQuestions.questions[0].options.map((option, index) => (
+                                            <option key={index} value={option}>{option}</option>
+                                        ))}
+                                    </select>
+                                )}
+
                                 {/* Checkbox List */}
                                 {currentQuestions.questions[0].type === 'checkbox' && (
                                     <div className="space-y-3">
