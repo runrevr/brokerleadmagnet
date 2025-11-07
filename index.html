@@ -24,6 +24,7 @@
                 extend: {
                     colors: {
                         'spruce': '#264E36',
+                        'spruce-dark': '#1F3E2B',
                         'dark-green': '#1A3A2C',
                         'forest-green': '#27543D',
                         'river-stone': '#78909C',
@@ -66,6 +67,51 @@
 
         .font-mono, .score-display {
             font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Toast animation */
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px) translateX(-50%);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) translateX(-50%);
+            }
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 0.3s ease-out;
+        }
+
+        /* Float animation for loading icon */
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+
+        /* Progress bar marquee animation */
+        @keyframes progress {
+            0% {
+                transform: translateX(-100%);
+            }
+            100% {
+                transform: translateX(400%);
+            }
+        }
+
+        .animate-progress {
+            width: 25%;
+            animation: progress 2s linear infinite;
         }
 
         /* Print-specific styles for PDF generation */
@@ -812,9 +858,9 @@
                             {/* 4 Cards Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                                 {/* Card 1 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
-                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                <div className="bg-white p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-spruce/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-spruce/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-spruce/20">
+                                        <svg className="w-6 h-6 text-spruce" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                                             <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
                                         </svg>
@@ -826,9 +872,9 @@
                                 </div>
 
                                 {/* Card 2 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
-                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                <div className="bg-white p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-spruce/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-spruce/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-spruce/20">
+                                        <svg className="w-6 h-6 text-spruce" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
                                         </svg>
                                     </div>
@@ -839,9 +885,9 @@
                                 </div>
 
                                 {/* Card 3 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
-                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                <div className="bg-white p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-spruce/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-spruce/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-spruce/20">
+                                        <svg className="w-6 h-6 text-spruce" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
                                         </svg>
                                     </div>
@@ -852,9 +898,9 @@
                                 </div>
 
                                 {/* Card 4 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
-                                        <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                <div className="bg-white p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-spruce/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-spruce/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-spruce/20">
+                                        <svg className="w-6 h-6 text-spruce" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
                                         </svg>
                                     </div>
@@ -980,15 +1026,175 @@
             );
         };
 
+        // Before You Begin Component (Pre-Quiz Page)
+        const BeforeYouBegin = ({ onStartQuiz }) => {
+            return (
+                <div className="min-h-screen bg-mist py-12 px-4">
+                    <div className="max-w-3xl mx-auto">
+                        {/* Small Eyebrow Label */}
+                        <div className="text-center mb-6">
+                            <p className="text-sm text-storm-gray font-manrope font-medium uppercase tracking-wider">
+                                Built for Brokerages
+                            </p>
+                        </div>
+
+                        {/* Main Card */}
+                        <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12 border-2" style={{borderColor: '#9DBFBF20'}}>
+                            {/* Heading */}
+                            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-4 font-manrope">
+                                Before You Begin
+                            </h1>
+
+                            {/* Subheadline */}
+                            <p className="text-xl text-gray-600 text-center mb-12 font-manrope">
+                                This assessment takes about <strong>2 minutes</strong> (17 quick questions).
+                            </p>
+
+                            {/* Value Bullet Points */}
+                            <div className="space-y-6 mb-12">
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{backgroundColor: 'rgba(38, 78, 54, 0.1)'}}>
+                                        <svg className="w-6 h-6" style={{color: '#37474F'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-1 font-manrope">Instant Transaction Risk Score (0–100)</h3>
+                                        <p className="text-gray-600 font-manrope">See exactly where your brokerage stands against industry benchmarks.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{backgroundColor: 'rgba(38, 78, 54, 0.1)'}}>
+                                        <svg className="w-6 h-6" style={{color: '#37474F'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-1 font-manrope">4-Pillar Risk Breakdown</h3>
+                                        <p className="text-gray-600 font-manrope">Identify weaknesses in oversight, operations, knowledge, and client experience.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{backgroundColor: 'rgba(38, 78, 54, 0.1)'}}>
+                                        <svg className="w-6 h-6" style={{color: '#37474F'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-1 font-manrope">Personalized 60-Day Improvement Roadmap</h3>
+                                        <p className="text-gray-600 font-manrope">Get actionable steps tailored to your specific bottlenecks.</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-start gap-4">
+                                    <div className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center" style={{backgroundColor: 'rgba(38, 78, 54, 0.1)'}}>
+                                        <svg className="w-6 h-6" style={{color: '#37474F'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                        </svg>
+                                    </div>
+                                    <div>
+                                        <h3 className="text-lg font-bold text-gray-800 mb-1 font-manrope">Top 10% Brokerage Benchmark</h3>
+                                        <p className="text-gray-600 font-manrope">See how you compare to top-performing brokerages nationwide.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Primary Start Button */}
+                            <div className="text-center mb-6">
+                                <button
+                                    onClick={onStartQuiz}
+                                    className="inline-flex items-center gap-2 bg-spruce text-white px-10 py-5 rounded-lg font-manrope font-bold text-lg transition-all hover:bg-spruce-dark shadow-lg"
+                                >
+                                    Start My Assessment
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            {/* Note Under Button */}
+                            <p className="text-sm text-gray-500 text-center font-manrope italic">
+                                No sales pitch. Instant report on completion.
+                            </p>
+
+                            {/* Social Proof Line */}
+                            <div className="mt-8 pt-8 border-t border-gray-200">
+                                <p className="text-sm text-gray-600 text-center font-manrope italic">
+                                    Created by a brokerage owner; aligned with workflows used in SkySlope & Lone Wolf.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         // Assessment Form Component
         const AssessmentForm = ({ onComplete }) => {
             const [currentStep, setCurrentStep] = useState(0);
             const [responses, setResponses] = useState({});
+            const [showMotivationToast, setShowMotivationToast] = useState(false);
 
             const categories = Object.keys(assessmentQuestions);
             const currentCategory = categories[currentStep];
             const currentQuestions = assessmentQuestions[currentCategory];
             const progress = ((currentStep + 1) / categories.length) * 100;
+
+            // Load saved progress on mount
+            useEffect(() => {
+                try {
+                    const savedProgress = localStorage.getItem('quizProgress');
+                    if (savedProgress) {
+                        const { step, responses: savedResponses, timestamp } = JSON.parse(savedProgress);
+                        // Only restore if saved within last 24 hours
+                        const savedTime = new Date(timestamp);
+                        const now = new Date();
+                        const hoursDiff = (now - savedTime) / (1000 * 60 * 60);
+
+                        if (hoursDiff < 24) {
+                            const shouldResume = window.confirm('Would you like to resume where you left off?');
+                            if (shouldResume) {
+                                setCurrentStep(step);
+                                setResponses(savedResponses);
+                            } else {
+                                localStorage.removeItem('quizProgress');
+                            }
+                        } else {
+                            localStorage.removeItem('quizProgress');
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error loading saved progress:', error);
+                }
+            }, []);
+
+            // Save progress to localStorage whenever it changes
+            useEffect(() => {
+                if (currentStep > 0 || Object.keys(responses).length > 0) {
+                    try {
+                        const progressData = {
+                            step: currentStep,
+                            responses,
+                            timestamp: new Date().toISOString()
+                        };
+                        localStorage.setItem('quizProgress', JSON.stringify(progressData));
+                    } catch (error) {
+                        console.error('Error saving progress:', error);
+                    }
+                }
+            }, [currentStep, responses]);
+
+            // Show motivation toast at halfway point (question 9, which is index 8)
+            useEffect(() => {
+                if (currentStep === 8 && !showMotivationToast) {
+                    setShowMotivationToast(true);
+                    setTimeout(() => {
+                        setShowMotivationToast(false);
+                    }, 3000); // Auto-dismiss after 3 seconds
+                }
+            }, [currentStep]);
 
             const handleInputChange = (questionId, value) => {
                 setResponses(prev => ({
@@ -1011,6 +1217,8 @@
                     const calculatedScores = calculateScores(responses);
                     console.log('[HANDLE NEXT] Calculated scores:', calculatedScores);
                     console.log('[HANDLE NEXT] Calling onComplete...');
+                    // Clear saved progress when quiz is completed
+                    localStorage.removeItem('quizProgress');
                     onComplete(responses, calculatedScores);
                 }
             };
@@ -1033,7 +1241,34 @@
             };
 
             return (
-                <div className="min-h-screen bg-gray-50 py-12 px-4">
+                <div className="min-h-screen bg-mist py-12 px-4">
+                    {/* Progress Bar - Fixed at top */}
+                    <div className="fixed top-0 left-0 right-0 h-1.5 bg-gray-200 z-50">
+                        <div
+                            className="h-full bg-fern transition-all duration-300 ease-out"
+                            style={{ width: `${progress}%` }}
+                        ></div>
+                    </div>
+
+                    {/* Motivation Toast - Halfway Point */}
+                    {showMotivationToast && (
+                        <div className="fixed top-8 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-down">
+                            <div className="px-6 py-4 rounded-lg shadow-lg border-2" style={{
+                                backgroundColor: '#EFF5F5',
+                                borderColor: '#607D3B'
+                            }}>
+                                <div className="flex items-center gap-3">
+                                    <svg className="w-6 h-6 flex-shrink-0" style={{color: '#607D3B'}} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <p className="text-base font-manrope font-medium" style={{color: '#37474F'}}>
+                                        Great progress — our AI is already preparing your personalized report.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                     <div className="max-w-4xl mx-auto">
                         {/* Small Header */}
                         <div className="text-center mb-6">
@@ -1042,18 +1277,20 @@
 
                         {/* Main Card */}
                         <div className="bg-white rounded-2xl shadow-lg p-8 md:p-12">
-                            {/* Title */}
-                            <h1 className="text-4xl md:text-5xl font-bold text-gray-800 text-center mb-8 font-manrope">
-                                {currentStep === 0 ? "Let's Get Started!!" : "Find Your Bottleneck"}
-                            </h1>
+                            {/* Eyebrow Label */}
+                            <div className="text-center mb-6">
+                                <p className="text-xs md:text-sm text-gray-400 font-manrope font-medium uppercase tracking-wider">
+                                    Transaction Risk Assessment
+                                </p>
+                            </div>
 
-                            {/* Question */}
+                            {/* Question - HERO */}
                             <div className="text-center mb-12">
-                                <h2 className="text-xl md:text-2xl text-gray-700 font-manrope font-medium">
+                                <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-800 font-bebas text-center mb-4 uppercase tracking-wide leading-tight">
                                     {currentQuestions.questions[0].label}
-                                </h2>
+                                </h1>
                                 {currentQuestions.questions[0].subtext && (
-                                    <p className="text-sm text-gray-500 mt-2 font-manrope italic">
+                                    <p className="text-sm md:text-base text-gray-500 mt-4 font-manrope italic">
                                         {currentQuestions.questions[0].subtext}
                                     </p>
                                 )}
@@ -1065,7 +1302,7 @@
                                 {currentQuestions.questions[0].type === 'text' && (
                                     <input
                                         type="text"
-                                        className="w-full px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-lime-green focus:border-lime-green font-manrope text-lg text-gray-800 text-center"
+                                        className="w-full px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fern focus:border-fern font-manrope text-lg text-gray-800 text-center"
                                         placeholder={
                                             currentQuestions.questions[0].id === 'company_name' ? 'Enter your brokerage name...' :
                                             currentQuestions.questions[0].id === 'location' ? 'Enter your market of operation...' :
@@ -1132,27 +1369,42 @@
                                                 <button
                                                     key={option.value}
                                                     onClick={() => handleInputChange(currentQuestions.questions[0].id, option.value)}
-                                                    className={`relative p-6 rounded-xl border-2 transition-all hover:shadow-md col-span-1 ${
+                                                    className={`group relative p-6 rounded-xl border-2 transition-all hover:shadow-md col-span-1 ${
                                                         isSelected
-                                                            ? 'border-lime-green bg-lime-green/5'
-                                                            : 'border-gray-300 hover:border-gray-400'
+                                                            ? 'border-fern'
+                                                            : 'border-sea-glass hover:border-river-stone'
                                                     }`}
+                                                    style={isSelected ? {backgroundColor: 'rgba(96, 125, 59, 0.08)'} : {}}
+                                                    onMouseEnter={(e) => {
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.backgroundColor = '#F5F7F7';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.backgroundColor = 'white';
+                                                        }
+                                                    }}
                                                 >
                                                     {/* Checkmark Circle */}
                                                     <div className="absolute top-4 right-4">
                                                         {isSelected ? (
-                                                            <div className="w-6 h-6 rounded-full bg-lime-green flex items-center justify-center">
+                                                            <div className="w-6 h-6 rounded-full bg-fern flex items-center justify-center">
                                                                 <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                                                 </svg>
                                                             </div>
                                                         ) : (
-                                                            <div className="w-6 h-6 rounded-full border-2 border-gray-300"></div>
+                                                            <div className="w-6 h-6 rounded-full border-2 border-sea-glass"></div>
                                                         )}
                                                     </div>
 
                                                     {/* Icon */}
-                                                    <div className={`mb-4 ${isSelected ? 'text-lime-green' : 'text-gray-600'}`}>
+                                                    <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 transition-colors ${
+                                                        isSelected
+                                                            ? 'bg-fern text-white'
+                                                            : 'bg-transparent text-storm-gray group-hover:text-river-stone'
+                                                    }`}>
                                                         <IconComponent icon={option.icon} />
                                                     </div>
 
@@ -1178,19 +1430,30 @@
                                                     onClick={() => handleInputChange(currentQuestions.questions[0].id, option)}
                                                     className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:shadow-sm ${
                                                         isSelected
-                                                            ? 'border-lime-green bg-lime-green/5'
-                                                            : 'border-gray-300 hover:border-gray-400'
+                                                            ? 'border-fern'
+                                                            : 'border-sea-glass hover:border-river-stone'
                                                     }`}
+                                                    style={isSelected ? {backgroundColor: 'rgba(96, 125, 59, 0.08)'} : {}}
+                                                    onMouseEnter={(e) => {
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.backgroundColor = '#F5F7F7';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.backgroundColor = 'white';
+                                                        }
+                                                    }}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         {/* Radio Circle */}
                                                         <div className="flex-shrink-0">
                                                             {isSelected ? (
-                                                                <div className="w-5 h-5 rounded-full bg-lime-green flex items-center justify-center">
+                                                                <div className="w-5 h-5 rounded-full bg-fern flex items-center justify-center">
                                                                     <div className="w-2 h-2 rounded-full bg-white"></div>
                                                                 </div>
                                                             ) : (
-                                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
+                                                                <div className="w-5 h-5 rounded-full border-2 border-sea-glass"></div>
                                                             )}
                                                         </div>
                                                         {/* Text */}
@@ -1213,19 +1476,30 @@
                                                     onClick={() => handleInputChange(currentQuestions.questions[0].id, option)}
                                                     className={`w-full text-left p-4 rounded-lg border-2 transition-all hover:shadow-sm ${
                                                         isSelected
-                                                            ? 'border-lime-green bg-lime-green/5'
-                                                            : 'border-gray-300 hover:border-gray-400'
+                                                            ? 'border-fern'
+                                                            : 'border-sea-glass hover:border-river-stone'
                                                     }`}
+                                                    style={isSelected ? {backgroundColor: 'rgba(96, 125, 59, 0.08)'} : {}}
+                                                    onMouseEnter={(e) => {
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.backgroundColor = '#F5F7F7';
+                                                        }
+                                                    }}
+                                                    onMouseLeave={(e) => {
+                                                        if (!isSelected) {
+                                                            e.currentTarget.style.backgroundColor = 'white';
+                                                        }
+                                                    }}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         {/* Radio Circle */}
                                                         <div className="flex-shrink-0">
                                                             {isSelected ? (
-                                                                <div className="w-5 h-5 rounded-full bg-lime-green flex items-center justify-center">
+                                                                <div className="w-5 h-5 rounded-full bg-fern flex items-center justify-center">
                                                                     <div className="w-2 h-2 rounded-full bg-white"></div>
                                                                 </div>
                                                             ) : (
-                                                                <div className="w-5 h-5 rounded-full border-2 border-gray-400"></div>
+                                                                <div className="w-5 h-5 rounded-full border-2 border-sea-glass"></div>
                                                             )}
                                                         </div>
                                                         {/* Text */}
@@ -1243,7 +1517,7 @@
                                 <button
                                     onClick={handlePrevious}
                                     disabled={currentStep === 0}
-                                    className="flex items-center gap-2 text-slate-blue font-manrope font-medium disabled:opacity-0 disabled:cursor-not-allowed hover:text-slate-blue/80 transition-colors"
+                                    className="flex items-center gap-2 text-spruce font-manrope font-medium disabled:opacity-0 disabled:cursor-not-allowed hover:text-spruce-dark transition-colors"
                                 >
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -1253,7 +1527,7 @@
                                 <button
                                     onClick={handleNext}
                                     disabled={!isCurrentStepValid()}
-                                    className="flex items-center gap-2 bg-slate-blue text-white px-8 py-3 rounded-lg font-manrope font-semibold hover:bg-slate-blue/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                                    className="flex items-center gap-2 bg-spruce text-white px-8 py-3 rounded-lg font-manrope font-semibold hover:bg-spruce-dark disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
                                     {currentStep === categories.length - 1 ? 'Submit' : 'Next'}
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1441,7 +1715,7 @@
             ].sort((a, b) => (a.score/a.max) - (b.score/b.max)).slice(0, 3);
 
             return (
-                <div className="min-h-screen bg-gray-50 py-8">
+                <div className="min-h-screen bg-mist py-8">
                     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="bg-white rounded-lg shadow-lg p-8 mb-6">
                             <div className="text-center mb-8">
@@ -1536,7 +1810,7 @@
                                                 onChange={(e) => setEmail(e.target.value)}
                                                 placeholder="Enter your work email to unlock your full report"
                                                 required
-                                                className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-lime-green font-manrope text-lg text-gray-800"
+                                                className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-fern font-manrope text-lg text-gray-800"
                                             />
                                             <button
                                                 type="submit"
@@ -1568,8 +1842,8 @@
                                 </div>
                             </div>
                         ) : (
-                            <div className="bg-lime-green/10 border-2 border-lime-green rounded-lg p-6">
-                                <h3 className="text-xl font-manrope font-bold mb-3 text-lime-green">✅ Report Saved!</h3>
+                            <div className="bg-fern/10 border-2 border-fern rounded-lg p-6">
+                                <h3 className="text-xl font-manrope font-bold mb-3 text-fern">✅ Report Saved!</h3>
                                 <p className="font-manrope text-gray-700 mb-4">
                                     Your assessment has been saved. Check your email for the complete report.
                                 </p>
@@ -1611,6 +1885,10 @@
             const [isGeneratingReport, setIsGeneratingReport] = useState(false);
 
             const handleStartAssessment = () => {
+                setCurrentView('prequiz');
+            };
+
+            const handleStartQuiz = () => {
                 setCurrentView('assessment');
             };
 
@@ -1687,47 +1965,173 @@
 
             // Loading screen while generating report
             if (isGeneratingReport) {
-                return (
-                    <div className="min-h-screen bg-gradient-to-br from-slate-blue to-gray-800 flex items-center justify-center px-4">
-                        <div className="max-w-2xl w-full text-center">
-                            <div className="bg-white/10 backdrop-blur rounded-2xl p-12 border border-white/20">
-                                {/* Animated spinner */}
-                                <div className="flex justify-center mb-8">
-                                    <div className="relative">
-                                        <div className="animate-spin rounded-full h-24 w-24 border-b-4 border-white"></div>
-                                        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 text-4xl">
-                                            🤖
+                const LoadingScreen = () => {
+                    const [currentFactIndex, setCurrentFactIndex] = useState(0);
+                    const [isFactVisible, setIsFactVisible] = useState(true);
+
+                    const facts = [
+                        "Misrepresentation of property condition consistently ranks as the number one E&O claim filed against real estate professionals nationwide.",
+                        "Transaction coordinators reduce errors by 80% on average, saving brokerages thousands in potential E&O claims and rework costs.",
+                        "Between 5-15% of residential purchase agreements fall through before closing, with missed contingency deadlines being a leading preventable cause.",
+                        "Fifty percent of the nation's top-performing real estate brokerages employ transaction coordinators to improve oversight and reduce operational costs.",
+                        "Agents working with transaction coordinators save 10-20 hours per transaction, freeing time to focus on revenue-generating client acquisition activities.",
+                        "Inaccurate MLS data entry is the most frequently cited compliance violation, damaging brokerage credibility and exposing agents to fines.",
+                        "Ninety-eight percent of agents who use transaction coordinators close more deals each month than agents managing transactions independently.",
+                        "Failure to update listing status to 'Pending' or 'Sold' within 24-48 hours is one of the most common—and easily avoidable—MLS fines.",
+                        "Financing issues remain the most prevalent reason home sales fail to reach closing, often due to preventable changes in buyer circumstances.",
+                        "Seventy percent of agents who hire transaction coordinators report increased revenue and significant business growth within their first year.",
+                        "Agents report an average 25% increase in productivity when working with transaction coordinators versus managing all administrative tasks themselves.",
+                        "Sixteen percent of home purchase contracts experience delayed settlements, with appraisal issues accounting for over one-third of those delays nationwide.",
+                        "Ninety-five percent of buyers and sellers report more confidence in transactions when a dedicated transaction coordinator is involved in the process.",
+                        "Dual agency transactions carry significantly higher E&O claim risk due to increased potential for allegations of collusion, misrepresentation, or fraud.",
+                        "Real estate agents owe fiduciary duties to ensure all contractual deadlines are met, and breach of these duties can result in lost transactions and legal liability.",
+                        "Brokerages with ten or more full-time agents typically see immediate ROI from hiring transaction coordinators and implementing transaction management software.",
+                        "Clear Cooperation Policy violations and late MLS submissions can result in automatic fines ranging from hundreds to thousands of dollars per violation.",
+                        "Closings managed by transaction coordinators are completed 30% faster on average, reducing delays that frustrate clients and jeopardize referral business.",
+                        "Seventy percent of brokerages report substantial cost savings when utilizing virtual transaction coordinators versus traditional in-office administrative staff."
+                    ];
+
+                    useEffect(() => {
+                        const factInterval = setInterval(() => {
+                            setIsFactVisible(false);
+                            setTimeout(() => {
+                                setCurrentFactIndex((prev) => (prev + 1) % facts.length);
+                                setIsFactVisible(true);
+                            }, 300);
+                        }, 8000);
+
+                        return () => clearInterval(factInterval);
+                    }, []);
+
+                    return (
+                        <div className="min-h-screen flex flex-col" style={{
+                            background: 'linear-gradient(to bottom, rgba(55, 71, 79, 0.7), rgba(245, 247, 247, 0.9))'
+                        }}>
+                            {/* Main Content - Centered */}
+                            <div className="flex-1 flex items-center justify-center px-4 py-12">
+                                <div className="max-w-2xl w-full text-center">
+                                    {/* Main Card */}
+                                    <div className="rounded-xl p-12 border" style={{
+                                        backgroundColor: 'rgba(245, 247, 247, 0.6)',
+                                        borderColor: 'rgba(157, 191, 191, 0.2)',
+                                        backdropFilter: 'blur(8px)',
+                                        boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)'
+                                    }}>
+                                        {/* AI Icon with Float Animation */}
+                                        <div className="flex justify-center mb-8">
+                                            <div className="text-6xl animate-float">
+                                                🤖
+                                            </div>
+                                        </div>
+
+                                        {/* Headline */}
+                                        <h2 className="text-3xl md:text-4xl font-bebas uppercase tracking-wide mb-6" style={{color: '#37474F'}}>
+                                            Generating Your AI-Powered Report
+                                        </h2>
+
+                                        {/* Sub-headline */}
+                                        <p className="text-lg text-gray-600 font-manrope mb-8 max-w-lg mx-auto leading-relaxed">
+                                            Our AI is analyzing your responses to prepare a personalized report with actionable insights…
+                                        </p>
+
+                                        {/* Rotating Facts - MOVED UP */}
+                                        <div className="min-h-[140px] flex items-center justify-center py-6 mb-5">
+                                            <div className="max-w-2xl mx-auto text-center">
+                                                {/* "Did you know?" header - fixed */}
+                                                <p className="font-bebas tracking-wide mb-3" style={{
+                                                    fontSize: '20px',
+                                                    color: '#607D3B',
+                                                    letterSpacing: '0.5px'
+                                                }}>
+                                                    DID YOU KNOW?
+                                                </p>
+                                                {/* Rotating fact */}
+                                                <div className="flex items-start justify-center gap-3">
+                                                    {/* Optional subtle icon */}
+                                                    <div className="flex-shrink-0 mt-1" style={{opacity: 0.5}}>
+                                                        <svg className="w-5 h-5" style={{color: '#37474F'}} fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                                                        </svg>
+                                                    </div>
+                                                    <p
+                                                        className={`font-manrope transition-opacity duration-150 ${isFactVisible ? 'opacity-100' : 'opacity-0'}`}
+                                                        style={{
+                                                            fontSize: '18px',
+                                                            fontWeight: 500,
+                                                            color: 'rgba(55, 71, 79, 0.9)',
+                                                            lineHeight: '1.55',
+                                                            maxWidth: '640px',
+                                                            textAlign: 'left'
+                                                        }}
+                                                    >
+                                                        {facts[currentFactIndex]}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Progress Dots - REDUCED & SUBTLE */}
+                                        <div className="flex justify-center gap-1.5 mb-5">
+                                            {facts.slice(0, 9).map((_, index) => (
+                                                <div
+                                                    key={index}
+                                                    className="w-1.5 h-1.5 rounded-full transition-all duration-300"
+                                                    style={{
+                                                        backgroundColor: index === currentFactIndex % 9
+                                                            ? '#607D3B'
+                                                            : 'rgba(157, 191, 191, 0.25)'
+                                                    }}
+                                                ></div>
+                                            ))}
+                                        </div>
+
+                                        {/* Estimated Time */}
+                                        <p className="text-sm text-gray-500 font-manrope">
+                                            This typically takes 30-60 seconds. Please don't close this window.
+                                        </p>
+
+                                        {/* Optional Micro Progress Bar */}
+                                        <div className="mt-6 w-full max-w-md mx-auto h-0.5 rounded-full overflow-hidden" style={{backgroundColor: 'rgba(157, 191, 191, 0.2)'}}>
+                                            <div className="h-full animate-progress" style={{backgroundColor: '#607D3B'}}></div>
                                         </div>
                                     </div>
                                 </div>
+                            </div>
 
-                                {/* Message */}
-                                <h2 className="text-4xl font-bebas text-white mb-4 tracking-wide">
-                                    Generating Your AI-Powered Report
-                                </h2>
-                                <p className="text-xl text-white/90 font-manrope mb-6">
-                                    Our AI is analyzing your responses and creating a personalized report with actionable insights...
-                                </p>
-                                <p className="text-sm text-white/70 font-manrope">
-                                    This typically takes 30-60 seconds. Please don't close this window.
-                                </p>
-
-                                {/* Progress dots */}
-                                <div className="flex justify-center gap-2 mt-8">
-                                    <div className="w-3 h-3 bg-white/50 rounded-full animate-pulse"></div>
-                                    <div className="w-3 h-3 bg-white/50 rounded-full animate-pulse" style={{animationDelay: '0.2s'}}></div>
-                                    <div className="w-3 h-3 bg-white/50 rounded-full animate-pulse" style={{animationDelay: '0.4s'}}></div>
+                            {/* Bonus Offer Footer */}
+                            <div className="sticky bottom-0 border-t" style={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.75)',
+                                borderColor: 'rgba(157, 191, 191, 0.3)',
+                                boxShadow: '0 -4px 12px rgba(0, 0, 0, 0.05)'
+                            }}>
+                                <div className="max-w-4xl mx-auto px-4 py-4 text-center">
+                                    <p className="text-sm font-manrope" style={{color: '#37474F'}}>
+                                        <span className="font-semibold">Bonus Opportunity for Brokers:</span>{' '}
+                                        Ask us about performance-based leads you only pay for when they go under contract.{' '}
+                                        <a
+                                            href="mailto:contact@contrere.com"
+                                            className="font-medium hover:underline transition-colors"
+                                            style={{color: '#78909C'}}
+                                        >
+                                            Learn more
+                                        </a>
+                                    </p>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                );
+                    );
+                };
+
+                return <LoadingScreen />;
             }
 
             return (
                 <div>
                     {currentView === 'landing' && (
                         <LandingPage onStartAssessment={handleStartAssessment} />
+                    )}
+                    {currentView === 'prequiz' && (
+                        <BeforeYouBegin onStartQuiz={handleStartQuiz} />
                     )}
                     {currentView === 'assessment' && (
                         <AssessmentForm onComplete={handleAssessmentComplete} />

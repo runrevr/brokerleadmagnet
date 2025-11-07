@@ -197,119 +197,106 @@ ${productFeatures.core.map(f => `- ${f}`).join('\n')}
 Expected Outcomes from Integrated Platforms:
 ${productFeatures.outcomes.map(o => `- ${o}`).join('\n')}
 
-TASK: Generate a comprehensive analysis in JSON format with these components:
+TASK: Generate a concise, high-impact analysis in JSON format with these components:
 
 {
+  "whatWeFound": [
+    // CRITICAL: Generate 4 specific, punchy bullets for the pre-email "What We Found" section
+    // These should be TEASERS that create curiosity without giving away the full analysis
+    // Pull from: their top 2 gaps, percentile ranking, and financial impact
+    // Format: Action-oriented, specific to THEIR data, 8-12 words each
+    // Example: "Transaction oversight gaps costing 15+ hours weekly in manual processes"
+    "string (bullet 1 - their #1 critical gap with time/$ impact hint)",
+    "string (bullet 2 - their #2 critical gap or category weakness)",
+    "string (bullet 3 - percentile positioning vs industry)",
+    "string (bullet 4 - total annual cost or efficiency gap)"
+  ],
+
   "gapAnalysis": [
-    // Identify 5-7 critical operational gaps based on their lowest-scoring answers
-    // For EACH gap provide:
+    // Identify 2-3 CRITICAL operational gaps (only the most important)
+    // Target: 100-125 words per gap total - be concise
     {
       "category": "string (which assessment category)",
-      "issue": "string (specific problem based on their answer)",
-      "evidence": "string (quote their specific answer that reveals this)",
+      "issueWithEvidence": "string (1-2 sentences: the problem + brief quote from their answer)",
       "businessImpact": {
-        "timeWasted": "string (estimated hours/week)",
-        "financialCost": "string (estimated $/year)",
-        "riskCreated": "string (E&O exposure, deal loss potential)"
+        "timeWasted": "string (hours/week: '12-15 hrs/week')",
+        "financialCost": "string ($/year: '$45K-60K annually')",
+        "riskCreated": "string (E&O/deal risk - brief)"
       },
-      "rootCause": "string (why this gap exists - usually: manual processes, fragmented systems, reactive approach)",
-      "industryBestPractice": "string (describe what top 5% of brokerages DO operationally - focus on approach/capabilities, not specific tools. Example: 'Top brokerages have eliminated manual document review through automated intelligence systems that analyze every document, flag critical issues, and generate summaries.' Let the reader realize they need tools to achieve this.)",
+      "industryBestPractice": "string (1 sentence: what top 5% DO differently)",
       "severity": "CRITICAL|HIGH|MEDIUM"
     }
   ],
 
   "roadmap": {
-    // 60-day action plan prioritized by impact and ease
+    // 60-day action plan - prioritize impact
+    // Target: 60-80 words per action item
     "quickWins": [
-      // 0-20 days, minimal investment
+      // 0-20 days: 1-2 items only
       {
-        "action": "string (specific action item)",
-        "addresses": "string (which gap/category)",
-        "implementation": "string (how to do it - describe the capability needed)",
-        "expectedOutcome": "string (measurable improvement)",
-        "modernApproach": "string (educational note: 'Top-performing brokerages handle this through [capability description]' - focus on what they DO, not what tool they use)"
+        "action": "string (specific action - start with verb)",
+        "addresses": "string (which gap)",
+        "implementation": "string (1-2 sentences: what to do)",
+        "expectedOutcome": "string (measurable result)"
       }
     ],
     "foundationBuilding": [
-      // 20-40 days, moderate investment
+      // 20-40 days: 1-2 items only
       // Same structure as quickWins
     ],
     "transformation": [
-      // 40-60 days, significant investment
-      // Same structure, but frame as "this is where integrated platforms shine"
+      // 40-60 days: 1-2 items only
+      // Same structure as quickWins
     ]
   },
 
   "competitivePositioning": {
-    // How they compare to industry benchmarks
-    "strengths": [
-      "string (what they're doing well - be genuine)"
-    ],
-    "weaknesses": [
-      "string (where they're behind - specific)"
-    ],
-    "percentileAnalysis": "string (estimate their position: 'Based on your scores, you're performing in the [X] percentile for [size] brokerages...')",
-    "gapToLeaders": "string (what top 10% do differently - reference AI/integrated platforms naturally)"
+    // Keep lean
+    "percentileAnalysis": "string (1-2 sentences: where they stand vs peers)",
+    "gapToLeaders": "string (1-2 sentences: what top 10% do differently)"
   },
 
   "financialImpact": {
-    // Model the cost of current state vs improved state
+    // Numbers speak louder than words - keep explanations minimal
     "currentStateCosts": {
-      "manualDocumentReview": "string (hours x agents x $/hour)",
-      "missedDeadlines": "string (deals lost, concessions made)",
-      "eoRisk": "string (claims + premium increases)",
-      "totalAnnual": "string (conservative estimate)"
+      "manualDocumentReview": "string ($ amount only with brief label: '$48K - 5hrs/transaction × 180 deals')",
+      "missedDeadlines": "string ($ amount: '$30K - 6 deals/year at $5K avg concession')",
+      "eoRisk": "string ($ amount: '$15K - elevated premiums + claim reserves')",
+      "totalAnnual": "string ($ total - be conservative but compelling)"
     },
     "projectedSavings": {
-      "timeReclaimed": "string (hours/week → $ value)",
-      "dealsProtected": "string (fewer losses/concessions)",
-      "riskReduction": "string (lower E&O exposure)",
-      "totalAnnual": "string",
-      "roi": "string (X:1 return if they solve these gaps)"
-    },
-    "implementationNote": "string (mention how top-performing brokerages typically achieve these results - focus on their approach: 'Top 5% brokerages typically see these improvements within 60 days by implementing automated transaction intelligence systems')"
-  },
-
-  "specificRecommendations": [
-    // 5-7 tactical recommendations that align with product features
-    {
-      "recommendation": "string (what capability/system to implement)",
-      "rationale": "string (why, based on their specific gap)",
-      "expectedOutcome": "string (measurable result)",
-      "howTopBrokeragesDoThis": "string (describe the operational approach top 5% use - educational, not product-focused. Focus on what they DO and the capabilities they have, letting the reader realize they need similar tools)"
+      "timeReclaimed": "string (hours + $ value: '480 hrs/year → $28K value')",
+      "dealsProtected": "string ($ saved: '$25K fewer concessions')",
+      "riskReduction": "string ($ impact: '$12K premium reduction')",
+      "totalAnnual": "string ($ total projected savings)",
+      "roi": "string (simple ratio: '4:1 return' or '$4 saved per $1 invested')"
     }
-  ],
+  },
 
   "archetype": {
-    // Pattern recognition - what type of brokerage are they?
-    "type": "string (e.g., 'Growth-Constrained', 'Tech-Forward but Disconnected', 'Manually Excellent', 'Scaling Strugglers')",
-    "description": "string (what characterizes this archetype)",
-    "typicalChallenges": ["string"],
-    "pathForward": "string (what this archetype typically needs - describe capabilities/systems that successful brokerages in this archetype adopt, educational tone)"
+    // Pattern recognition
+    "type": "string (e.g., 'Growth-Constrained', 'Tech-Forward but Disconnected')",
+    "description": "string (1-2 sentences: what characterizes this archetype)"
   },
 
-  "keyInsight": "string (one powerful, memorable insight about their situation - the 'aha moment')"
+  "keyInsight": "string (one powerful insight - 1-2 sentences max)"
 }
 
-CRITICAL REQUIREMENTS:
-1. Focus on education: Describe what top 5% of brokerages DO operationally (their capabilities and approaches)
-2. Be specific to THEIR answers - reference what they actually said in the assessment
-3. Use conservative financial estimates (builds credibility)
-4. Let readers connect the dots: Describe capabilities that make them think "I need tools to do this"
-5. NEVER explicitly sell or pitch products - maintain consultant/educator tone throughout
-6. Be genuinely helpful - this should provide real value as standalone consulting insights
-7. Quantify everything possible (hours, dollars, percentages, ROI)
-8. Keep responses concise but specific - aim for comprehensive but not excessive detail
-9. Frame solutions as "operational approaches of top performers" not "products to buy"
-10. Make them realize top brokerages have capabilities they don't - naturally creating demand for similar tools
+CRITICAL REQUIREMENTS - MAXIMUM BREVITY:
+1. EXTREME BREVITY REQUIRED: Cut ruthlessly. This is a snapshot, not an essay.
+   - Gap Analysis: 2-3 gaps ONLY, 100-125 words each MAX
+   - Roadmap: 1-2 items per phase ONLY, 60-80 words each MAX
+   - Everything else: Absolute minimum viable length
+2. Be SPECIFIC to THEIR data - quote briefly, use their numbers
+3. Quantify everything with specific numbers - no vague terms
+4. NEVER sell - educate only
+5. One insight per section - eliminate ALL redundancy
+6. Short sentences. No fluff. Every word earns its place.
 
-OUTPUT FORMAT INSTRUCTIONS:
-- Return ONLY valid JSON
-- DO NOT wrap in markdown code blocks (no \`\`\`json)
-- DO NOT include any text before or after the JSON
-- Start your response with { and end with }
-- Ensure all JSON is properly formatted and complete
-- If response is long, prioritize completeness over excessive detail`;
+OUTPUT FORMAT:
+- Return ONLY valid JSON (no markdown, no extra text)
+- Start with { and end with }
+- Keep it tight - if writing paragraphs, you're doing it wrong`;
 };
 
 /**
