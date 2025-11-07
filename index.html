@@ -743,67 +743,77 @@
         const LandingPage = ({ onStartAssessment }) => {
             return (
                 <div className="bg-white">
-                    {/* Hero Section */}
-                    <section className="bg-gradient-to-b from-gray-50 to-white py-12 px-4">
-                        <div className="max-w-4xl mx-auto text-center">
+                    {/* Hero Section - Full Width Background */}
+                    <section className="relative bg-cover bg-center bg-no-repeat min-h-[600px] flex items-center justify-center" style={{backgroundImage: "url('/lead magnet header.png')"}}>
+                        {/* Dark Gradient Overlay - Left to Right */}
+                        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/70 to-black/20"></div>
+
+                        {/* Hero Content */}
+                        <div className="relative z-10 max-w-4xl mx-auto text-center px-4 py-16">
                             {/* Small label at top */}
-                            <div className="text-sm text-gray-500 uppercase tracking-wider mb-6 font-manrope font-medium">
+                            <div className="text-sm text-white/90 uppercase tracking-wider mb-6 font-manrope font-medium">
                                 Hidden Risk Revealed
                             </div>
 
                             {/* Main Headline */}
-                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas text-gray-800 mb-4 leading-tight">
-                                WHAT 6-FIGURE MISTAKES MOST BROKERS MAKE{' '}
-                                <span className="text-lime-green">(AND HOW THE TOP 10% AVOID THEM)</span>
+                            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bebas text-white mb-6 leading-tight">
+                                THE 6-FIGURE MISTAKES MOST BROKERAGES MAKE{' '}
+                                <span className="text-amber">(AND HOW THE TOP 10% AVOID THEM)</span>
                             </h1>
 
                             {/* Subheading */}
-                            <p className="text-base md:text-lg text-gray-600 mb-8 max-w-2xl mx-auto font-manrope">
-                                Top firms treat risk management as a competitive edge. Take the quiz to learn how your current approach stacks up—and what you're missing.
+                            <p className="text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto font-manrope leading-relaxed">
+                                Most brokerages don't realize how much hidden risk sits inside their transactions. Take this free 60-second assessment to uncover blind spots in compliance, agent oversight, and deal flow—and see how your firm compares to top-performers nationwide.
                             </p>
 
                             {/* CTA Button */}
                             <button
                                 onClick={onStartAssessment}
-                                className="inline-flex items-center gap-2 bg-slate-blue hover:bg-slate-blue/90 text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+                                className="inline-flex items-center gap-2 text-white px-10 py-5 rounded-md font-manrope font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 hover:scale-105"
+                                style={{
+                                    backgroundColor: '#607D3B',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 25px rgba(96, 125, 59, 0.4)'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#4F6630';
+                                    e.currentTarget.style.boxShadow = '0 6px 10px rgba(0, 0, 0, 0.4), 0 15px 35px rgba(79, 102, 48, 0.5)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#607D3B';
+                                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 25px rgba(96, 125, 59, 0.4)';
+                                }}
                             >
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
                                     <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                                     <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm3 4a1 1 0 000 2h.01a1 1 0 100-2H7zm3 0a1 1 0 000 2h3a1 1 0 100-2h-3zm-3 4a1 1 0 100 2h.01a1 1 0 100-2H7zm3 0a1 1 0 100 2h3a1 1 0 100-2h-3z" clipRule="evenodd"/>
                                 </svg>
-                                Take the Free Risk Assessment
+                                Get My Risk Score & 60-Day Plan
                             </button>
-                        </div>
-                    </section>
 
-                    {/* Hero Image Section */}
-                    <section className="py-8 px-4">
-                        <div className="max-w-5xl mx-auto flex justify-center">
-                            <img
-                                src="/storm cloud.png"
-                                alt="House with storm clouds representing hidden risks"
-                                className="w-1/2 h-auto rounded-lg shadow-2xl"
-                            />
+                            {/* Credibility Line */}
+                            <p className="text-sm text-white/70 mt-6 font-manrope italic">
+                                Built by real estate professionals with deep understanding of transaction workflows used in platforms like SkySlope and LoneWolf.
+                            </p>
                         </div>
                     </section>
 
                     {/* Find Your Hidden Vulnerabilities Section */}
                     <section className="py-16 px-4 bg-white">
                         <div className="max-w-6xl mx-auto">
-                            <div className="text-center mb-12">
-                                <h2 className="text-3xl md:text-4xl font-bebas text-gray-800 mb-3 uppercase tracking-wide">
-                                    Find Your Hidden Vulnerabilities
+                            <div className="text-center mb-16">
+                                <h2 className="text-3xl md:text-4xl font-bebas text-gray-800 mb-6 uppercase tracking-wide">
+                                    Uncover the Risk Areas That Cost Brokerages the Most
                                 </h2>
-                                <p className="text-gray-600 font-manrope max-w-2xl mx-auto">
-                                    Every transaction has potential pitfalls. Our assessment helps you identify which of these common risk profiles is holding you back.
+                                <p className="text-gray-600 font-manrope max-w-xl mx-auto mb-8">
+                                    Our assessment pinpoints where gaps in compliance, agent oversight, operations, and client experience are exposing your brokerage to preventable losses.
                                 </p>
                             </div>
 
                             {/* 4 Cards Grid */}
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
                                 {/* Card 1 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
                                         <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
                                             <path fillRule="evenodd" d="M4 5a2 2 0 012-2 3 3 0 003 3h2a3 3 0 003-3 2 2 0 012 2v11a2 2 0 01-2 2H6a2 2 0 01-2-2V5zm9.707 5.707a1 1 0 00-1.414-1.414L9 12.586l-1.293-1.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd"/>
@@ -811,46 +821,46 @@
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Brokerage Oversight</h3>
                                     <p className="text-sm text-gray-600 font-manrope leading-relaxed">
-                                        Are missing signatures, outdated forms, and commission errors slowing you down and creating legal exposure?
+                                        Are incomplete contracts, outdated forms, or missing signatures putting your brokerage at risk of compliance violations and E&O exposure?
                                     </p>
                                 </div>
 
                                 {/* Card 2 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
                                         <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z" clipRule="evenodd"/>
                                         </svg>
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Operational Efficiency</h3>
                                     <p className="text-sm text-gray-600 font-manrope leading-relaxed">
-                                        Is poor communication or tracking of offers and counter-offers leading to missed opportunities and client dissatisfaction?
+                                        Is poor tracking of offers, timelines, and documentation causing delays, lost deals, or client dissatisfaction?
                                     </p>
                                 </div>
 
                                 {/* Card 3 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
                                         <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
                                             <path d="M10.394 2.08a1 1 0 00-.788 0l-7 3a1 1 0 000 1.84L5.25 8.051a.999.999 0 01.356-.257l4-1.714a1 1 0 11.788 1.838L7.667 9.088l1.94.831a1 1 0 00.787 0l7-3a1 1 0 000-1.838l-7-3zM3.31 9.397L5 10.12v4.102a8.969 8.969 0 00-1.05-.174 1 1 0 01-.89-.89 11.115 11.115 0 01.25-3.762zM9.3 16.573A9.026 9.026 0 007 14.935v-3.957l1.818.78a3 3 0 002.364 0l5.508-2.361a11.026 11.026 0 01.25 3.762 1 1 0 01-.89.89 8.968 8.968 0 00-5.35 2.524 1 1 0 01-1.4 0zM6 18a1 1 0 001-1v-2.065a8.935 8.935 0 00-2-.712V17a1 1 0 001 1z"/>
                                         </svg>
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Agent Training & Knowledge Base</h3>
                                     <p className="text-sm text-gray-600 font-manrope leading-relaxed">
-                                        Are you struggling to manage critical dates for inspections, financing, and closing, leading to deal collapse?
+                                        Are agents missing critical contract deadlines or mismanaging forms, increasing the risk of failed inspections, financing fallout, or deal collapse?
                                     </p>
                                 </div>
 
                                 {/* Card 4 */}
-                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 hover:shadow-lg transition-shadow">
-                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4">
+                                <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 transition-all duration-300 hover:-translate-y-0.5 hover:border-lime-green/50" style={{boxShadow: '0 4px 14px rgba(0,0,0,0.045)'}} onMouseEnter={(e) => e.currentTarget.style.boxShadow = '0 8px 24px rgba(0,0,0,0.12)'} onMouseLeave={(e) => e.currentTarget.style.boxShadow = '0 4px 14px rgba(0,0,0,0.045)'}>
+                                    <div className="w-12 h-12 bg-lime-green/10 rounded-lg flex items-center justify-center mb-4 transition-colors duration-300 hover:bg-lime-green/20">
                                         <svg className="w-6 h-6 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
                                             <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd"/>
                                         </svg>
                                     </div>
                                     <h3 className="text-lg font-bold text-gray-800 mb-2 font-manrope">Client Experience</h3>
                                     <p className="text-sm text-gray-600 font-manrope leading-relaxed">
-                                        Is your client data and sensitive transaction information vulnerable to data fraud and cyber threats?
+                                        Is sensitive client data — or transaction information — at risk of being mishandled, lost, or exposed to potential fraud or cyber threats?
                                     </p>
                                 </div>
                             </div>
@@ -858,14 +868,17 @@
                     </section>
 
                     {/* Your Path to Secure Transactions */}
-                    <section className="py-16 px-4 bg-gray-50">
+                    <section className="py-16 px-4" style={{backgroundColor: '#9DBFBF'}}>
                         <div className="max-w-6xl mx-auto">
-                            <div className="text-center mb-12">
+                            <div className="text-center mb-8">
+                                {/* Subtle dividing line above */}
+                                <div className="w-24 h-px bg-gray-800/10 mx-auto mb-6"></div>
+
                                 <h2 className="text-3xl md:text-4xl font-bebas text-gray-800 mb-3 uppercase tracking-wide">
-                                    Your Path to Secure Transactions
+                                    SEE EXACTLY WHERE YOUR RISKS ARE—AND HOW TO FIX THEM
                                 </h2>
                                 <p className="text-gray-600 font-manrope max-w-2xl mx-auto">
-                                    In just a few minutes, gain clarity and a clear action plan to protect your business and your clients.
+                                    In just a few minutes, you'll uncover hidden vulnerabilities inside your transactions and walk away with a personalized 60-day improvement plan.
                                 </p>
                             </div>
 
@@ -873,34 +886,61 @@
                             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
                                 {/* Step 1 */}
                                 <div className="text-center">
-                                    <div className="w-16 h-16 bg-forest-green text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 shadow-lg">
+                                    <div
+                                        className="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:scale-105"
+                                        style={{backgroundColor: '#607D3B', boxShadow: '0 4px 14px rgba(96, 125, 59, 0.3)'}}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 125, 59, 0.5), 0 0 20px rgba(96, 125, 59, 0.4)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(96, 125, 59, 0.3)';
+                                        }}
+                                    >
                                         1
                                     </div>
                                     <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Take the Quiz</h3>
                                     <p className="text-gray-600 font-manrope text-sm leading-relaxed">
-                                        Answer a short series of questions about your current transaction process. It's quick, easy, and completely confidential.
+                                        Answer a quick set of questions about your brokerage's transaction workflow. It's fast, easy, and completely confidential.
                                     </p>
                                 </div>
 
                                 {/* Step 2 */}
                                 <div className="text-center">
-                                    <div className="w-16 h-16 bg-forest-green text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 shadow-lg">
+                                    <div
+                                        className="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:scale-105"
+                                        style={{backgroundColor: '#607D3B', boxShadow: '0 4px 14px rgba(96, 125, 59, 0.3)'}}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 125, 59, 0.5), 0 0 20px rgba(96, 125, 59, 0.4)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(96, 125, 59, 0.3)';
+                                        }}
+                                    >
                                         2
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Get Your Score</h3>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Get Your Risk Score</h3>
                                     <p className="text-gray-600 font-manrope text-sm leading-relaxed">
-                                        Instantly receive your personalized Transaction Risk Score and a breakdown of your primary risk profile.
+                                        Instantly receive a personalized Transaction Risk Score, plus a breakdown of your highest-risk areas.
                                     </p>
                                 </div>
 
                                 {/* Step 3 */}
                                 <div className="text-center">
-                                    <div className="w-16 h-16 bg-forest-green text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 shadow-lg">
+                                    <div
+                                        className="w-16 h-16 text-white rounded-full flex items-center justify-center text-2xl font-bold font-manrope mx-auto mb-4 transition-all duration-300 cursor-pointer hover:-translate-y-1 hover:scale-105"
+                                        style={{backgroundColor: '#607D3B', boxShadow: '0 4px 14px rgba(96, 125, 59, 0.3)'}}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.boxShadow = '0 8px 24px rgba(96, 125, 59, 0.5), 0 0 20px rgba(96, 125, 59, 0.4)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.boxShadow = '0 4px 14px rgba(96, 125, 59, 0.3)';
+                                        }}
+                                    >
                                         3
                                     </div>
-                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Implement Solutions</h3>
+                                    <h3 className="text-xl font-bold text-gray-800 mb-3 font-manrope">Fix Your Exposure</h3>
                                     <p className="text-gray-600 font-manrope text-sm leading-relaxed">
-                                        Get actionable insights and tailored recommendations to mitigate your specific risks and streamline your workflow.
+                                        Get tailored recommendations and a 60-day plan to reduce risk, improve oversight, and streamline your operations.
                                     </p>
                                 </div>
                             </div>
@@ -908,17 +948,29 @@
                     </section>
 
                     {/* Bottom CTA Section */}
-                    <section className="py-16 px-4 bg-gradient-to-br from-dark-green to-forest-green text-white">
-                        <div className="max-w-4xl mx-auto text-center">
-                            <h2 className="text-4xl md:text-5xl font-bebas mb-4 uppercase tracking-wide">
+                    <section className="py-16 px-4" style={{backgroundColor: '#F7F9FA'}}>
+                        <div className="max-w-4xl mx-auto text-center rounded-xl p-8 md:p-12" style={{border: '1px solid #E2E8F0'}}>
+                            <h2 className="text-4xl md:text-5xl font-bebas mb-4 uppercase tracking-wide" style={{color: '#1e3a5f'}}>
                                 Stop Guessing, Start Assessing.
                             </h2>
-                            <p className="text-lg text-white/90 mb-8 font-manrope max-w-2xl mx-auto">
+                            <p className="text-lg mb-8 font-manrope max-w-2xl mx-auto" style={{color: '#475569'}}>
                                 Turn transaction anxiety into a competitive advantage. Discover how to protect your reputation, save money, and close more deals with confidence.
                             </p>
                             <button
                                 onClick={onStartAssessment}
-                                className="bg-slate-blue hover:bg-slate-blue/90 text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg transition-all duration-200 shadow-xl hover:shadow-2xl transform hover:-translate-y-0.5"
+                                className="inline-flex items-center gap-2 text-white px-10 py-5 rounded-md font-manrope font-bold text-lg transition-all duration-200 transform hover:-translate-y-1 hover:scale-105"
+                                style={{
+                                    backgroundColor: '#607D3B',
+                                    boxShadow: '0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 25px rgba(96, 125, 59, 0.4)'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#4F6630';
+                                    e.currentTarget.style.boxShadow = '0 6px 10px rgba(0, 0, 0, 0.4), 0 15px 35px rgba(79, 102, 48, 0.5)';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.backgroundColor = '#607D3B';
+                                    e.currentTarget.style.boxShadow = '0 4px 6px rgba(0, 0, 0, 0.3), 0 10px 25px rgba(96, 125, 59, 0.4)';
+                                }}
                             >
                                 Find My Risk Profile Now
                             </button>
