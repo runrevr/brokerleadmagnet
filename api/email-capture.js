@@ -111,6 +111,9 @@ module.exports = async (req, res) => {
           console.log(`✅ Tags applied for risk level: ${reportData.riskLevel}`);
         }
 
+        // Build report URL
+        const reportUrl = `${process.env.FRONTEND_URL || 'https://brokerleadmagnet.vercel.app'}/report?id=${assessmentId}`;
+
         // Update custom fields (matching your ActiveCampaign field names)
         if (reportData) {
           await updateCustomFields(contact.id, {
@@ -120,9 +123,10 @@ module.exports = async (req, res) => {
             'Risk Level': reportData.riskLevel || '',
             'City': reportData.primaryMarket || '',
             'Assessment ID': assessmentId,
-            'Monthly Transactions': reportData.monthlyTransactions || ''
+            'Monthly Transactions': reportData.monthlyTransactions || '',
+            'Report URL': reportUrl
           });
-          console.log('✅ Custom fields updated');
+          console.log('✅ Custom fields updated (including Report URL)');
         }
 
         // Note: Email automation should be triggered by tags in ActiveCampaign
