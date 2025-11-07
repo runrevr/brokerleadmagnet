@@ -24,8 +24,9 @@
  * }
  */
 
-const { calculateScore } = require('../scoring-algorithm');
+const { calculateScore, calculateScoreWithContre } = require('../scoring-algorithm');
 const { generateExecutiveSummary, generateFullAnalysis } = require('./ai-integration');
+const { calculateConservativeROI } = require('./roi-calculator');
 const { supabase } = require('./db');
 
 module.exports = async (req, res) => {
@@ -72,10 +73,22 @@ module.exports = async (req, res) => {
     const scoreResults = calculateScore(responses);
     console.log(`[SCORING] Overall score: ${scoreResults.totalScore}/100 (${scoreResults.percentage}%)`);
 
+    // Calculate ContRE score comparison
+    const contreComparison = calculateScoreWithContre(scoreResults);
+    console.log(`[CONTRE] Score with ContRE: ${contreComparison.withContre.totalScore}/100 (improvement: +${contreComparison.improvement.totalPoints} points)`);
+
+    // Calculate conservative ROI projections
+    const roiAnalysis = calculateConservativeROI({
+      agentCount: parseInt(companyInfo.agent_count) || 75,
+      responses: responses
+    });
+    console.log(`[ROI] Conservative annual value: $${roiAnalysis.bottomLine.totalAnnualValue}, ROI: ${roiAnalysis.bottomLine.roi}`);
+
     // Prepare assessment data structure for AI generation
     const assessmentData = {
       companyName: companyInfo.company_name,
       companySize: companyInfo.agent_count,
+      agentCount: parseInt(companyInfo.agent_count) || 75, // Numeric for calculations
       monthlyTransactions: companyInfo.monthly_deals,
       primaryMarket: companyInfo.location,
       overallScore: scoreResults.totalScore,
@@ -111,7 +124,16 @@ module.exports = async (req, res) => {
         questionText: getQuestionText(qr.questionId),
         answer: qr.response,
         pointsEarned: qr.score
-      }))
+      })),
+      // NEW: Add ContRE analysis for AI to use
+      contreAnalysis: {
+        scoreComparison: contreComparison,
+        roiProjection: roiAnalysis,
+        targetMarketFit: roiAnalysis.bottomLine.targetMarketFit,
+        keyMessage: roiAnalysis.bottomLine.isPositiveROI
+          ? `At ${companyInfo.agent_count} agents, ContRE delivers ${roiAnalysis.bottomLine.roi} ROI through conservative time savings and risk mitigation`
+          : `ContRE's primary value at your scale is risk mitigation and operational excellence`
+      }
     };
 
     // Generate shareable token and expiration

@@ -9,35 +9,54 @@
  */
 
 /**
- * Product Feature Context
- * This describes your actual product capabilities that AI should reference as "industry best practices"
+ * Product Feature Context - ContRE Platform
+ * This describes ContRE's actual product capabilities that AI should reference as "industry best practices"
+ * Target Market: 50-150 agent brokerages where ROI is clearest
+ * Pricing: $500-$2,000/month ($1,000-$1,500 typical for target market)
  */
 const productFeatures = {
   core: [
-    "AI-powered document analysis that reads HOAs, title reports, and inspection reports in minutes",
-    "Automated deadline extraction and smart alerts for all transaction milestones",
-    "Real-time transaction oversight with multi-layer verification (Agent + TC + Broker + AI)",
-    "Centralized knowledge base with AI-powered instant answers to legal and procedural questions",
-    "Client-facing dashboard with AI-generated summaries of all transaction documents",
-    "Integrated commission calculation and reconciliation system",
-    "Automated compliance tracking and risk flagging",
-    "Single unified platform eliminating data silos across transaction management"
+    "AI document analysis: 50-page HOAs/title reports → 1-page summary with issue highlights in 5 minutes",
+    "24/7 transaction-specific chatbot trained on all uploaded documents (reduces agent interruptions by 75%)",
+    "Automated deadline extraction from contracts with custom alert windows (X days in advance)",
+    "Broker dashboard shows all active transaction deadlines across entire brokerage in one view",
+    "Brokerage knowledge base: upload policies, forms, state/MLS/legal docs for instant AI answers",
+    "Integrates with SkySlope/LoneWolf as intelligence layer (no rip-and-replace of existing systems)",
+    "Commission extraction with anomaly alerts (flags deals under typical commission)",
+    "Shareable client chatbot for transaction questions (no login required, 24/7 access)",
+    "Custom contract training: AI identifies where initials, signatures, dates, disclosures go",
+    "AI summarizes disclosures so brokers can quickly analyze how documents are written"
   ],
+
+  targetMarket: {
+    idealFit: "50-150 agent brokerages",
+    reasoning: "Large enough that operational strain is real, nimble enough for quick implementation",
+    roi: "6:1 to 8:1 for target market with conservative assumptions"
+  },
+
   differentiators: [
-    "AI reads every document so agents don't have to spend 5+ hours per transaction",
-    "Real-time guidance instead of scheduled training sessions",
-    "Proactive risk detection before issues become expensive problems",
-    "Client transparency through AI-generated plain-language summaries",
-    "Verified seller lead generation with pay-at-contract model"
+    "Transaction intelligence layer that works on top of existing systems",
+    "Real-time guidance while agents work, not scheduled training sessions",
+    "Proactive risk detection before issues escalate to expensive problems",
+    "Logged client Q&A provides documentation protection for E&O claims",
+    "From day one functionality - no 60-day operational overhaul required"
   ],
-  outcomes: [
-    "Reduce document review time from 5+ hours to under 30 minutes",
-    "Eliminate missed deadlines with AI-extracted deadline tracking",
-    "Reduce E&O claims through proactive compliance monitoring",
-    "Improve client understanding with AI-generated document summaries",
-    "Increase agent retention by reducing administrative burden",
-    "Scale operations without proportional increase in overhead"
-  ]
+
+  conservativeOutcomes: [
+    "Reduce agent doc review from 1 hour to 30 minutes per transaction (50% reduction)",
+    "Reduce broker/TC review time by 50% via dashboard oversight instead of manual checking",
+    "Reduce broker question-handling time by 75% (agents use chatbot instead of interrupting)",
+    "Prevent 1-2 missed deadlines per year through automated tracking and escalating alerts",
+    "Catch 3-4 commission anomalies per year before contracts are signed",
+    "Reduce E&O risk exposure by 20% through proactive flagging and logged client interactions"
+  ],
+
+  pricingTransparency: {
+    investment: "$500-$2,000/month depending on brokerage size",
+    targetMarketCost: "$1,000-$1,500/month for 50-150 agent brokerages",
+    annualInvestment: "$12,000-$18,000/year",
+    typicalROI: "6:1 to 8:1 for 50-150 agent brokerages based on conservative time savings + risk mitigation"
+  }
 };
 
 /**
@@ -191,11 +210,17 @@ ${categoryScores.map(cat => `- ${cat.category}: ${cat.score}/${cat.maxScore} (${
 All Responses:
 ${responses.map(r => `Q: ${r.questionText}\nA: ${r.answer}\nPoints: ${r.pointsEarned}`).join('\n\n')}
 
-PRODUCT CONTEXT (frame as "industry best practices"):
+PRODUCT CONTEXT - ContRE Platform (frame as "industry best practices"):
+Core Features:
 ${productFeatures.core.map(f => `- ${f}`).join('\n')}
 
-Expected Outcomes from Integrated Platforms:
-${productFeatures.outcomes.map(o => `- ${o}`).join('\n')}
+Conservative Expected Outcomes:
+${productFeatures.conservativeOutcomes.map(o => `- ${o}`).join('\n')}
+
+Target Market & Pricing Transparency:
+- Ideal fit: ${productFeatures.targetMarket.idealFit}
+- Investment: ${productFeatures.pricingTransparency.targetMarketCost} (${productFeatures.pricingTransparency.annualInvestment}/year)
+- Typical ROI: ${productFeatures.pricingTransparency.typicalROI}
 
 TASK: Generate a concise, high-impact analysis in JSON format with these components:
 
@@ -224,6 +249,13 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
         "riskCreated": "string (E&O/deal risk - brief)"
       },
       "industryBestPractice": "string (1 sentence: what top 5% DO differently)",
+      "howContreSolves": [
+        // NEW: Be DIRECT about how ContRE specifically addresses this gap
+        // 2-3 bullet points per gap showing specific ContRE features
+        "string (specific ContRE feature that solves this exact problem)",
+        "string (how it works in practice for their brokerage size)",
+        "string (impact: time saved or risk reduced)"
+      ],
       "severity": "CRITICAL|HIGH|MEDIUM"
     }
   ],
@@ -245,8 +277,13 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
       // Same structure as quickWins
     ],
     "transformation": [
-      // 40-60 days: 1-2 items only
-      // Same structure as quickWins
+      // 40-60 days: 1-2 items focusing on ContRE/transaction intelligence evaluation
+      {
+        "action": "string (Evaluate transaction intelligence platforms like ContRE)",
+        "addresses": "string (which gaps this solves)",
+        "implementation": "string (What to look for: SkySlope/LoneWolf integration, AI doc analysis, automated deadlines, 24/7 chatbot, broker dashboard, knowledge base. Frame as: Does $12K-$18K/year investment make sense against time/risk savings?)",
+        "expectedOutcome": "string (measurable operational improvement + ROI projection)"
+      }
     ]
   },
 
@@ -256,20 +293,86 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
     "gapToLeaders": "string (1-2 sentences: what top 10% do differently)"
   },
 
-  "financialImpact": {
-    // Numbers speak louder than words - keep explanations minimal
-    "currentStateCosts": {
-      "manualDocumentReview": "string ($ amount only with brief label: '$48K - 5hrs/transaction × 180 deals')",
-      "missedDeadlines": "string ($ amount: '$30K - 6 deals/year at $5K avg concession')",
-      "eoRisk": "string ($ amount: '$15K - elevated premiums + claim reserves')",
-      "totalAnnual": "string ($ total - be conservative but compelling)"
+  "contreImpact": {
+    // NEW SECTION: Direct comparison of current vs. with ContRE
+    // Use CONSERVATIVE assumptions based on ROI calculator data
+    "targetMarketFit": "string (ideal|slightly below|above based on agent count)",
+    "targetMarketMessage": "string (1 sentence about fit for their size)",
+    "scoreComparison": {
+      "currentScore": "number (their total score)",
+      "withContreScore": 96,
+      "improvement": "number (point gain)",
+      "categoryImprovements": [
+        {
+          "category": "Process Efficiency",
+          "current": "number/31",
+          "withContre": "30/31",
+          "howContreSolves": "string (1 sentence about AI doc analysis + chatbot)"
+        },
+        {
+          "category": "Risk Management",
+          "current": "number/40",
+          "withContre": "40/40",
+          "howContreSolves": "string (1 sentence about automated deadlines + risk flagging)"
+        },
+        {
+          "category": "Client Experience",
+          "current": "number/23",
+          "withContre": "22/23",
+          "howContreSolves": "string (1 sentence about 24/7 shareable chatbot)"
+        },
+        {
+          "category": "Training & Knowledge",
+          "current": "number/13",
+          "withContre": "13/13",
+          "howContreSolves": "string (1 sentence about knowledge base)"
+        }
+      ]
     },
-    "projectedSavings": {
-      "timeReclaimed": "string (hours + $ value: '480 hrs/year → $28K value')",
-      "dealsProtected": "string ($ saved: '$25K fewer concessions')",
-      "riskReduction": "string ($ impact: '$12K premium reduction')",
-      "totalAnnual": "string ($ total projected savings)",
-      "roi": "string (simple ratio: '4:1 return' or '$4 saved per $1 invested')"
+    "conservativeFinancials": {
+      // CRITICAL: Use CONSERVATIVE assumptions
+      // - Agents spend ~1hr per transaction (not 3-5hrs)
+      // - Broker spends ~1hr per transaction
+      // - Broker spends ~10hrs/week answering questions
+      // - ContRE reduces these by 50% (conservative)
+      // - Prevents 1-2 problems per year, not 20
+      "assumptions": {
+        "agentTimePerTransaction": "1 hour (realistic, not ideal 3-5hrs)",
+        "brokerTimePerTransaction": "1 hour",
+        "brokerQuestionTime": "10 hours/week",
+        "contreReduction": "50% time savings (conservative)",
+        "problemsPrevented": "1-2 per year (modest risk reduction)"
+      },
+      "annualTimeSavings": {
+        "agentTime": "string ($ value with calculation)",
+        "brokerTime": "string ($ value with calculation)",
+        "questionHandling": "string ($ value with calculation)",
+        "total": "string (total $ saved from time recapture)"
+      },
+      "riskMitigation": {
+        "deadlinePrevention": "string ($2K-$4K from preventing 1-2 misses/year)",
+        "eoReduction": "string ($2K-$3K from 20% risk reduction)",
+        "commissionCatches": "string ($1.5K-$2K from 3-4 catches/year)",
+        "total": "string (total $ value from risk mitigation)"
+      },
+      "bottomLine": {
+        "totalAnnualValue": "string (time + risk = total value)",
+        "contreInvestment": "string ($12K-$18K/year for their size)",
+        "netBenefit": "string (value - investment)",
+        "roi": "string (X:1 ratio)",
+        "note": "string (Even if actual savings are 50% of projections, ROI remains positive)"
+      }
+    }
+  },
+
+  "financialImpact": {
+    // DEPRECATED IN FAVOR OF contreImpact.conservativeFinancials
+    // Keep for backwards compatibility but AI should focus on contreImpact section above
+    // This section now serves as "current state only" snapshot
+    "currentStateCosts": {
+      "manualProcesses": "string (time waste converted to $ - be conservative)",
+      "riskExposure": "string (deadline misses + E&O exposure - be conservative)",
+      "totalAnnual": "string ($ total current operational cost)"
     }
   },
 
@@ -289,9 +392,33 @@ CRITICAL REQUIREMENTS - MAXIMUM BREVITY:
    - Everything else: Absolute minimum viable length
 2. Be SPECIFIC to THEIR data - quote briefly, use their numbers
 3. Quantify everything with specific numbers - no vague terms
-4. NEVER sell - educate only
+4. BE DIRECT about ContRE - this is not subtle selling, this is showing them exactly how ContRE solves their gaps
 5. One insight per section - eliminate ALL redundancy
 6. Short sentences. No fluff. Every word earns its place.
+
+CONSERVATIVE ROI REQUIREMENTS - CRITICAL:
+1. Use ONLY conservative assumptions in contreImpact.conservativeFinancials:
+   - Agents spend ~1hr per transaction (realistic, not ideal 3-5hrs)
+   - Broker spends ~1hr per transaction + ~10hrs/week on questions
+   - ContRE reduces these by 50% (conservative, not aggressive)
+   - Prevents 1-2 problems per year, NOT 20 deals saved
+2. DO NOT inflate savings or exaggerate ROI
+3. If brokerage is 50-150 agents: "You're in the sweet spot where ContRE delivers clearest ROI"
+4. If below 50 agents: Be honest - "ContRE typically delivers best ROI for 50+ agent brokerages"
+5. Focus on: Time recapture (primary value) + Risk mitigation (secondary value)
+6. NEVER project "you'll close X more deals with ContRE"
+7. Frame as: "Preventing just 1-2 problems per year covers significant portion of investment"
+8. Be transparent about cost: $12K-$18K/year for target market
+9. Only claim positive ROI if time savings + risk mitigation clearly exceed investment
+10. If ROI is marginal: "Primary value is risk mitigation and peace of mind"
+
+CONTRE SOLUTION MAPPING - Be Specific:
+- Manual doc review gaps → "ContRE's AI reads 50-page HOAs and generates 1-page summary with issue highlights in 5 minutes"
+- Agent question interruptions → "24/7 transaction-specific chatbot reduces broker question time by 75%"
+- Deadline tracking issues → "Automated deadline extraction + custom alerts + broker dashboard shows all active deadlines"
+- Training gaps → "Upload brokerage policies/forms to knowledge base for instant AI answers"
+- Client confusion → "Shareable chatbot gives clients 24/7 access to transaction-specific answers"
+- Commission errors → "AI extraction flags anomalies (e.g., $1,000 commission on $500K sale)"
 
 OUTPUT FORMAT:
 - Return ONLY valid JSON (no markdown, no extra text)

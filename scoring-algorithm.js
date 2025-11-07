@@ -312,7 +312,131 @@ function calculateScore(responses) {
     };
 }
 
+/**
+ * Calculate potential score with ContRE platform
+ * ContRE features would enable near-perfect scores across all categories
+ * @param {Object} currentScoring - Current score object from calculateScore()
+ * @returns {Object} Score comparison with ContRE
+ */
+function calculateScoreWithContre(currentScoring) {
+    // With ContRE, brokerage would achieve near-perfect scores because:
+    // - AI doc analysis = max points on process efficiency
+    // - Automated deadline tracking = max points on risk management
+    // - 24/7 chatbot = max points on client experience & training
+
+    const contreScores = {
+        processEfficiency: {
+            score: 30, // Out of 31 (near-perfect, accounting for human factors)
+            max: 31,
+            percentage: 97,
+            reasoning: "ContRE's AI document analysis + 24/7 chatbot eliminates manual review bottleneck and provides instant answers to agents"
+        },
+        riskManagement: {
+            score: 40, // Out of 40 (perfect - automated systems)
+            max: 40,
+            percentage: 100,
+            reasoning: "Automated deadline tracking + AI risk flagging + documented client interactions eliminate manual tracking errors"
+        },
+        clientExperience: {
+            score: 22, // Out of 23 (near-perfect with chatbot)
+            max: 23,
+            percentage: 96,
+            reasoning: "Shareable 24/7 chatbot gives clients instant access to transaction-specific answers, improving engagement"
+        },
+        trainingKnowledge: {
+            score: 13, // Out of 13 (perfect - knowledge base)
+            max: 13,
+            percentage: 100,
+            reasoning: "Brokerage knowledge base with uploaded policies/forms provides instant AI answers to compliance questions"
+        }
+    };
+
+    const contreTotalScore = 96; // Out of 100 (conservative, accounting for adoption/human factors)
+    const currentTotalScore = currentScoring.totalScore;
+    const improvement = contreTotalScore - currentTotalScore;
+
+    return {
+        current: {
+            totalScore: currentTotalScore,
+            maxScore: currentScoring.maxPossibleScore,
+            percentage: currentScoring.percentage,
+            categoryBreakdown: currentScoring.categoryBreakdown
+        },
+        withContre: {
+            totalScore: contreTotalScore,
+            maxScore: 100,
+            percentage: 96,
+            categoryBreakdown: contreScores
+        },
+        improvement: {
+            totalPoints: improvement,
+            percentageIncrease: Math.round((improvement / currentTotalScore) * 100),
+            categoryImprovements: [
+                {
+                    category: "Process Efficiency",
+                    currentScore: currentScoring.categoryBreakdown.processEfficiency.score,
+                    currentMax: currentScoring.categoryBreakdown.processEfficiency.max,
+                    withContreScore: contreScores.processEfficiency.score,
+                    withContreMax: contreScores.processEfficiency.max,
+                    pointGain: contreScores.processEfficiency.score - currentScoring.categoryBreakdown.processEfficiency.score,
+                    reasoning: contreScores.processEfficiency.reasoning,
+                    specificSolutions: [
+                        "AI reads 50-page HOAs/title reports → generates 1-page summary with issue highlights in 5 minutes",
+                        "24/7 transaction-specific chatbot answers agent questions instantly (reduces broker interruptions by 75%)",
+                        "Commission extraction automatically alerts to anomalies (e.g., $1,000 on $500K sale)"
+                    ]
+                },
+                {
+                    category: "Risk Management",
+                    currentScore: currentScoring.categoryBreakdown.riskManagement.score,
+                    currentMax: currentScoring.categoryBreakdown.riskManagement.max,
+                    withContreScore: contreScores.riskManagement.score,
+                    withContreMax: contreScores.riskManagement.max,
+                    pointGain: contreScores.riskManagement.score - currentScoring.categoryBreakdown.riskManagement.score,
+                    reasoning: contreScores.riskManagement.reasoning,
+                    specificSolutions: [
+                        "Automated deadline extraction from contracts with custom alert windows (X days in advance)",
+                        "Broker dashboard shows all active transaction deadlines across entire brokerage",
+                        "AI risk flagging identifies potential issues in contracts before they escalate",
+                        "Logged client Q&A provides documentation protection for E&O claims"
+                    ]
+                },
+                {
+                    category: "Client Experience",
+                    currentScore: currentScoring.categoryBreakdown.clientExperience.score,
+                    currentMax: currentScoring.categoryBreakdown.clientExperience.max,
+                    withContreScore: contreScores.clientExperience.score,
+                    withContreMax: contreScores.clientExperience.max,
+                    pointGain: contreScores.clientExperience.score - currentScoring.categoryBreakdown.clientExperience.score,
+                    reasoning: contreScores.clientExperience.reasoning,
+                    specificSolutions: [
+                        "Shareable chatbot gives clients 24/7 access to transaction-specific answers (no login required)",
+                        "AI-generated summaries make complex documents digestible for clients",
+                        "All client interactions logged for documentation and liability protection"
+                    ]
+                },
+                {
+                    category: "Training & Knowledge",
+                    currentScore: currentScoring.categoryBreakdown.trainingKnowledge.score,
+                    currentMax: currentScoring.categoryBreakdown.trainingKnowledge.max,
+                    withContreScore: contreScores.trainingKnowledge.score,
+                    withContreMax: contreScores.trainingKnowledge.max,
+                    pointGain: contreScores.trainingKnowledge.score - currentScoring.categoryBreakdown.trainingKnowledge.score,
+                    reasoning: contreScores.trainingKnowledge.reasoning,
+                    specificSolutions: [
+                        "Brokerage knowledge base: upload policies, forms, state/MLS/legal docs for instant AI answers",
+                        "Real-time guidance while agents work, not scheduled training sessions",
+                        "AI escalates complex legal questions to broker while handling routine queries"
+                    ]
+                }
+            ]
+        },
+        headline: "ContRE would address nearly all identified gaps instantly",
+        keyMessage: "This isn't a 60-day roadmap requiring operational overhaul. ContRE integrates with your existing transaction management system (SkySlope/LoneWolf) and works from day one as an intelligence layer."
+    };
+}
+
 // Export for Node.js or browser
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { calculateScore, scoringRules };
+    module.exports = { calculateScore, calculateScoreWithContre, scoringRules };
 }

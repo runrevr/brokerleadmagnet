@@ -62,13 +62,13 @@ async function tagContact(contactId, riskLevel) {
   try {
     // Map risk levels to tags
     const tagMap = {
-      'CRITICAL': ['Lead Magnet', 'Critical Risk', 'High Priority', 'Hot Lead'],
-      'HIGH': ['Lead Magnet', 'High Risk', 'Medium Priority'],
-      'MODERATE': ['Lead Magnet', 'Moderate Risk', 'Low Priority'],
-      'LOW': ['Lead Magnet', 'Low Risk', 'Nurture']
+      'CRITICAL': ['Lead Magnet', 'Report', 'Critical Risk', 'High Priority', 'Hot Lead'],
+      'HIGH': ['Lead Magnet', 'Report', 'High Risk', 'Medium Priority'],
+      'MODERATE': ['Lead Magnet', 'Report', 'Moderate Risk', 'Low Priority'],
+      'LOW': ['Lead Magnet', 'Report', 'Low Risk', 'Nurture']
     };
 
-    const tags = tagMap[riskLevel] || ['Lead Magnet'];
+    const tags = tagMap[riskLevel] || ['Lead Magnet', 'Report'];
 
     // Add each tag to the contact
     for (const tagName of tags) {

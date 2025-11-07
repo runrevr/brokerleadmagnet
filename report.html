@@ -672,6 +672,9 @@
                     {/* Section 1: Your Operational Snapshot */}
                     <Section1Snapshot report={report} analysis={analysis} />
 
+                    {/* NEW SECTION: Your Score with ContRE */}
+                    <SectionContreComparison report={report} analysis={analysis} />
+
                     {/* Section 2: Gap Analysis */}
                     <Section2GapAnalysis analysis={analysis} />
 
@@ -750,6 +753,167 @@
             );
         };
 
+        // NEW SECTION: Your Score with ContRE
+        const SectionContreComparison = ({ report, analysis }) => {
+            // Check if ContRE analysis data exists
+            if (!analysis.contreImpact) return null;
+
+            const contreData = analysis.contreImpact;
+            const scoreComp = contreData.scoreComparison;
+            const financials = contreData.conservativeFinancials;
+
+            return (
+                <section className="bg-gradient-to-br from-spruce/5 to-lime-green/5 border-2 border-lime-green rounded-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-2">
+                        YOUR POTENTIAL SCORE WITH CONTRE
+                    </h2>
+                    <p className="text-gray-700 font-manrope mb-6">
+                        Based on your brokerage size and the gaps we identified, here's what becomes possible with transaction intelligence:
+                    </p>
+
+                    {/* Side-by-side Score Gauges */}
+                    <div className="grid md:grid-cols-2 gap-8 mb-8">
+                        {/* Current Score */}
+                        <div className="bg-white rounded-lg p-6 shadow-md">
+                            <h3 className="text-center mb-4 font-manrope font-semibold text-gray-700">Current Score</h3>
+                            <div className="flex justify-center mb-4">
+                                <div className="relative w-32 h-32">
+                                    <svg className="w-32 h-32 transform -rotate-90">
+                                        <circle cx="64" cy="64" r="56" stroke="#E5E7EB" strokeWidth="12" fill="none" />
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="#F59E0B"
+                                            strokeWidth="12"
+                                            fill="none"
+                                            strokeDasharray={`${2 * Math.PI * 56}`}
+                                            strokeDashoffset={`${2 * Math.PI * 56 * (1 - report.overallScore / 100)}`}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-3xl font-jetbrains font-bold text-gray-800">{report.overallScore}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-center text-gray-600 font-manrope">out of 100</p>
+                        </div>
+
+                        {/* With ContRE Score */}
+                        <div className="bg-white rounded-lg p-6 shadow-md">
+                            <h3 className="text-center mb-4 font-manrope font-semibold text-gray-700">With ContRE Platform</h3>
+                            <div className="flex justify-center mb-4">
+                                <div className="relative w-32 h-32">
+                                    <svg className="w-32 h-32 transform -rotate-90">
+                                        <circle cx="64" cy="64" r="56" stroke="#E5E7EB" strokeWidth="12" fill="none" />
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="#7BA428"
+                                            strokeWidth="12"
+                                            fill="none"
+                                            strokeDasharray={`${2 * Math.PI * 56}`}
+                                            strokeDashoffset={`${2 * Math.PI * 56 * (1 - scoreComp.withContreScore / 100)}`}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-3xl font-jetbrains font-bold text-lime-green">{scoreComp.withContreScore}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-center text-gray-600 font-manrope">out of 100</p>
+                        </div>
+                    </div>
+
+                    {/* Category Breakdown Table */}
+                    <div className="bg-white rounded-lg p-6 shadow-md mb-6">
+                        <h3 className="font-manrope font-semibold text-lg mb-4">Category-by-Category Improvement</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full font-manrope text-sm">
+                                <thead className="border-b-2 border-gray-200">
+                                    <tr>
+                                        <th className="text-left py-3 px-2">Category</th>
+                                        <th className="text-center py-3 px-2">Current</th>
+                                        <th className="text-center py-3 px-2">With ContRE</th>
+                                        <th className="text-center py-3 px-2">Improvement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {scoreComp.categoryImprovements.map((cat, idx) => (
+                                        <tr key={idx} className="border-b border-gray-100">
+                                            <td className="py-3 px-2 font-semibold text-gray-700">{cat.category}</td>
+                                            <td className="py-3 px-2 text-center text-amber">{cat.current}/{cat.currentMax}</td>
+                                            <td className="py-3 px-2 text-center text-lime-green font-bold">{cat.withContre}/{cat.withContreMax}</td>
+                                            <td className="py-3 px-2 text-center text-spruce font-bold">+{cat.pointGain}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* How ContRE Achieves This */}
+                    <div className="bg-lime-green/10 border-l-4 border-lime-green rounded-lg p-6 mb-6">
+                        <h3 className="font-manrope font-semibold text-lg mb-3 text-spruce">How This Works in Practice</h3>
+                        <p className="text-gray-700 font-manrope mb-4">
+                            ContRE integrates with your existing transaction management system (SkySlope/LoneWolf) and acts as an intelligence layer:
+                        </p>
+                        <ul className="space-y-2 font-manrope text-gray-700">
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>AI reads every uploaded document → generates 1-page summaries in 5 minutes</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>24/7 chatbot trained on all transaction docs → agents get instant answers, no interruptions</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>Automated deadline extraction → custom alerts → broker dashboard oversight</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>Brokerage knowledge base → upload policies/forms → instant AI answers to compliance questions</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Target Market Fit Message */}
+                    {contreData.targetMarketFit === 'ideal' && (
+                        <div className="bg-spruce/10 border border-spruce/30 rounded-lg p-4">
+                            <p className="text-sm font-manrope text-spruce">
+                                <strong>Why this works at your scale:</strong> {contreData.targetMarketMessage}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Financial Quick View */}
+                    {financials && (
+                        <div className="mt-6 grid md:grid-cols-3 gap-4">
+                            <div className="bg-white border border-gray-200 rounded-lg p-4">
+                                <p className="text-xs text-gray-600 font-manrope mb-1">Conservative Annual Value</p>
+                                <p className="text-2xl font-jetbrains font-bold text-lime-green">{financials.bottomLine.totalAnnualValue}</p>
+                                <p className="text-xs text-gray-500 font-manrope mt-1">Time savings + risk mitigation</p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-lg p-4">
+                                <p className="text-xs text-gray-600 font-manrope mb-1">ContRE Investment</p>
+                                <p className="text-2xl font-jetbrains font-bold text-gray-800">{financials.bottomLine.contreInvestment}</p>
+                                <p className="text-xs text-gray-500 font-manrope mt-1">Annual cost</p>
+                            </div>
+                            <div className="bg-white border border-lime-green rounded-lg p-4">
+                                <p className="text-xs text-gray-600 font-manrope mb-1">Return on Investment</p>
+                                <p className="text-2xl font-jetbrains font-bold text-spruce">{financials.bottomLine.roi}</p>
+                                <p className="text-xs text-gray-500 font-manrope mt-1">Conservative projection</p>
+                            </div>
+                        </div>
+                    )}
+                </section>
+            );
+        };
+
         // SECTION 2: Gap Analysis
         const Section2GapAnalysis = ({ analysis }) => {
             if (!analysis.gapAnalysis || analysis.gapAnalysis.length === 0) return null;
@@ -809,6 +973,26 @@
                                         <p className="font-semibold text-gray-800 mb-1">What Top 5% Do Differently:</p>
                                         <p>{gap.industryBestPractice}</p>
                                     </div>
+
+                                    {/* NEW: How ContRE Addresses This */}
+                                    {gap.howContreSolves && gap.howContreSolves.length > 0 && (
+                                        <div className="bg-lime-green/10 border-l-4 border-lime-green p-4 rounded">
+                                            <h4 className="font-semibold text-spruce mb-2 flex items-center">
+                                                <svg className="w-5 h-5 mr-2 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                </svg>
+                                                How ContRE Addresses This
+                                            </h4>
+                                            <ul className="space-y-1 text-sm text-gray-700">
+                                                {gap.howContreSolves.map((solution, sidx) => (
+                                                    <li key={sidx} className="flex items-start">
+                                                        <span className="text-lime-green mr-2">✓</span>
+                                                        <span>{solution}</span>
+                                                    </li>
+                                                ))}
+                                            </ul>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -819,10 +1003,161 @@
 
         // SECTION 3: Financial Impact Model
         const Section3FinancialImpact = ({ analysis }) => {
-            if (!analysis.financialImpact) return null;
+            // Prefer contreImpact data if available, fallback to old financialImpact
+            const hasContreData = analysis.contreImpact && analysis.contreImpact.conservativeFinancials;
 
+            if (!hasContreData && !analysis.financialImpact) return null;
+
+            if (hasContreData) {
+                // NEW: Use ContRE conservative financials with 3-column layout
+                const financials = analysis.contreImpact.conservativeFinancials;
+                const assumptions = financials.assumptions;
+                const timeSavings = financials.annualTimeSavings;
+                const riskMitigation = financials.riskMitigation;
+                const bottomLine = financials.bottomLine;
+
+                return (
+                    <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                        <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                            3. FINANCIAL IMPACT ANALYSIS
+                        </h2>
+
+                        {/* Conservative Assumptions Callout */}
+                        <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-6 text-sm font-manrope">
+                            <h3 className="font-semibold mb-2 text-gray-800">Conservative Assumptions:</h3>
+                            <ul className="space-y-1 text-gray-600">
+                                <li>• Agents spend ~{assumptions.agentTimePerTransaction} on doc review</li>
+                                <li>• Broker/TC spend ~{assumptions.brokerTimePerTransaction} per transaction</li>
+                                <li>• Broker spends ~{assumptions.brokerQuestionTime} answering agent questions</li>
+                                <li>• ContRE reduces these by {assumptions.contreReduction}</li>
+                                <li>• Prevents {assumptions.problemsPrevented}</li>
+                            </ul>
+                        </div>
+
+                        {/* Three-Column Comparison */}
+                        <div className="grid md:grid-cols-3 gap-6 mb-6">
+                            {/* Column 1: Current State */}
+                            <div className="bg-red-50 border-2 border-signal-red rounded-lg p-6">
+                                <h3 className="text-lg font-bebas text-signal-red mb-4">CURRENT ANNUAL COSTS</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Agent Time</span>
+                                            <span className="font-semibold">${timeSavings.agentTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Doc review + questions</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Broker/TC Time</span>
+                                            <span className="font-semibold">${timeSavings.brokerTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Review + oversight</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Question Handling</span>
+                                            <span className="font-semibold">${timeSavings.questionHandling}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Agent interruptions</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Risk Exposure</span>
+                                            <span className="font-semibold">${riskMitigation.total}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Deadlines + E&O</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Column 2: With ContRE */}
+                            <div className="bg-lime-green/10 border-2 border-lime-green rounded-lg p-6">
+                                <h3 className="text-lg font-bebas text-lime-green mb-4">WITH CONTRE</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Agent Time (50% ↓)</span>
+                                            <span className="font-semibold text-lime-green">Save ${timeSavings.agentTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">AI summaries + chatbot</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Broker Time (50% ↓)</span>
+                                            <span className="font-semibold text-lime-green">Save ${timeSavings.brokerTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Dashboard oversight</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Questions (75% ↓)</span>
+                                            <span className="font-semibold text-lime-green">Save ${timeSavings.questionHandling}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">24/7 AI answers</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Risk Mitigation</span>
+                                            <span className="font-semibold text-lime-green">Save ${riskMitigation.total}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Automated tracking</p>
+                                    </div>
+                                    <div className="pt-3 border-t-2 border-lime-green">
+                                        <div className="flex justify-between items-center text-red-600">
+                                            <span className="text-sm">ContRE Investment</span>
+                                            <span className="font-semibold">-${bottomLine.contreInvestment}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Annual platform cost</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Column 3: Net Benefit */}
+                            <div className="bg-spruce/10 border-2 border-spruce rounded-lg p-6">
+                                <h3 className="text-lg font-bebas text-spruce mb-4">ANNUAL BENEFIT</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div>
+                                        <p className="text-gray-600 mb-1">Time Savings</p>
+                                        <p className="text-2xl font-bold text-green-700">+${(bottomLine.timeSavingsValue || timeSavings.total)?.toLocaleString()}</p>
+                                        <p className="text-xs text-gray-500">Agents + Broker + TC</p>
+                                    </div>
+                                    {financials.revenueProtection && bottomLine.revenueProtectionValue && (
+                                        <div>
+                                            <p className="text-gray-600 mb-1">Revenue Protection</p>
+                                            <p className="text-2xl font-bold text-green-700">+${bottomLine.revenueProtectionValue?.toLocaleString()}</p>
+                                            <p className="text-xs text-gray-500">{financials.revenueProtection.dealsSaved} deals saved</p>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <p className="text-gray-600 mb-1">Risk Mitigation</p>
+                                        <p className="text-2xl font-bold text-green-700">+${(bottomLine.riskMitigationValue || riskMitigation.total)?.toLocaleString()}</p>
+                                        <p className="text-xs text-gray-500">Deadlines + E&O + Compliance</p>
+                                    </div>
+                                    <div className="pt-3 border-t-2 border-spruce">
+                                        <p className="text-gray-600 mb-1">Total Annual Value</p>
+                                        <p className="text-2xl font-bold text-lime-green">${bottomLine.totalAnnualValue?.toLocaleString()}</p>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-spruce/30">
+                                        <p className="text-gray-600 mb-1 text-center">Return on Investment</p>
+                                        <p className="text-4xl font-bebas text-spruce text-center">{bottomLine.roi}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Important Note */}
+                        <div className="bg-blue-50 border border-blue-300 rounded-lg p-4 text-sm font-manrope">
+                            <p className="text-blue-900">
+                                <strong>Note:</strong> {bottomLine.note || "These projections use conservative assumptions. Your actual savings may be higher depending on current operational efficiency."}
+                            </p>
+                        </div>
+                    </section>
+                );
+            }
+
+            // FALLBACK: Old format if no ContRE data
             const impact = analysis.financialImpact;
-
             return (
                 <section className="bg-white rounded-lg shadow-lg p-8 page-break">
                     <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
@@ -834,56 +1169,38 @@
                         <div className="bg-red-50 border-2 border-signal-red rounded-lg p-6">
                             <h3 className="text-xl font-bebas text-signal-red mb-4">CURRENT STATE ANNUAL COSTS</h3>
                             <div className="space-y-3 font-manrope text-sm">
-                                <div className="flex justify-between pb-2 border-b border-red-200">
-                                    <span className="text-gray-700">Manual Document Review:</span>
-                                    <span className="font-semibold">{impact.currentStateCosts.manualDocumentReview}</span>
-                                </div>
-                                <div className="flex justify-between pb-2 border-b border-red-200">
-                                    <span className="text-gray-700">Missed Deadlines:</span>
-                                    <span className="font-semibold">{impact.currentStateCosts.missedDeadlines}</span>
-                                </div>
-                                <div className="flex justify-between pb-2 border-b border-red-200">
-                                    <span className="text-gray-700">E&O Risk:</span>
-                                    <span className="font-semibold">{impact.currentStateCosts.eoRisk}</span>
-                                </div>
+                                {impact.currentStateCosts.manualProcesses && (
+                                    <div className="flex justify-between pb-2 border-b border-red-200">
+                                        <span className="text-gray-700">Manual Processes:</span>
+                                        <span className="font-semibold">{impact.currentStateCosts.manualProcesses}</span>
+                                    </div>
+                                )}
+                                {impact.currentStateCosts.riskExposure && (
+                                    <div className="flex justify-between pb-2 border-b border-red-200">
+                                        <span className="text-gray-700">Risk Exposure:</span>
+                                        <span className="font-semibold">{impact.currentStateCosts.riskExposure}</span>
+                                    </div>
+                                )}
                                 <div className="flex justify-between pt-3 text-lg">
-                                    <span className="font-bold text-gray-800">Total Annual Leakage:</span>
+                                    <span className="font-bold text-gray-800">Total Annual Cost:</span>
                                     <span className="font-bold text-signal-red">{impact.currentStateCosts.totalAnnual}</span>
                                 </div>
                             </div>
                         </div>
 
                         {/* Projected Savings */}
-                        <div className="bg-green-50 border-2 border-lime-green rounded-lg p-6">
-                            <h3 className="text-xl font-bebas text-lime-green mb-4">PROJECTED ANNUAL SAVINGS</h3>
-                            <div className="space-y-3 font-manrope text-sm">
-                                <div className="flex justify-between pb-2 border-b border-green-200">
-                                    <span className="text-gray-700">Time Reclaimed:</span>
-                                    <span className="font-semibold">{impact.projectedSavings.timeReclaimed}</span>
-                                </div>
-                                <div className="flex justify-between pb-2 border-b border-green-200">
-                                    <span className="text-gray-700">Deals Protected:</span>
-                                    <span className="font-semibold">{impact.projectedSavings.dealsProtected}</span>
-                                </div>
-                                <div className="flex justify-between pb-2 border-b border-green-200">
-                                    <span className="text-gray-700">Risk Reduction:</span>
-                                    <span className="font-semibold">{impact.projectedSavings.riskReduction}</span>
-                                </div>
-                                <div className="flex justify-between pt-3 text-lg">
-                                    <span className="font-bold text-gray-800">Total Projected Savings:</span>
-                                    <span className="font-bold text-lime-green">{impact.projectedSavings.totalAnnual}</span>
+                        {impact.projectedSavings && (
+                            <div className="bg-green-50 border-2 border-lime-green rounded-lg p-6">
+                                <h3 className="text-xl font-bebas text-lime-green mb-4">PROJECTED SAVINGS</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div className="flex justify-between pt-3 text-lg">
+                                        <span className="font-bold text-gray-800">Potential Savings:</span>
+                                        <span className="font-bold text-lime-green">{impact.projectedSavings.totalAnnual}</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        )}
                     </div>
-
-                    {/* ROI */}
-                    {impact.projectedSavings.roi && (
-                        <div className="bg-spruce text-white rounded-lg p-6 text-center">
-                            <p className="text-sm font-manrope mb-2">PROJECTED ROI</p>
-                            <p className="text-4xl font-bebas">{impact.projectedSavings.roi}</p>
-                        </div>
-                    )}
                 </section>
             );
         };
@@ -981,21 +1298,56 @@
                         </div>
                     )}
 
-                    {/* CTA Section */}
-                    <div className="bg-gray-50 rounded-lg p-8 text-center">
-                        <h3 className="text-2xl font-bebas text-gray-800 mb-4">READY TO TRANSFORM YOUR BROKERAGE?</h3>
-                        <p className="text-gray-700 font-manrope mb-6 max-w-2xl mx-auto">
-                            See how ContRE's AI-powered platform helps top brokerages eliminate the gaps identified in your assessment.
-                            Schedule a complimentary 30-minute strategy session to discuss your specific situation.
+                    {/* Enhanced CTA Section with Transparent Pricing */}
+                    <div className="bg-gradient-to-r from-spruce/90 to-spruce rounded-lg p-8 text-center text-white">
+                        <h3 className="text-3xl font-bebas mb-4">SEE CONTRE IN YOUR OPERATION</h3>
+                        <p className="text-lg font-manrope mb-6 max-w-2xl mx-auto">
+                            Your assessment revealed specific gaps that, left unaddressed, impact your time, money, and risk exposure.
+                            ContRE's transaction intelligence platform addresses these gaps from day one.
                         </p>
-                        <a
-                            href="https://calendar.app.google/dkxw6HDLkr7HzJHfA"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="inline-block bg-spruce text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg hover:bg-spruce/90 transition-all shadow-lg hover:shadow-xl no-print"
-                        >
-                            Schedule Your Strategy Session
-                        </a>
+
+                        {/* Investment & Value Display */}
+                        {analysis.contreImpact && analysis.contreImpact.conservativeFinancials && (
+                            <div className="bg-white/10 rounded-lg p-6 mb-6 max-w-xl mx-auto">
+                                <div className="grid grid-cols-2 gap-6 text-left">
+                                    <div>
+                                        <p className="text-sm text-lime-green mb-1">Investment</p>
+                                        <p className="text-2xl font-bebas">{analysis.contreImpact.conservativeFinancials.bottomLine.contreInvestment}/year</p>
+                                        <p className="text-xs text-gray-300 mt-1">Platform cost</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-lime-green mb-1">Conservative Value</p>
+                                        <p className="text-2xl font-bebas">~${analysis.contreImpact.conservativeFinancials.bottomLine.totalAnnualValue}/year</p>
+                                        <p className="text-xs text-gray-300 mt-1">{analysis.contreImpact.conservativeFinancials.bottomLine.roi} ROI</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="font-manrope mb-6">
+                            See a 15-minute personalized demo showing exactly how ContRE would integrate with your systems and address the gaps identified in your assessment.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a
+                                href="https://calendar.app.google/dkxw6HDLkr7HzJHfA"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block bg-lime-green hover:bg-lime-green/90 text-spruce px-8 py-4 rounded-md font-manrope font-bold text-lg transition-all shadow-lg hover:shadow-xl no-print"
+                            >
+                                Schedule 15-Min Demo
+                            </a>
+                            <button
+                                onClick={() => window.print()}
+                                className="inline-block bg-white/20 hover:bg-white/30 text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg transition-all no-print"
+                            >
+                                Download Full Report PDF
+                            </button>
+                        </div>
+
+                        <p className="text-sm text-gray-300 mt-6 font-manrope">
+                            Join 50+ brokerages using ContRE to eliminate operational bottlenecks
+                        </p>
                     </div>
                 </section>
             );
