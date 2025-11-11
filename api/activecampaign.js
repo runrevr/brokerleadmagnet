@@ -56,19 +56,29 @@ async function createOrUpdateContact(contactData) {
  *
  * @param {string} contactId - ActiveCampaign contact ID
  * @param {string} riskLevel - CRITICAL, HIGH, MODERATE, or LOW
+ * @param {string} assessmentType - 'brokerage' or 'agent' (default: 'brokerage')
  * @returns {Promise<void>}
  */
-async function tagContact(contactId, riskLevel) {
+async function tagContact(contactId, riskLevel, assessmentType = 'brokerage') {
   try {
-    // Map risk levels to tags
-    const tagMap = {
-      'CRITICAL': ['Lead Magnet', 'Report', 'Critical Risk', 'High Priority', 'Hot Lead'],
-      'HIGH': ['Lead Magnet', 'Report', 'High Risk', 'Medium Priority'],
-      'MODERATE': ['Lead Magnet', 'Report', 'Moderate Risk', 'Low Priority'],
-      'LOW': ['Lead Magnet', 'Report', 'Low Risk', 'Nurture']
+    // Map risk levels to tags based on assessment type
+    const brokerageTagMap = {
+      'CRITICAL': ['Lead Magnet', 'Report', 'Broker', 'Critical Risk', 'High Priority', 'Hot Lead'],
+      'HIGH': ['Lead Magnet', 'Report', 'Broker', 'High Risk', 'Medium Priority'],
+      'MODERATE': ['Lead Magnet', 'Report', 'Broker', 'Moderate Risk', 'Low Priority'],
+      'LOW': ['Lead Magnet', 'Report', 'Broker', 'Low Risk', 'Nurture']
     };
 
-    const tags = tagMap[riskLevel] || ['Lead Magnet', 'Report'];
+    const agentTagMap = {
+      'CRITICAL': ['Agent - Lead Magnet', 'Agent - Report', 'Agent - Critical Risk', 'Agent - High Priority', 'Agent - Hot Lead'],
+      'HIGH': ['Agent - Lead Magnet', 'Agent - Report', 'Agent - High Risk', 'Agent - Medium Priority'],
+      'MODERATE': ['Agent - Lead Magnet', 'Agent - Report', 'Agent - Moderate Risk', 'Agent - Low Priority'],
+      'LOW': ['Agent - Lead Magnet', 'Agent - Report', 'Agent - Low Risk', 'Agent - Nurture']
+    };
+
+    // Select appropriate tag map based on assessment type
+    const tagMap = assessmentType === 'agent' ? agentTagMap : brokerageTagMap;
+    const tags = tagMap[riskLevel] || (assessmentType === 'agent' ? ['Agent - Lead Magnet', 'Agent - Report'] : ['Lead Magnet', 'Report']);
 
     // Add each tag to the contact
     for (const tagName of tags) {

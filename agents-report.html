@@ -1,0 +1,1660 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Agent Risk Profile | ContRE</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+
+    <!-- React -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind Custom Config -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'bebas': ['"Bebas Neue"', 'cursive'],
+                        'manrope': ['Manrope', 'sans-serif'],
+                        'jetbrains': ['"JetBrains Mono"', 'monospace']
+                    },
+                    colors: {
+                        'lime-green': '#84cc16',
+                        'slate-blue': '#2C3E50',
+                        'signal-red': '#CC0000',
+                        'amber': '#F59E0B',
+                        'spruce': '#264E36',
+                        'storm-gray': '#37474F',
+                        'neutral-mist': '#6A7B7F',
+                        'sea-glass': '#9DBFBF',
+                        'river-stone': '#78909C',
+                        'fern': '#607D3B',
+                        'soft-sea-glass': '#EFF5F5'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @media print {
+            .no-print { display: none !important; }
+            .page-break { page-break-before: always; }
+            body { font-size: 12pt; }
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const ReportPage = () => {
+            const [report, setReport] = useState(null);
+            const [loading, setLoading] = useState(true);
+            const [error, setError] = useState(null);
+            const [copied, setCopied] = useState(false);
+            const [aiGenerating, setAiGenerating] = useState(false);
+            const [emailSubmitted, setEmailSubmitted] = useState(false);
+            const [email, setEmail] = useState('');
+            const [emailError, setEmailError] = useState('');
+            const [submittingEmail, setSubmittingEmail] = useState(false);
+            const [scrolled, setScrolled] = useState(false);
+            const gaugeRef = useRef(null);
+            const pollIntervalRef = useRef(null);
+
+            useEffect(() => {
+                fetchReport();
+
+                // Scroll listener for header animation
+                const handleScroll = () => {
+                    setScrolled(window.scrollY > 50);
+                };
+                window.addEventListener('scroll', handleScroll);
+
+                // Cleanup polling on unmount
+                return () => {
+                    if (pollIntervalRef.current) {
+                        clearInterval(pollIntervalRef.current);
+                    }
+                    window.removeEventListener('scroll', handleScroll);
+                };
+            }, []);
+
+            const fetchReport = async (isPolling = false) => {
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const token = params.get('id');
+
+                    if (!token) {
+                        setError('No report token provided');
+                        setLoading(false);
+                        return;
+                    }
+
+                    const response = await fetch(`/api/agents-report-get?id=${token}`);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.message || data.error || 'Failed to load report');
+                    }
+
+                    setReport(data.report);
+                    setLoading(false);
+
+                    // Check if AI content is missing - if so, start polling
+                    if (!data.report.executiveSummary || !data.report.fullAnalysis) {
+                        if (!isPolling) {
+                            console.log('[REPORT] AI content not ready yet, starting polling...');
+                            console.log('[REPORT] Has executive summary:', !!data.report.executiveSummary);
+                            console.log('[REPORT] Has full analysis:', !!data.report.fullAnalysis);
+                            setAiGenerating(true);
+
+                            // Poll every 5 seconds (increased from 3 to reduce server load)
+                            pollIntervalRef.current = setInterval(() => {
+                                fetchReport(true);
+                            }, 5000);
+                        }
+                    } else {
+                        // AI content is ready, stop polling
+                        setAiGenerating(false);
+                        if (pollIntervalRef.current) {
+                            console.log('[REPORT] AI content ready, stopping polling');
+                            clearInterval(pollIntervalRef.current);
+                            pollIntervalRef.current = null;
+                        }
+                    }
+                } catch (err) {
+                    console.error('Error fetching report:', err);
+                    setError(err.message);
+                    setLoading(false);
+                }
+            };
+
+            const handleShare = () => {
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {
+                    setCopied(true);
+                    setTimeout(() => setCopied(false), 2000);
+                });
+            };
+
+            const handlePrint = () => {
+                window.print();
+            };
+
+            const handleEmailSubmit = async (e) => {
+                e.preventDefault();
+                setEmailError('');
+                setSubmittingEmail(true);
+
+                try {
+                    const params = new URLSearchParams(window.location.search);
+                    const token = params.get('id');
+
+                    console.log('[EMAIL SUBMIT] Sending request with:', {
+                        email,
+                        assessmentId: report.assessmentId,
+                        reportData: {
+                            companyName: report.companyName,
+                            overallScore: report.overallScore,
+                            riskLevel: report.riskLevel
+                        }
+                    });
+
+                    const response = await fetch('/api/agents-email-capture', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email,
+                            assessmentId: report.assessmentId,
+                            reportData: {
+                                companyName: report.companyName,
+                                companySize: report.companySize,
+                                overallScore: report.overallScore,
+                                riskLevel: report.riskLevel,
+                                primaryMarket: report.primaryMarket,
+                                monthlyTransactions: report.monthlyTransactions
+                            }
+                        })
+                    });
+
+                    console.log('[EMAIL SUBMIT] Response status:', response.status);
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        console.error('[EMAIL SUBMIT] Error response:', errorData);
+                        throw new Error(errorData.error || errorData.message || 'Failed to submit email');
+                    }
+
+                    const data = await response.json();
+                    console.log('[EMAIL SUBMIT] Success:', data);
+
+                    setEmailSubmitted(true);
+
+                    // Scroll to full report
+                    setTimeout(() => {
+                        document.getElementById('full-report')?.scrollIntoView({ behavior: 'smooth' });
+                    }, 500);
+                } catch (err) {
+                    console.error('[EMAIL SUBMIT] Error:', err);
+                    setEmailError(err.message || 'Failed to submit email. Please try again.');
+                } finally {
+                    setSubmittingEmail(false);
+                }
+            };
+
+            if (loading) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center">
+                        <div className="text-center">
+                            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-spruce mx-auto mb-4"></div>
+                            <p className="text-gray-600 font-manrope">Loading your report...</p>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (error) {
+                return (
+                    <div className="min-h-screen flex items-center justify-center px-4">
+                        <div className="max-w-md text-center">
+                            <div className="text-6xl mb-4">⚠️</div>
+                            <h1 className="text-2xl font-bebas text-gray-800 mb-2">Report Not Found</h1>
+                            <p className="text-gray-600 font-manrope mb-4">{error}</p>
+                            <a href="/" className="inline-block bg-spruce text-white px-6 py-3 rounded-md font-manrope font-semibold hover:bg-spruce/90">
+                                Take Assessment
+                            </a>
+                        </div>
+                    </div>
+                );
+            }
+
+            return (
+                <div className="min-h-screen bg-gray-50">
+                    {/* Header */}
+                    <header className="bg-white no-print sticky top-0 z-50 border-b border-gray-200 transition-all duration-300" style={{
+                        paddingTop: scrolled ? '12px' : '16px',
+                        paddingBottom: scrolled ? '12px' : '16px'
+                    }}>
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+                            <div className="flex items-center transition-all duration-300">
+                                <img
+                                    src="/contre-logo.png"
+                                    alt="ContRE"
+                                    className="transition-all duration-300"
+                                    style={{
+                                        height: scrolled ? '40px' : '64px',
+                                        filter: 'brightness(0) saturate(100%) invert(24%) sepia(18%) saturate(1387%) hue-rotate(101deg) brightness(93%) contrast(92%)'
+                                    }}
+                                />
+                            </div>
+                            <div className="flex gap-3">
+                                <button
+                                    onClick={handleShare}
+                                    className="flex items-center gap-2 px-4 py-2 border-2 border-river-stone text-river-stone rounded-md font-manrope text-sm hover:bg-river-stone/10 transition-colors"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                    </svg>
+                                    {copied ? 'Copied!' : 'Share'}
+                                </button>
+                                <button
+                                    onClick={handlePrint}
+                                    className="flex items-center gap-2 px-4 py-2 border-2 border-river-stone text-river-stone rounded-md font-manrope text-sm hover:bg-river-stone/10 transition-colors"
+                                >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                                    </svg>
+                                    Print / PDF
+                                </button>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Pre-Email Section (Upper Portion from design) */}
+                    <PreEmailSection
+                        report={report}
+                        gaugeRef={gaugeRef}
+                        email={email}
+                        setEmail={setEmail}
+                        handleEmailSubmit={handleEmailSubmit}
+                        submittingEmail={submittingEmail}
+                    />
+
+                    {/* Email Gate */}
+                    <EmailGateSection
+                        email={email}
+                        setEmail={setEmail}
+                        emailError={emailError}
+                        submittingEmail={submittingEmail}
+                        handleEmailSubmit={handleEmailSubmit}
+                    />
+
+                    {/* Bonus Footer - Show before full report if email not submitted */}
+                    {!emailSubmitted && <BonusFooterSection />}
+
+                    {/* Full Report - Show after email submitted */}
+                    {emailSubmitted && (
+                        <div id="full-report">
+                            <FullReportSections report={report} />
+                            {/* Bonus Footer - Show after full report if email submitted */}
+                            <BonusFooterSection />
+                        </div>
+                    )}
+
+                    {/* Footer */}
+                    <footer className="bg-white border-t border-gray-200 mt-16 no-print">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            <div className="text-center text-gray-600 font-manrope text-sm">
+                                <p className="mb-2">Report generated by ContRE AI-Powered Brokerage Intelligence</p>
+                                <p className="text-xs text-gray-500">
+                                    This report expires on {new Date(report.expiresAt).toLocaleDateString()}
+                                </p>
+                            </div>
+                        </div>
+                    </footer>
+                </div>
+            );
+        };
+
+        const PreEmailSection = ({ report, gaugeRef, email, setEmail, handleEmailSubmit, submittingEmail }) => {
+            const chartInstanceRef = useRef(null);
+
+            useEffect(() => {
+                if (gaugeRef.current && report) {
+                    // Destroy existing chart if it exists
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                    }
+
+                    const ctx = gaugeRef.current.getContext('2d');
+
+                    // Create gradient for Fern color
+                    const gradient = ctx.createLinearGradient(0, 0, ctx.canvas.width, 0);
+                    gradient.addColorStop(0, '#F59E0B'); // Amber
+                    gradient.addColorStop(1, '#607D3B'); // Fern
+
+                    chartInstanceRef.current = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            datasets: [{
+                                data: [report.overallScore, 100 - report.overallScore],
+                                backgroundColor: [
+                                    gradient,
+                                    '#E5E7EB'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: true,
+                            circumference: 180,
+                            rotation: 270,
+                            cutout: '75%',
+                            plugins: {
+                                legend: { display: false },
+                                tooltip: { enabled: false }
+                            }
+                        }
+                    });
+                }
+
+                // Cleanup function
+                return () => {
+                    if (chartInstanceRef.current) {
+                        chartInstanceRef.current.destroy();
+                        chartInstanceRef.current = null;
+                    }
+                };
+            }, [report]);
+
+            return (
+                <div className="bg-white py-16">
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Logo - Centered at top */}
+                        <div className="text-center mb-8">
+                            <img
+                                src="/contre-logo.png"
+                                alt="ContRE"
+                                className="h-20 mx-auto"
+                                style={{filter: 'brightness(0) saturate(100%) invert(24%) sepia(18%) saturate(1387%) hue-rotate(101deg) brightness(93%) contrast(92%)'}}
+                            />
+                        </div>
+
+                        {/* Headline - Centered */}
+                        <div className="text-center mb-4">
+                            <h1 className="text-[44px] md:text-[52px] font-bebas text-storm-gray tracking-wide mb-3 leading-[1.15]" style={{textShadow: '0 1px 2px rgba(245, 247, 247, 0.6)'}}>
+                                Your Performance Profile
+                            </h1>
+                            <p className="text-lg font-manrope mb-8" style={{color: '#4B5B5F', paddingBottom: '6px'}}>
+                                Based on your answers, here's how your practice compares to top-performing agents.
+                            </p>
+                        </div>
+
+                        {/* Centered Gauge - Larger with Watermark */}
+                        <div className="flex justify-center items-center my-8 relative">
+                            {/* Watermark Background */}
+                            <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none">
+                                <svg width="300" height="300" viewBox="0 0 100 100" className="text-spruce">
+                                    <text x="50" y="50" fontSize="80" fontFamily="Bebas Neue" fontWeight="bold" textAnchor="middle" dominantBaseline="middle" fill="currentColor">C</text>
+                                </svg>
+                            </div>
+                            <div className="relative w-full max-w-lg z-10">
+                                <canvas ref={gaugeRef} width="400" height="240" style={{maxWidth: '100%', height: 'auto'}}></canvas>
+                                <div className="absolute inset-0 flex items-center justify-center" style={{marginTop: '60px'}}>
+                                    <div className="font-jetbrains font-bold text-storm-gray" style={{display: 'flex', alignItems: 'baseline', gap: '2px'}}>
+                                        <span className="text-6xl">{report.overallScore}</span>
+                                        <span className="text-3xl text-neutral-mist">/100</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Light Divider */}
+                        <div className="flex justify-center mb-6">
+                            <div className="w-full max-w-[600px] h-px" style={{backgroundColor: '#E3EDED'}}></div>
+                        </div>
+
+                        {/* What We Found - Dynamic AI-Generated Bullet List */}
+                        <div className="max-w-2xl mx-auto mb-8">
+                            <h2 className="text-2xl font-bebas text-storm-gray mb-5 text-center">
+                                What We Found
+                            </h2>
+                            {report.fullAnalysis?.whatWeFound ? (
+                                <ul className="space-y-2.5 font-manrope" style={{fontSize: '17px', color: '#4B5B5F'}}>
+                                    {report.fullAnalysis.whatWeFound.map((finding, idx) => (
+                                        <li key={idx} className="flex items-start">
+                                            <span className="text-fern mr-3 text-xl font-bold">•</span>
+                                            <span className="leading-snug">{finding}</span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                // Fallback to generic bullets while AI generates
+                                <ul className="space-y-2.5 font-manrope" style={{fontSize: '17px', color: '#4B5B5F'}}>
+                                    <li className="flex items-start">
+                                        <span className="text-fern mr-3 text-xl font-bold">•</span>
+                                        <span className="leading-snug">Critical operational gaps identified across key categories</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-fern mr-3 text-xl font-bold">•</span>
+                                        <span className="leading-snug">Significant time and cost inefficiencies detected</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-fern mr-3 text-xl font-bold">•</span>
+                                        <span className="leading-snug">Performance gaps compared to industry benchmarks</span>
+                                    </li>
+                                    <li className="flex items-start">
+                                        <span className="text-fern mr-3 text-xl font-bold">•</span>
+                                        <span className="leading-snug">Opportunities for improvement in transaction oversight</span>
+                                    </li>
+                                </ul>
+                            )}
+                            <p className="text-center mt-6 text-spruce font-manrope font-bold text-base">
+                                Your full AI report and 60-day roadmap are ready.
+                            </p>
+                            {!report.fullAnalysis && (
+                                <div className="flex items-center justify-center space-x-3 text-amber p-4 bg-amber-50 rounded-lg mt-4">
+                                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-amber"></div>
+                                    <p className="text-sm">Your detailed AI analysis is being generated. This may take up to a few minutes (typically 30-60 seconds). Please don't close this window.</p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Inline Email Capture - Above the Fold */}
+                        <div className="max-w-2xl mx-auto">
+                            <form onSubmit={handleEmailSubmit} className="mb-3">
+                                <div className="flex flex-col sm:flex-row gap-4" style={{backgroundColor: '#EFF5F5', padding: '8px', borderRadius: '10px', border: '1px solid #9DBFBF'}}>
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Enter your email to unlock your full AI report + 60-day roadmap"
+                                        required
+                                        disabled={submittingEmail}
+                                        className="flex-1 px-6 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope text-base disabled:opacity-50 bg-white"
+                                        style={{height: '54px'}}
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={submittingEmail}
+                                        className="px-8 bg-spruce text-white font-manrope font-bold rounded-md hover:bg-spruce/90 transition-all text-base whitespace-nowrap disabled:opacity-50"
+                                        style={{height: '54px', boxShadow: '0 4px 12px rgba(38, 78, 54, 0.25)'}}
+                                    >
+                                        {submittingEmail ? 'Submitting...' : 'Get My Report'}
+                                    </button>
+                                </div>
+                            </form>
+                            <p className="text-center text-sm font-manrope mb-1" style={{color: '#4B5B5F'}}>
+                                Includes ROI projections, benchmarks, and fixes.
+                            </p>
+                            <p className="text-center text-xs text-neutral-mist font-manrope italic">
+                                🔒 100% private. Your report is generated instantly.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const EmailGateSection = ({ email, setEmail, emailError, submittingEmail, handleEmailSubmit }) => {
+            const cardStyle = {
+                backgroundImage: 'url("data:image/svg+xml,%3Csvg width=\'100\' height=\'100\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' /%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\' opacity=\'0.02\' /%3E%3C/svg%3E")'
+            };
+
+            return (
+                <div className="bg-gradient-to-br from-storm-gray via-storm-gray to-gray-800 py-20 relative" style={cardStyle}>
+                    <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+                        {/* Centered Headlines */}
+                        <div className="text-center mb-12">
+                            <h2 className="text-4xl md:text-5xl font-bebas text-spruce mb-4 tracking-wide">
+                                Unlock Your Full AI-Powered Report
+                            </h2>
+                            <p className="text-xl font-manrope text-sea-glass max-w-3xl mx-auto">
+                                Get your full breakdown, roadmap, and revenue impact analysis.
+                            </p>
+                        </div>
+
+                        {/* Feature Cards - Premium Spacing */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                            {/* Card 1 */}
+                            <div className="bg-[#2C3A3A] rounded-[20px] p-8 border-2 border-sea-glass hover:border-spruce hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                                <div className="w-16 h-16 rounded-lg bg-soft-sea-glass flex items-center justify-center mb-6">
+                                    <svg className="w-8 h-8 text-fern" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bebas text-white mb-4 tracking-wide">Detailed Gap Analysis</h3>
+                                <p className="text-sm text-sea-glass font-manrope leading-relaxed">
+                                    See exactly what's broken, why it matters, and the hidden costs
+                                </p>
+                            </div>
+
+                            {/* Card 2 */}
+                            <div className="bg-[#2C3A3A] rounded-[20px] p-8 border-2 border-sea-glass hover:border-spruce hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                                <div className="w-16 h-16 rounded-lg bg-soft-sea-glass flex items-center justify-center mb-6">
+                                    <svg className="w-8 h-8 text-fern" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bebas text-white mb-4 tracking-wide">60-Day Roadmap</h3>
+                                <p className="text-sm text-sea-glass font-manrope leading-relaxed">
+                                    Prioritized action plan with quick wins and transformational changes
+                                </p>
+                            </div>
+
+                            {/* Card 3 */}
+                            <div className="bg-[#2C3A3A] rounded-[20px] p-8 border-2 border-sea-glass hover:border-spruce hover:scale-[1.02] transition-all duration-300 cursor-pointer">
+                                <div className="w-16 h-16 rounded-lg bg-soft-sea-glass flex items-center justify-center mb-6">
+                                    <svg className="w-8 h-8 text-fern" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </div>
+                                <h3 className="text-xl font-bebas text-white mb-4 tracking-wide">ROI Projections</h3>
+                                <p className="text-sm text-sea-glass font-manrope leading-relaxed">
+                                    Quantified savings based on your brokerage's actual operations
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Email Form */}
+                        <div className="max-w-2xl mx-auto">
+                            <form onSubmit={handleEmailSubmit} id="main-email-form" className="mb-6">
+                                <div className="bg-white rounded-lg p-2 shadow-2xl flex flex-col sm:flex-row gap-2">
+                                    <input
+                                        type="email"
+                                        value={email}
+                                        onChange={(e) => setEmail(e.target.value)}
+                                        placeholder="Enter your work email to unlock your full report"
+                                        required
+                                        disabled={submittingEmail}
+                                        className="flex-1 px-6 py-4 border-0 rounded-md focus:outline-none focus:ring-2 focus:ring-spruce font-manrope text-base text-gray-800"
+                                    />
+                                    <button
+                                        type="submit"
+                                        disabled={submittingEmail}
+                                        className="px-8 py-4 bg-spruce text-white font-manrope font-bold rounded-md hover:bg-spruce/90 transition-colors text-base whitespace-nowrap shadow-lg disabled:opacity-50"
+                                    >
+                                        {submittingEmail ? 'Submitting...' : 'Get My Full Report →'}
+                                    </button>
+                                </div>
+                                {emailError && (
+                                    <p className="text-red-300 font-manrope mt-2 text-center">{emailError}</p>
+                                )}
+                            </form>
+
+                            {/* Trust Badges */}
+                            <div className="flex flex-wrap items-center justify-center gap-6 text-sm text-sea-glass font-manrope">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-fern">✓</span>
+                                    <span>Instant access</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-fern">✓</span>
+                                    <span>No credit card</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-fern">✓</span>
+                                    <span>Based on 1,000+ assessments</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="text-fern">🔒</span>
+                                    <span>Your data is secure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const BonusFooterSection = () => {
+            return (
+                <div className="bg-soft-sea-glass py-12">
+                    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+                        <div className="bg-white rounded-xl shadow-lg border-2 border-sea-glass p-8 text-center">
+                            <h3 className="text-2xl font-bebas text-storm-gray mb-3 tracking-wide">
+                                Want 100% Unique Seller Leads Each Month?
+                            </h3>
+                            <p className="text-base text-neutral-mist font-manrope mb-6">
+                                Pay only when your agents get them under contract.
+                            </p>
+                            <a
+                                href="https://calendar.app.google/dkxw6HDLkr7HzJHfA"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-2 px-6 py-3 bg-spruce text-white font-manrope font-semibold rounded-md hover:bg-spruce/90 transition-colors"
+                            >
+                                Learn more
+                                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                                </svg>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const FullReportSections = ({ report }) => {
+            if (!report.fullAnalysis) {
+                return (
+                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                        <div className="bg-white rounded-lg shadow-lg p-8">
+                            <div className="flex items-center justify-center space-x-3 text-amber">
+                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-amber"></div>
+                                <p className="text-lg font-manrope">Our AI is analyzing your responses and generating your comprehensive report. This may take up to a few minutes (typically 30-60 seconds). Please don't close this window.</p>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            const analysis = report.fullAnalysis;
+
+            return (
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+                    {/* Section 1: Your Operational Snapshot */}
+                    <Section1Snapshot report={report} analysis={analysis} />
+
+                    {/* NEW SECTION: Your Score with ContRE */}
+                    <SectionContreComparison report={report} analysis={analysis} />
+
+                    {/* Section 2: Gap Analysis */}
+                    <Section2GapAnalysis analysis={analysis} />
+
+                    {/* Section 3: Financial Impact Model */}
+                    <Section3FinancialImpact analysis={analysis} />
+
+                    {/* Section 4: 60-Day Transformation Roadmap */}
+                    <Section4Roadmap analysis={analysis} />
+
+                    {/* Section 5: Competitive Positioning */}
+                    <Section5Positioning report={report} analysis={analysis} />
+
+                    {/* Section 6: Key Insight & Next Steps */}
+                    <Section6NextSteps analysis={analysis} />
+                </div>
+            );
+        };
+
+        // SECTION 1: Operational Snapshot
+        const Section1Snapshot = ({ report, analysis }) => {
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        1. YOUR OPERATIONAL SNAPSHOT
+                    </h2>
+
+                    {/* Archetype */}
+                    {analysis.archetype && (
+                        <div className="mb-8 bg-spruce/5 border-l-4 border-spruce p-6 rounded-r-lg">
+                            <h3 className="text-xl font-manrope font-bold text-spruce mb-2">
+                                Your Operational Archetype: {analysis.archetype.type}
+                            </h3>
+                            <p className="text-gray-700 font-manrope">{analysis.archetype.description}</p>
+                        </div>
+                    )}
+
+                    {/* Category Scores */}
+                    <div className="mb-8">
+                        <h3 className="text-xl font-manrope font-bold text-gray-800 mb-4">Score Breakdown by Category</h3>
+                        <div className="space-y-4">
+                            {report.categoryScores.map((cat, idx) => (
+                                <div key={idx}>
+                                    <div className="flex justify-between mb-1">
+                                        <span className="font-manrope font-semibold text-gray-700">{cat.category}</span>
+                                        <span className="font-jetbrains text-gray-600">{cat.score}/{cat.maxScore} ({cat.percentage}%)</span>
+                                    </div>
+                                    <div className="w-full bg-gray-200 rounded-full h-3">
+                                        <div
+                                            className="bg-lime-green h-3 rounded-full transition-all"
+                                            style={{ width: `${cat.percentage}%` }}
+                                        ></div>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* AI Optimization Gap */}
+                    <div className="bg-amber/10 border border-amber/30 rounded-lg p-6">
+                        <h3 className="text-xl font-manrope font-bold text-gray-800 mb-3">AI Optimization Gap</h3>
+                        <div className="grid md:grid-cols-2 gap-6">
+                            <div>
+                                <p className="text-sm text-gray-600 font-manrope mb-1">Your Score</p>
+                                <p className="text-4xl font-jetbrains font-bold text-gray-800">{report.overallScore}</p>
+                            </div>
+                            <div>
+                                <p className="text-sm text-gray-600 font-manrope mb-1">AI-Optimized Benchmark</p>
+                                <p className="text-4xl font-jetbrains font-bold text-lime-green">95-100</p>
+                            </div>
+                        </div>
+                        <p className="mt-4 text-gray-700 font-manrope">
+                            Gap to AI-optimized: <span className="font-bold">{100 - report.overallScore} points</span>
+                        </p>
+                    </div>
+                </section>
+            );
+        };
+
+        // NEW SECTION: Your Score with ContRE
+        const SectionContreComparison = ({ report, analysis }) => {
+            // Check if ContRE analysis data exists
+            if (!analysis.contreImpact) return null;
+
+            const contreData = analysis.contreImpact;
+            const scoreComp = contreData.scoreComparison;
+            const financials = contreData.conservativeFinancials;
+
+            return (
+                <section className="bg-gradient-to-br from-spruce/5 to-lime-green/5 border-2 border-lime-green rounded-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-2">
+                        YOUR POTENTIAL SCORE WITH CONTRE
+                    </h2>
+                    <p className="text-gray-700 font-manrope mb-6">
+                        Based on your brokerage size and the gaps we identified, here's what becomes possible with transaction intelligence:
+                    </p>
+
+                    {/* Side-by-side Score Gauges */}
+                    <div className="grid md:grid-cols-2 gap-8 mb-8">
+                        {/* Current Score */}
+                        <div className="bg-white rounded-lg p-6 shadow-md">
+                            <h3 className="text-center mb-4 font-manrope font-semibold text-gray-700">Current Score</h3>
+                            <div className="flex justify-center mb-4">
+                                <div className="relative w-32 h-32">
+                                    <svg className="w-32 h-32 transform -rotate-90">
+                                        <circle cx="64" cy="64" r="56" stroke="#E5E7EB" strokeWidth="12" fill="none" />
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="#F59E0B"
+                                            strokeWidth="12"
+                                            fill="none"
+                                            strokeDasharray={`${2 * Math.PI * 56}`}
+                                            strokeDashoffset={`${2 * Math.PI * 56 * (1 - report.overallScore / 100)}`}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-3xl font-jetbrains font-bold text-gray-800">{report.overallScore}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-center text-gray-600 font-manrope">out of 100</p>
+                        </div>
+
+                        {/* With ContRE Score */}
+                        <div className="bg-white rounded-lg p-6 shadow-md">
+                            <h3 className="text-center mb-4 font-manrope font-semibold text-gray-700">With ContRE Platform</h3>
+                            <div className="flex justify-center mb-4">
+                                <div className="relative w-32 h-32">
+                                    <svg className="w-32 h-32 transform -rotate-90">
+                                        <circle cx="64" cy="64" r="56" stroke="#E5E7EB" strokeWidth="12" fill="none" />
+                                        <circle
+                                            cx="64"
+                                            cy="64"
+                                            r="56"
+                                            stroke="#7BA428"
+                                            strokeWidth="12"
+                                            fill="none"
+                                            strokeDasharray={`${2 * Math.PI * 56}`}
+                                            strokeDashoffset={`${2 * Math.PI * 56 * (1 - scoreComp.withContreScore / 100)}`}
+                                            strokeLinecap="round"
+                                        />
+                                    </svg>
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                        <span className="text-3xl font-jetbrains font-bold text-lime-green">{scoreComp.withContreScore}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p className="text-center text-gray-600 font-manrope">out of 100</p>
+                        </div>
+                    </div>
+
+                    {/* Category Breakdown Table */}
+                    <div className="bg-white rounded-lg p-6 shadow-md mb-6">
+                        <h3 className="font-manrope font-semibold text-lg mb-4">Category-by-Category Improvement</h3>
+                        <div className="overflow-x-auto">
+                            <table className="w-full font-manrope text-sm">
+                                <thead className="border-b-2 border-gray-200">
+                                    <tr>
+                                        <th className="text-left py-3 px-2">Category</th>
+                                        <th className="text-center py-3 px-2">Current</th>
+                                        <th className="text-center py-3 px-2">With ContRE</th>
+                                        <th className="text-center py-3 px-2">Improvement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {scoreComp.categoryImprovements.map((cat, idx) => (
+                                        <tr key={idx} className="border-b border-gray-100">
+                                            <td className="py-3 px-2 font-semibold text-gray-700">{cat.category}</td>
+                                            <td className="py-3 px-2 text-center text-amber">{cat.current}/{cat.currentMax}</td>
+                                            <td className="py-3 px-2 text-center text-lime-green font-bold">{cat.withContre}/{cat.withContreMax}</td>
+                                            <td className="py-3 px-2 text-center text-spruce font-bold">+{cat.pointGain}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    {/* How ContRE Achieves This */}
+                    <div className="bg-lime-green/10 border-l-4 border-lime-green rounded-lg p-6 mb-6">
+                        <h3 className="font-manrope font-semibold text-lg mb-3 text-spruce">How This Works in Practice</h3>
+                        <p className="text-gray-700 font-manrope mb-4">
+                            ContRE integrates with your existing transaction management system (SkySlope/LoneWolf) and acts as an intelligence layer:
+                        </p>
+                        <ul className="space-y-2 font-manrope text-gray-700">
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>AI reads every uploaded document → generates 1-page summaries in 5 minutes</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>24/7 chatbot trained on all transaction docs → agents get instant answers, no interruptions</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>Automated deadline extraction → custom alerts → broker dashboard oversight</span>
+                            </li>
+                            <li className="flex items-start">
+                                <span className="text-lime-green mr-2">✓</span>
+                                <span>Brokerage knowledge base → upload policies/forms → instant AI answers to compliance questions</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    {/* Target Market Fit Message */}
+                    {contreData.targetMarketFit === 'ideal' && (
+                        <div className="bg-spruce/10 border border-spruce/30 rounded-lg p-4">
+                            <p className="text-sm font-manrope text-spruce">
+                                <strong>Why this works at your scale:</strong> {contreData.targetMarketMessage}
+                            </p>
+                        </div>
+                    )}
+
+                    {/* Financial Quick View */}
+                    {financials && (
+                        <div className="mt-6 grid md:grid-cols-3 gap-4">
+                            <div className="bg-white border border-gray-200 rounded-lg p-4">
+                                <p className="text-xs text-gray-600 font-manrope mb-1">Conservative Annual Value</p>
+                                <p className="text-2xl font-jetbrains font-bold text-lime-green">{financials.bottomLine.totalAnnualValue}</p>
+                                <p className="text-xs text-gray-500 font-manrope mt-1">Time savings + risk mitigation</p>
+                            </div>
+                            <div className="bg-white border border-gray-200 rounded-lg p-4">
+                                <p className="text-xs text-gray-600 font-manrope mb-1">ContRE Investment</p>
+                                <p className="text-2xl font-jetbrains font-bold text-gray-800">{financials.bottomLine.contreInvestment}</p>
+                                <p className="text-xs text-gray-500 font-manrope mt-1">Annual cost</p>
+                            </div>
+                            <div className="bg-white border border-lime-green rounded-lg p-4">
+                                <p className="text-xs text-gray-600 font-manrope mb-1">Return on Investment</p>
+                                <p className="text-2xl font-jetbrains font-bold text-spruce">{financials.bottomLine.roi}</p>
+                                <p className="text-xs text-gray-500 font-manrope mt-1">Conservative projection</p>
+                            </div>
+                        </div>
+                    )}
+                </section>
+            );
+        };
+
+        // SECTION 2: Gap Analysis
+        const Section2GapAnalysis = ({ analysis }) => {
+            const [activeTab, setActiveTab] = useState({});
+
+            if (!analysis.gapAnalysis || analysis.gapAnalysis.length === 0) return null;
+
+            // Check if new solution structure exists
+            const hasNewStructure = analysis.gapAnalysis[0]?.solutions !== undefined;
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        2. GAP ANALYSIS - CRITICAL OPERATIONAL GAPS
+                    </h2>
+
+                    <div className="space-y-8">
+                        {analysis.gapAnalysis.map((gap, idx) => {
+                            const currentTab = activeTab[idx] || 'diy';
+
+                            return (
+                                <div key={idx} className="border-l-4 border-signal-red pl-6 pb-6 border-b border-gray-200 last:border-b-0">
+                                    <div className="flex items-start justify-between mb-3">
+                                        <h3 className="text-xl font-manrope font-bold text-gray-800">{gap.category}</h3>
+                                        <span className={`px-3 py-1 rounded-full text-xs font-manrope font-semibold ${
+                                            gap.severity === 'CRITICAL' ? 'bg-signal-red text-white' :
+                                            gap.severity === 'HIGH' ? 'bg-amber text-white' :
+                                            'bg-yellow-400 text-gray-800'
+                                        }`}>
+                                            {gap.severity}
+                                        </span>
+                                    </div>
+
+                                    <div className="space-y-4 text-gray-700 font-manrope">
+                                        <div>
+                                            <p className="font-semibold text-gray-800 mb-1">The Issue:</p>
+                                            <p>{gap.issueWithEvidence || gap.issue}</p>
+                                        </div>
+
+                                        {gap.evidence && (
+                                            <div className="bg-gray-50 p-4 rounded-lg">
+                                                <p className="font-semibold text-gray-800 mb-1">Evidence from Your Assessment:</p>
+                                                <p className="italic">"{gap.evidence}"</p>
+                                            </div>
+                                        )}
+
+                                        <div>
+                                            <p className="font-semibold text-gray-800 mb-2">Business Impact:</p>
+                                            <div className="grid md:grid-cols-3 gap-4 text-sm">
+                                                <div className="bg-red-50 p-3 rounded">
+                                                    <p className="font-semibold text-gray-700 mb-1">Time Wasted:</p>
+                                                    <p>{gap.businessImpact?.timeWasted || gap.personalImpact?.timeWasted || 'N/A'}</p>
+                                                </div>
+                                                <div className="bg-red-50 p-3 rounded">
+                                                    <p className="font-semibold text-gray-700 mb-1">Financial Cost:</p>
+                                                    <p>{gap.businessImpact?.financialCost || gap.personalImpact?.financialCost || 'N/A'}</p>
+                                                </div>
+                                                <div className="bg-red-50 p-3 rounded">
+                                                    <p className="font-semibold text-gray-700 mb-1">Risk Created:</p>
+                                                    <p>{gap.businessImpact?.riskCreated || gap.personalImpact?.riskCreated || 'N/A'}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-lime-green/10 border-l-4 border-lime-green p-4">
+                                            <p className="font-semibold text-gray-800 mb-1">What Top 10% Do Differently:</p>
+                                            <p>{gap.industryBestPractice}</p>
+                                        </div>
+
+                                        {/* NEW: Tabbed Solution Interface */}
+                                        {hasNewStructure && gap.solutions ? (
+                                            <div className="bg-gray-50 rounded-lg p-4">
+                                                <h4 className="font-semibold text-gray-800 mb-3">Solution Options:</h4>
+
+                                                {/* Tab Buttons */}
+                                                <div className="flex flex-wrap gap-2 mb-4 no-print">
+                                                    <button
+                                                        onClick={() => setActiveTab({...activeTab, [idx]: 'diy'})}
+                                                        className={`px-4 py-2 rounded-md font-manrope text-sm font-semibold transition-all ${
+                                                            currentTab === 'diy'
+                                                                ? 'bg-green-600 text-white'
+                                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+                                                        }`}
+                                                    >
+                                                        <span className="mr-1">🔧</span> DIY Solutions (Free)
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setActiveTab({...activeTab, [idx]: 'professional'})}
+                                                        className={`px-4 py-2 rounded-md font-manrope text-sm font-semibold transition-all ${
+                                                            currentTab === 'professional'
+                                                                ? 'bg-blue-600 text-white'
+                                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+                                                        }`}
+                                                    >
+                                                        <span className="mr-1">💼</span> Professional Tools
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setActiveTab({...activeTab, [idx]: 'contre'})}
+                                                        className={`px-4 py-2 rounded-md font-manrope text-sm font-semibold transition-all ${
+                                                            currentTab === 'contre'
+                                                                ? 'bg-spruce text-white'
+                                                                : 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-100'
+                                                        }`}
+                                                    >
+                                                        <span className="mr-1">🤖</span> How ContRE Helps
+                                                    </button>
+                                                </div>
+
+                                                {/* Tab Content */}
+                                                <div className="bg-white rounded-lg p-4 border border-gray-200">
+                                                    {currentTab === 'diy' && gap.solutions.diyOptions && (
+                                                        <div>
+                                                            <div className="flex items-center mb-3">
+                                                                <span className="text-green-600 font-semibold">💰 Cost: Free</span>
+                                                                <span className="mx-2 text-gray-300">|</span>
+                                                                <span className="text-gray-600">⏱ Time: Moderate effort</span>
+                                                            </div>
+                                                            <ul className="space-y-2 text-gray-700">
+                                                                {gap.solutions.diyOptions.map((option, oidx) => (
+                                                                    <li key={oidx} className="flex items-start">
+                                                                        <span className="text-green-600 mr-2 mt-1">✓</span>
+                                                                        <span>{option}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+
+                                                    {currentTab === 'professional' && gap.solutions.professionalTools && (
+                                                        <div>
+                                                            <div className="flex items-center mb-3">
+                                                                <span className="text-blue-600 font-semibold">💰 Cost: $$-$$$</span>
+                                                                <span className="mx-2 text-gray-300">|</span>
+                                                                <span className="text-gray-600">⏱ Time: Setup required</span>
+                                                            </div>
+                                                            <p className="text-gray-700">{gap.solutions.professionalTools}</p>
+                                                        </div>
+                                                    )}
+
+                                                    {currentTab === 'contre' && gap.solutions.howContreHelps && (
+                                                        <div>
+                                                            <div className="flex items-center mb-3">
+                                                                <span className="text-spruce font-semibold">💰 Cost: Subscription</span>
+                                                                <span className="mx-2 text-gray-300">|</span>
+                                                                <span className="text-gray-600">⏱ Time: Immediate start</span>
+                                                            </div>
+                                                            <ul className="space-y-2 text-gray-700">
+                                                                {gap.solutions.howContreHelps.map((solution, sidx) => (
+                                                                    <li key={sidx} className="flex items-start">
+                                                                        <span className="text-lime-green mr-2 mt-1">✓</span>
+                                                                        <span>{solution}</span>
+                                                                    </li>
+                                                                ))}
+                                                            </ul>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        ) : (
+                                            /* Fallback: Old structure with howContreSolves */
+                                            gap.howContreSolves && gap.howContreSolves.length > 0 && (
+                                                <div className="bg-lime-green/10 border-l-4 border-lime-green p-4 rounded">
+                                                    <h4 className="font-semibold text-spruce mb-2 flex items-center">
+                                                        <svg className="w-5 h-5 mr-2 text-lime-green" fill="currentColor" viewBox="0 0 20 20">
+                                                            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                                                        </svg>
+                                                        How ContRE Addresses This
+                                                    </h4>
+                                                    <ul className="space-y-1 text-sm text-gray-700">
+                                                        {gap.howContreSolves.map((solution, sidx) => (
+                                                            <li key={sidx} className="flex items-start">
+                                                                <span className="text-lime-green mr-2">✓</span>
+                                                                <span>{solution}</span>
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            )
+                                        )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </section>
+            );
+        };
+
+        // SECTION 3: Financial Impact Model
+        const Section3FinancialImpact = ({ analysis }) => {
+            // Prefer contreImpact data if available, fallback to old financialImpact
+            const hasContreData = analysis.contreImpact && analysis.contreImpact.conservativeFinancials;
+
+            if (!hasContreData && !analysis.financialImpact) return null;
+
+            if (hasContreData) {
+                // NEW: Use ContRE conservative financials with 3-column layout
+                const financials = analysis.contreImpact.conservativeFinancials;
+                const assumptions = financials.assumptions;
+                const timeSavings = financials.annualTimeSavings;
+                const riskMitigation = financials.riskMitigation;
+                const bottomLine = financials.bottomLine;
+
+                return (
+                    <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                        <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                            3. FINANCIAL IMPACT ANALYSIS
+                        </h2>
+
+                        {/* Conservative Assumptions Callout */}
+                        <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 mb-6 text-sm font-manrope">
+                            <h3 className="font-semibold mb-2 text-gray-800">Conservative Assumptions:</h3>
+                            <ul className="space-y-1 text-gray-600">
+                                <li>• Agents spend ~{assumptions.agentTimePerTransaction} on doc review</li>
+                                <li>• Broker/TC spend ~{assumptions.brokerTimePerTransaction} per transaction</li>
+                                <li>• Broker spends ~{assumptions.brokerQuestionTime} answering agent questions</li>
+                                <li>• ContRE reduces these by {assumptions.contreReduction}</li>
+                                <li>• Prevents {assumptions.problemsPrevented}</li>
+                            </ul>
+                        </div>
+
+                        {/* Three-Column Comparison */}
+                        <div className="grid md:grid-cols-3 gap-6 mb-6">
+                            {/* Column 1: Current State */}
+                            <div className="bg-red-50 border-2 border-signal-red rounded-lg p-6">
+                                <h3 className="text-lg font-bebas text-signal-red mb-4">CURRENT ANNUAL COSTS</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Agent Time</span>
+                                            <span className="font-semibold">${timeSavings.agentTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Doc review + questions</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Broker/TC Time</span>
+                                            <span className="font-semibold">${timeSavings.brokerTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Review + oversight</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Question Handling</span>
+                                            <span className="font-semibold">${timeSavings.questionHandling}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Agent interruptions</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Risk Exposure</span>
+                                            <span className="font-semibold">${riskMitigation.total}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Deadlines + E&O</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Column 2: With ContRE */}
+                            <div className="bg-lime-green/10 border-2 border-lime-green rounded-lg p-6">
+                                <h3 className="text-lg font-bebas text-lime-green mb-4">WITH CONTRE</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Agent Time (50% ↓)</span>
+                                            <span className="font-semibold text-lime-green">Save ${timeSavings.agentTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">AI summaries + chatbot</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Broker Time (50% ↓)</span>
+                                            <span className="font-semibold text-lime-green">Save ${timeSavings.brokerTime}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Dashboard oversight</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Questions (75% ↓)</span>
+                                            <span className="font-semibold text-lime-green">Save ${timeSavings.questionHandling}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">24/7 AI answers</p>
+                                    </div>
+                                    <div>
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-gray-700">Risk Mitigation</span>
+                                            <span className="font-semibold text-lime-green">Save ${riskMitigation.total}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Automated tracking</p>
+                                    </div>
+                                    <div className="pt-3 border-t-2 border-lime-green">
+                                        <div className="flex justify-between items-center text-red-600">
+                                            <span className="text-sm">ContRE Investment</span>
+                                            <span className="font-semibold">-${bottomLine.contreInvestment}</span>
+                                        </div>
+                                        <p className="text-xs text-gray-500 mt-1">Annual platform cost</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Column 3: Net Benefit */}
+                            <div className="bg-spruce/10 border-2 border-spruce rounded-lg p-6">
+                                <h3 className="text-lg font-bebas text-spruce mb-4">ANNUAL BENEFIT</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div>
+                                        <p className="text-gray-600 mb-1">Time Savings</p>
+                                        <p className="text-2xl font-bold text-green-700">+${(bottomLine.timeSavingsValue || timeSavings.total)?.toLocaleString()}</p>
+                                        <p className="text-xs text-gray-500">Agents + Broker + TC</p>
+                                    </div>
+                                    {financials.revenueProtection && bottomLine.revenueProtectionValue && (
+                                        <div>
+                                            <p className="text-gray-600 mb-1">Revenue Protection</p>
+                                            <p className="text-2xl font-bold text-green-700">+${bottomLine.revenueProtectionValue?.toLocaleString()}</p>
+                                            <p className="text-xs text-gray-500">{financials.revenueProtection.dealsSaved} deals saved</p>
+                                        </div>
+                                    )}
+                                    <div>
+                                        <p className="text-gray-600 mb-1">Risk Mitigation</p>
+                                        <p className="text-2xl font-bold text-green-700">+${(bottomLine.riskMitigationValue || riskMitigation.total)?.toLocaleString()}</p>
+                                        <p className="text-xs text-gray-500">Deadlines + E&O + Compliance</p>
+                                    </div>
+                                    <div className="pt-3 border-t-2 border-spruce">
+                                        <p className="text-gray-600 mb-1">Total Annual Value</p>
+                                        <p className="text-2xl font-bold text-lime-green">${bottomLine.totalAnnualValue?.toLocaleString()}</p>
+                                    </div>
+                                    <div className="mt-4 pt-3 border-t border-spruce/30">
+                                        <p className="text-gray-600 mb-1 text-center">Return on Investment</p>
+                                        <p className="text-4xl font-bebas text-spruce text-center">{bottomLine.roi}</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Important Note */}
+                        <div className="bg-blue-50 border border-blue-300 rounded-lg p-4 text-sm font-manrope">
+                            <p className="text-blue-900">
+                                <strong>Note:</strong> {bottomLine.note || "These projections use conservative assumptions. Your actual savings may be higher depending on current operational efficiency."}
+                            </p>
+                        </div>
+                    </section>
+                );
+            }
+
+            // FALLBACK: Old format if no ContRE data
+            const impact = analysis.financialImpact;
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        3. FINANCIAL IMPACT MODEL
+                    </h2>
+
+                    <div className="grid md:grid-cols-2 gap-8 mb-8">
+                        {/* Current State Costs */}
+                        <div className="bg-red-50 border-2 border-signal-red rounded-lg p-6">
+                            <h3 className="text-xl font-bebas text-signal-red mb-4">CURRENT STATE ANNUAL COSTS</h3>
+                            <div className="space-y-3 font-manrope text-sm">
+                                {impact.currentStateCosts.manualProcesses && (
+                                    <div className="flex justify-between pb-2 border-b border-red-200">
+                                        <span className="text-gray-700">Manual Processes:</span>
+                                        <span className="font-semibold">{impact.currentStateCosts.manualProcesses}</span>
+                                    </div>
+                                )}
+                                {impact.currentStateCosts.riskExposure && (
+                                    <div className="flex justify-between pb-2 border-b border-red-200">
+                                        <span className="text-gray-700">Risk Exposure:</span>
+                                        <span className="font-semibold">{impact.currentStateCosts.riskExposure}</span>
+                                    </div>
+                                )}
+                                <div className="flex justify-between pt-3 text-lg">
+                                    <span className="font-bold text-gray-800">Total Annual Cost:</span>
+                                    <span className="font-bold text-signal-red">{impact.currentStateCosts.totalAnnual}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Projected Savings */}
+                        {impact.projectedSavings && (
+                            <div className="bg-green-50 border-2 border-lime-green rounded-lg p-6">
+                                <h3 className="text-xl font-bebas text-lime-green mb-4">PROJECTED SAVINGS</h3>
+                                <div className="space-y-3 font-manrope text-sm">
+                                    <div className="flex justify-between pt-3 text-lg">
+                                        <span className="font-bold text-gray-800">Potential Savings:</span>
+                                        <span className="font-bold text-lime-green">{impact.projectedSavings.totalAnnual}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                </section>
+            );
+        };
+
+        // SECTION 4: 60-Day Roadmap
+        const Section4Roadmap = ({ analysis }) => {
+            const [expandedPhases, setExpandedPhases] = useState({ 0: true });
+
+            if (!analysis.roadmap) return null;
+
+            const roadmap = analysis.roadmap;
+
+            // Check if new 4-phase structure exists
+            const hasNewStructure = roadmap.phase1_quickWins !== undefined;
+
+            const phases = hasNewStructure ? [
+                {
+                    name: 'Quick Wins',
+                    days: 'Days 1-15',
+                    items: roadmap.phase1_quickWins || [],
+                    color: 'border-green-500',
+                    bgColor: 'bg-green-50',
+                    description: 'No-cost improvements using existing tools'
+                },
+                {
+                    name: 'Process Building',
+                    days: 'Days 16-30',
+                    items: roadmap.phase2_processBuilding || [],
+                    color: 'border-blue-500',
+                    bgColor: 'bg-blue-50',
+                    description: 'Low-cost systemization and repeatable processes'
+                },
+                {
+                    name: 'Technology Evaluation',
+                    days: 'Days 31-45',
+                    items: roadmap.phase3_technologyEvaluation || [],
+                    color: 'border-purple-500',
+                    bgColor: 'bg-purple-50',
+                    description: 'Research and trial AI-powered solutions'
+                },
+                {
+                    name: 'Implementation',
+                    days: 'Days 46-60',
+                    items: roadmap.phase4_implementation || [],
+                    color: 'border-orange-500',
+                    bgColor: 'bg-orange-50',
+                    description: 'Go live and measure results'
+                }
+            ] : [
+                { name: 'Quick Wins', days: '0-20 Days', items: roadmap.quickWins || [], color: 'border-green-400', bgColor: 'bg-green-100' },
+                { name: 'Foundation Building', days: '20-40 Days', items: roadmap.foundationBuilding || [], color: 'border-blue-400', bgColor: 'bg-blue-100' },
+                { name: 'Transformation', days: '40-60 Days', items: roadmap.transformation || [], color: 'border-purple-400', bgColor: 'bg-purple-100' }
+            ];
+
+            const togglePhase = (idx) => {
+                setExpandedPhases({...expandedPhases, [idx]: !expandedPhases[idx]});
+            };
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        4. YOUR 60-DAY TRANSFORMATION ROADMAP
+                    </h2>
+
+                    {/* Timeline Visualization */}
+                    {hasNewStructure && (
+                        <div className="mb-8">
+                            <div className="relative flex items-center justify-between max-w-4xl mx-auto">
+                                <div className="absolute top-1/2 left-0 right-0 h-1 bg-gray-200 -z-10"></div>
+                                {[0, 15, 30, 45, 60].map((day, idx) => (
+                                    <div key={day} className="flex flex-col items-center">
+                                        <div className={`w-4 h-4 rounded-full ${idx === 0 || idx === 4 ? 'bg-spruce' : 'bg-gray-400'} mb-2`}></div>
+                                        <span className="text-xs font-manrope text-gray-600">Day {day}</span>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="flex justify-between mt-3 max-w-4xl mx-auto px-8">
+                                <span className="text-xs font-manrope text-green-600">Phase 1</span>
+                                <span className="text-xs font-manrope text-blue-600">Phase 2</span>
+                                <span className="text-xs font-manrope text-purple-600">Phase 3</span>
+                                <span className="text-xs font-manrope text-orange-600">Phase 4</span>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="space-y-6">
+                        {phases.map((phase, phaseIdx) => (
+                            phase.items.length > 0 && (
+                                <div key={phaseIdx} className={`border-2 ${phase.color} rounded-lg overflow-hidden`}>
+                                    {/* Phase Header - Collapsible */}
+                                    <div
+                                        className={`${phase.bgColor} p-4 cursor-pointer flex justify-between items-center no-print`}
+                                        onClick={() => togglePhase(phaseIdx)}
+                                    >
+                                        <div>
+                                            <h3 className="text-xl font-bebas text-gray-800">
+                                                PHASE {phaseIdx + 1}: {phase.name}
+                                            </h3>
+                                            <p className="text-sm text-gray-600 font-manrope">{phase.days}</p>
+                                            {phase.description && (
+                                                <p className="text-xs text-gray-500 font-manrope mt-1">{phase.description}</p>
+                                            )}
+                                        </div>
+                                        <div className="flex items-center gap-4">
+                                            <span className="text-sm font-manrope text-gray-600">
+                                                {phase.items.length} {phase.items.length === 1 ? 'action' : 'actions'}
+                                            </span>
+                                            <svg
+                                                className={`w-6 h-6 text-gray-600 transition-transform ${expandedPhases[phaseIdx] ? 'rotate-180' : ''}`}
+                                                fill="none"
+                                                stroke="currentColor"
+                                                viewBox="0 0 24 24"
+                                            >
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                            </svg>
+                                        </div>
+                                    </div>
+
+                                    {/* Phase Content */}
+                                    {expandedPhases[phaseIdx] && (
+                                        <div className="p-4 space-y-4 bg-white">
+                                            {phase.items.map((item, idx) => (
+                                                <div key={idx} className="border border-gray-200 rounded-lg p-4">
+                                                    <h4 className="font-manrope font-bold text-gray-800 mb-3 text-lg">
+                                                        {item.action}
+                                                    </h4>
+
+                                                    <div className="space-y-3 text-sm text-gray-700 font-manrope">
+                                                        <div className="bg-gray-50 p-3 rounded">
+                                                            <p className="font-semibold text-gray-800 mb-1">Addresses:</p>
+                                                            <p>{item.addresses}</p>
+                                                        </div>
+
+                                                        {/* NEW: Tactical Steps */}
+                                                        {item.tacticalSteps && item.tacticalSteps.length > 0 && (
+                                                            <div className="bg-blue-50 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-2">Implementation Steps:</p>
+                                                                <ol className="list-decimal list-inside space-y-1">
+                                                                    {item.tacticalSteps.map((step, sidx) => (
+                                                                        <li key={sidx}>{step}</li>
+                                                                    ))}
+                                                                </ol>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Legacy: Implementation (for old format) */}
+                                                        {!item.tacticalSteps && item.implementation && (
+                                                            <div className="bg-blue-50 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-1">Implementation:</p>
+                                                                <p>{item.implementation}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Resources Needed */}
+                                                        {item.resources && (
+                                                            <div className="flex items-start gap-2">
+                                                                <span className="font-semibold text-gray-800">🛠 Tools/Resources:</span>
+                                                                <span>{item.resources}</span>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Time Required */}
+                                                        {item.timeRequired && (
+                                                            <div className="flex items-start gap-2">
+                                                                <span className="font-semibold text-gray-800">⏱ Time Required:</span>
+                                                                <span>{item.timeRequired}</span>
+                                                            </div>
+                                                        )}
+
+                                                        {/* Expected Outcome */}
+                                                        <div className="bg-green-50 p-3 rounded">
+                                                            <p className="font-semibold text-gray-800 mb-1">Expected Result:</p>
+                                                            <p>{item.expectedOutcome}</p>
+                                                        </div>
+
+                                                        {/* NEW: Success Metric */}
+                                                        {item.successMetric && (
+                                                            <div className="bg-amber/10 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-1">📊 How to Measure Success:</p>
+                                                                <p>{item.successMetric}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Phase 3 - Evaluation Criteria */}
+                                                        {phaseIdx === 2 && item.evaluationCriteria && item.evaluationCriteria.length > 0 && (
+                                                            <div className="bg-purple-50 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-2">What to Look For:</p>
+                                                                <ul className="space-y-1">
+                                                                    {item.evaluationCriteria.map((criterion, cidx) => (
+                                                                        <li key={cidx} className="flex items-start">
+                                                                            <span className="text-purple-600 mr-2">✓</span>
+                                                                            <span>{criterion}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Phase 3 - Platforms to Consider */}
+                                                        {phaseIdx === 2 && item.platformsToConsider && (
+                                                            <div className="bg-purple-50 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-1">Platforms to Consider:</p>
+                                                                <p>{item.platformsToConsider}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Phase 3 - ROI Framework */}
+                                                        {phaseIdx === 2 && item.roiFramework && (
+                                                            <div className="bg-lime-green/10 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-1">💰 ROI Framework:</p>
+                                                                <p>{item.roiFramework}</p>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Phase 4 - Success Metrics (array) */}
+                                                        {phaseIdx === 3 && item.successMetrics && item.successMetrics.length > 0 && (
+                                                            <div className="bg-orange-50 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-2">Success Metrics to Track:</p>
+                                                                <ul className="space-y-1">
+                                                                    {item.successMetrics.map((metric, midx) => (
+                                                                        <li key={midx} className="flex items-start">
+                                                                            <span className="text-orange-600 mr-2">📈</span>
+                                                                            <span>{metric}</span>
+                                                                        </li>
+                                                                    ))}
+                                                                </ul>
+                                                            </div>
+                                                        )}
+
+                                                        {/* NEW: Phase 4 - Next Steps */}
+                                                        {phaseIdx === 3 && item.nextSteps && (
+                                                            <div className="bg-orange-50 p-3 rounded">
+                                                                <p className="font-semibold text-gray-800 mb-1">What's Next:</p>
+                                                                <p>{item.nextSteps}</p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )
+                        ))}
+                    </div>
+                </section>
+            );
+        };
+
+        // SECTION 5: Competitive Positioning
+        const Section5Positioning = ({ report, analysis }) => {
+            if (!analysis.competitivePositioning) return null;
+
+            const positioning = analysis.competitivePositioning;
+
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8 page-break">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        5. COMPETITIVE POSITIONING
+                    </h2>
+
+                    {/* Percentile Analysis */}
+                    {positioning.percentileAnalysis && (
+                        <div className="bg-spruce/5 border-l-4 border-spruce p-6 rounded-r-lg mb-6">
+                            <h3 className="text-lg font-manrope font-bold text-gray-800 mb-2">Where You Stand</h3>
+                            <p className="text-gray-700 font-manrope">{positioning.percentileAnalysis}</p>
+                        </div>
+                    )}
+
+                    {/* Gap to Leaders */}
+                    {positioning.gapToLeaders && (
+                        <div className="bg-amber/10 border border-amber/30 rounded-lg p-6">
+                            <h3 className="text-lg font-manrope font-bold text-gray-800 mb-2">What Sets Top 10% Apart</h3>
+                            <p className="text-gray-700 font-manrope">{positioning.gapToLeaders}</p>
+                        </div>
+                    )}
+                </section>
+            );
+        };
+
+        // SECTION 6: Key Insight & Next Steps
+        const Section6NextSteps = ({ analysis }) => {
+            return (
+                <section className="bg-white rounded-lg shadow-lg p-8">
+                    <h2 className="text-3xl font-bebas text-gray-800 mb-6 border-b-2 border-lime-green pb-2">
+                        6. KEY INSIGHT & NEXT STEPS
+                    </h2>
+
+                    {/* Key Insight */}
+                    {analysis.keyInsight && (
+                        <div className="bg-gradient-to-r from-spruce to-spruce/80 text-white rounded-lg p-8 mb-8">
+                            <h3 className="text-2xl font-bebas mb-4">YOUR "AHA MOMENT"</h3>
+                            <p className="text-lg font-manrope leading-relaxed">{analysis.keyInsight}</p>
+                        </div>
+                    )}
+
+                    {/* Enhanced CTA Section with Transparent Pricing */}
+                    <div className="bg-gradient-to-r from-spruce/90 to-spruce rounded-lg p-8 text-center text-white">
+                        <h3 className="text-3xl font-bebas mb-4">SEE CONTRE IN YOUR OPERATION</h3>
+                        <p className="text-lg font-manrope mb-6 max-w-2xl mx-auto">
+                            Your assessment revealed specific gaps that, left unaddressed, impact your time, money, and risk exposure.
+                            ContRE's transaction intelligence platform addresses these gaps from day one.
+                        </p>
+
+                        {/* Investment & Value Display */}
+                        {analysis.contreImpact && analysis.contreImpact.conservativeFinancials && (
+                            <div className="bg-white/10 rounded-lg p-6 mb-6 max-w-xl mx-auto">
+                                <div className="grid grid-cols-2 gap-6 text-left">
+                                    <div>
+                                        <p className="text-sm text-lime-green mb-1">Investment</p>
+                                        <p className="text-2xl font-bebas">{analysis.contreImpact.conservativeFinancials.bottomLine.contreInvestment}/year</p>
+                                        <p className="text-xs text-gray-300 mt-1">Platform cost</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-sm text-lime-green mb-1">Conservative Value</p>
+                                        <p className="text-2xl font-bebas">~${analysis.contreImpact.conservativeFinancials.bottomLine.totalAnnualValue}/year</p>
+                                        <p className="text-xs text-gray-300 mt-1">{analysis.contreImpact.conservativeFinancials.bottomLine.roi} ROI</p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+
+                        <p className="font-manrope mb-6">
+                            See a 15-minute personalized demo showing exactly how ContRE would integrate with your systems and address the gaps identified in your assessment.
+                        </p>
+
+                        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                            <a
+                                href="https://calendar.app.google/dkxw6HDLkr7HzJHfA"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-block bg-lime-green hover:bg-lime-green/90 text-spruce px-8 py-4 rounded-md font-manrope font-bold text-lg transition-all shadow-lg hover:shadow-xl no-print"
+                            >
+                                Schedule 15-Min Demo
+                            </a>
+                            <button
+                                onClick={() => window.print()}
+                                className="inline-block bg-white/20 hover:bg-white/30 text-white px-8 py-4 rounded-md font-manrope font-semibold text-lg transition-all no-print"
+                            >
+                                Download Full Report PDF
+                            </button>
+                        </div>
+
+                        <p className="text-sm text-gray-300 mt-6 font-manrope">
+                            Join 50+ brokerages using ContRE to eliminate operational bottlenecks
+                        </p>
+                    </div>
+                </section>
+            );
+        };
+
+        // Render the app
+        ReactDOM.render(<ReportPage />, document.getElementById('root'));
+    </script>
+</body>
+</html>

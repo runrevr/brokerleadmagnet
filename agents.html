@@ -3,10 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hidden Risk Revealed - Brokerage Risk Assessment</title>
-
-    <!-- Umami Analytics -->
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="f85a4a0e-6f56-4658-989c-5a144c36ddef"></script>
+    <title>Agent Performance Assessment - Are You in the Top 10%?</title>
 
     <!-- React and Dependencies -->
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
@@ -161,579 +158,405 @@
                 questions: [
                     {
                         id: "company_name",
-                        label: "What's Your Brokerage Name?",
+                        label: "What's Your Name?",
                         type: "text",
                         required: true
                     }
                 ]
             },
-            contractReview: {
-                title: "Transactional Risk Assessment",
+            question1: {
+                title: "Agent Performance Assessment",
                 questions: [
                     {
-                        id: "contract_review_process",
-                        label: "Who reviews contracts after they're signed?",
+                        id: "deadline_tracking",
+                        label: "How do you track contingency deadlines when some are business days and others are calendar days?",
                         type: "cards",
                         required: true,
                         options: [
                             {
-                                value: "Agent - Each agent handles their own",
-                                icon: "user",
-                                label: "Agent",
-                                description: "Each agent handles their own"
+                                value: "I have an automated system that calculates both types and sends alerts",
+                                icon: "robot",
+                                label: "Automated System",
+                                description: "Calculates both types and sends alerts"
                             },
                             {
-                                value: "Designated Broker - Broker reviews everything",
-                                icon: "shield",
-                                label: "Designated Broker",
-                                description: "Broker reviews everything"
-                            },
-                            {
-                                value: "Transaction Coordinator - TC handles all reviews",
+                                value: "I manually track on a spreadsheet/calendar with notes about which is which",
                                 icon: "clipboard",
-                                label: "Transaction Coordinator",
-                                description: "TC handles all reviews"
+                                label: "Manual Spreadsheet",
+                                description: "With notes about which is which"
                             },
                             {
-                                value: "Broker & TC - TC reviews, Broker supervises",
+                                value: "I count them out as each deadline approaches",
+                                icon: "calendar",
+                                label: "Count as I Go",
+                                description: "As each deadline approaches"
+                            },
+                            {
+                                value: "I rely on my TC or escrow officer to remind me of upcoming deadlines",
                                 icon: "users",
-                                label: "Broker & TC",
-                                description: "TC reviews, Broker supervises"
-                            },
-                            {
-                                value: "No formal process - varies by transaction",
-                                icon: "question",
-                                label: "No formal process",
-                                description: "varies by transaction"
+                                label: "Rely on TC/Escrow",
+                                description: "To remind me of deadlines"
                             }
                         ]
                     }
                 ]
             },
-            contractReviewTime: {
-                title: "Transactional Risk Assessment",
+            question2: {
+                title: "Agent Performance Assessment",
                 questions: [
                     {
-                        id: "contract_review_time",
-                        label: "When someone reviews a contract, how long does it typically take?",
+                        id: "client_timeline",
+                        label: "Do you provide clients a detailed timeline at the start showing all critical dates and what happens when?",
                         type: "cards",
                         required: true,
                         options: [
                             {
-                                value: "Under 30 Minutes - Quick, systemic Review",
-                                icon: "clock-fast",
-                                label: "Under 30 Minutes",
-                                description: "Quick, systemic Review"
-                            },
-                            {
-                                value: "30 - 1 Hour - Thorough manual review",
-                                icon: "clock",
-                                label: "30 - 1 Hour",
-                                description: "Thorough manual review"
-                            },
-                            {
-                                value: "1-2 Hours - Detailed Line by Line (Standard)",
-                                icon: "clock-medium",
-                                label: "1-2 Hours",
-                                description: "Detailed Line by Line (Standard)"
-                            },
-                            {
-                                value: "2-3 Hours - Very Time Intensive",
-                                icon: "clock-slow",
-                                label: "2-3 Hours",
-                                description: "Very Time Intensive"
-                            },
-                            {
-                                value: "3+ Hours - Extremely Complex & Time Consuming",
-                                icon: "clock-alert",
-                                label: "3+ Hours",
-                                description: "Extremely Complex & Time Consuming"
-                            },
-                            {
-                                value: "Varies - No Specific Systems in Place",
-                                icon: "question",
-                                label: "Varies",
-                                description: "No Specific Systems in Place"
-                            }
-                        ]
-                    }
-                ]
-            },
-            documentReview: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "document_review_process",
-                        label: "Who actually reads HOA docs, title reports, and inspection reports?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            {
-                                value: "Agents read everything - Required and consistently done",
+                                value: "Yes, I provide a comprehensive written timeline document with all milestones explained",
                                 icon: "document-check",
-                                label: "Agents read everything",
-                                description: "Required and consistently done"
+                                label: "Written Timeline",
+                                description: "With all milestones explained"
                             },
                             {
-                                value: "Agents are supposed to… But most skim or skip sections",
-                                icon: "document-search",
-                                label: "Agents are supposed to…",
-                                description: "But most skim or skip sections"
+                                value: "I verbally walk them through the process but don't provide a written timeline",
+                                icon: "phone",
+                                label: "Verbal Explanation",
+                                description: "No written timeline"
                             },
                             {
-                                value: "TC/Broker reviews for them - Agents get summaries/highlights",
-                                icon: "document-text",
-                                label: "TC/Broker reviews for them",
-                                description: "Agents get summaries/highlights"
+                                value: "I send updates as we hit each milestone during the transaction",
+                                icon: "mail",
+                                label: "Milestone Updates",
+                                description: "As we progress"
                             },
                             {
-                                value: "Agents handle their own way - No formal policy or oversight",
-                                icon: "document-duplicate",
-                                label: "Agents handle their own way",
-                                description: "No formal policy or oversight"
-                            },
-                            {
-                                value: "Honestly? Nobody reads them all, too time consuming. Cross fingers and pray.",
-                                icon: "exclamation",
-                                label: "Honestly? Nobody reads them all",
-                                description: "Too time consuming. Cross fingers and pray."
+                                value: "Clients reach out to me when they need updates on what's happening",
+                                icon: "question",
+                                label: "Client-Initiated",
+                                description: "They ask when needed"
                             }
                         ]
                     }
                 ]
             },
-            deadlineTracking: {
-                title: "Transactional Risk Assessment",
+            question3: {
+                title: "Agent Performance Assessment",
                 questions: [
                     {
-                        id: "deadline_tracking_method",
-                        label: "How are critical deadlines tracked across transactions?",
-                        subtext: "Inspection periods, financing contingencies, closing dates, etc.",
-                        type: "checkbox",
-                        required: true,
-                        options: [
-                            "Manual - paper/memory based. Agents track on paper or rely on memory",
-                            "Each agent uses their own - Personal calendar/reminders. No centralized tracking",
-                            "Shared calendar/spreadsheet - Agents update their own dates in shared system",
-                            "Centralized TC/Admin system - TC manually enters all dates into shared calendar/system",
-                            "Automated deadline tracking - System extracts and monitors dates automatically",
-                            "No formal tracking system - Varies by agent"
-                        ]
-                    }
-                ]
-            },
-            impactAssessment: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "deadline_impact",
-                        label: "In the past year, have missed transaction deadlines or contract issues cost you deals or money?",
-                        subtext: "Missed deadlines, contract errors, late-discovered problems, etc.",
-                        type: "checkbox",
-                        required: true,
-                        options: [
-                            "No - clean track record. Zero lost deals or concessions",
-                            "Close calls, but no losses. Caught issues just in time",
-                            "1-2 deals impacted - Minor financial impact",
-                            "3-5 deals lost or concessions - Significant financial impact",
-                            "5+ deals affected - Major ongoing problem",
-                            "We don't track this data - No formal tracking system"
-                        ]
-                    }
-                ]
-            },
-            agentTraining: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "training_frequency",
-                        label: "How often do you conduct mandatory agent training on forms/contracts?",
-                        type: "checkbox",
-                        required: true,
-                        options: [
-                            "Monthly - ongoing education, regular reinforcement",
-                            "Quarterly - seasonal updates. Around four times per year",
-                            "Twice per year - Semi-annual training",
-                            "Annually - once per year. Meets minimum requirement",
-                            "Only during initial onboarding - No ongoing training",
-                            "Honestly, we're behind. Struggle to keep up with it"
-                        ]
-                    }
-                ]
-            },
-            agentSupport: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "agent_question_handling",
-                        label: "When agents have questions about contracts or transactions, they:",
+                        id: "after_hours_communication",
+                        label: "When clients have questions about the transaction at 8pm or on weekends, how do they get answers?",
                         type: "cards",
                         required: true,
                         options: [
                             {
-                                value: "Check our knowledge system - Instant self-service answers",
-                                icon: "database",
-                                label: "Check our knowledge system",
-                                description: "Instant self-service answers"
+                                value: "They have 24/7 access to transaction information through technology I provide",
+                                icon: "computer",
+                                label: "24/7 Tech Access",
+                                description: "Through technology I provide"
                             },
                             {
-                                value: "Search internal docs/wiki - Company resources available",
-                                icon: "book",
-                                label: "Search internal docs/wiki",
-                                description: "Company resources available"
-                            },
-                            {
-                                value: "Email or Slack the Broker/TC - Wait for response",
-                                icon: "mail",
-                                label: "Email or Slack the Broker/TC",
-                                description: "Wait for response"
-                            },
-                            {
-                                value: "Call/text broker or TC - Interrupt for immediate answer",
+                                value: "They text or call me, and I respond when I'm available",
                                 icon: "phone",
-                                label: "Call/text broker or TC",
-                                description: "Interrupt for immediate answer"
+                                label: "Text/Call When Available",
+                                description: "I respond when I can"
                             },
                             {
-                                value: "Ask other agents - Hope someone knows",
-                                icon: "chat",
-                                label: "Ask other agents",
-                                description: "Hope someone knows"
+                                value: "They wait until the next business day to contact me",
+                                icon: "clock",
+                                label: "Next Business Day",
+                                description: "Wait until I'm available"
                             },
                             {
-                                value: "Google it or wing it - Figure it out themselves",
-                                icon: "lightbulb",
-                                label: "Google it or wing it",
+                                value: "They usually figure it out or ask friends/family",
+                                icon: "users",
+                                label: "Self-Serve",
                                 description: "Figure it out themselves"
                             }
                         ]
                     }
                 ]
             },
-            legalQuestions: {
-                title: "Transactional Risk Assessment",
+            question4: {
+                title: "Agent Performance Assessment",
                 questions: [
                     {
-                        id: "legal_question_handling",
-                        label: "How do agents get answers about contract law and state regulations?",
+                        id: "cross_document_analysis",
+                        label: "How do you identify conflicts between the purchase agreement, HOA documents, inspection reports, and title work?",
                         type: "cards",
                         required: true,
                         options: [
                             {
-                                value: "Contact our real estate attorney- Proper legal counsel for guidance",
-                                icon: "scale",
-                                label: "Contact our real estate attorney",
-                                description: "Proper legal counsel for guidance"
+                                value: "I use technology that automatically flags conflicts and inconsistencies across documents",
+                                icon: "alert-high",
+                                label: "Automated Technology",
+                                description: "Flags conflicts automatically"
                             },
                             {
-                                value: "Ask designated broker - Broker provides legal guidance",
-                                icon: "shield",
-                                label: "Ask designated broker",
-                                description: "Broker provides legal guidance"
+                                value: "I read everything carefully and take detailed notes to cross-reference",
+                                icon: "document-search",
+                                label: "Manual Cross-Reference",
+                                description: "Detailed notes"
                             },
                             {
-                                value: "Reference our legal resources - Company/MLS-approved materials",
-                                icon: "book",
-                                label: "Reference our legal resources",
-                                description: "Company/MLS-approved materials"
-                            },
-                            {
-                                value: "Call title company or escrow - Rely on transaction partners",
-                                icon: "phone",
-                                label: "Call title company or escrow",
-                                description: "Rely on transaction partners"
-                            },
-                            {
-                                value: "Google or online research - Search for answers themselves",
-                                icon: "search",
-                                label: "Google or online research",
-                                description: "Search for answers themselves"
-                            },
-                            {
-                                value: "Make their best judgment - Decide based on experience",
-                                icon: "lightbulb",
-                                label: "Make their best judgment",
-                                description: "Decide based on experience"
-                            }
-                        ]
-                    }
-                ]
-            },
-            clientCommunication: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "client_timeline_communication",
-                        label: "How do clients receive information about transaction timelines and responsibilities?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            {
-                                value: "Automated client portal - Real-time timeline with updates",
-                                icon: "computer",
-                                label: "Automated client portal",
-                                description: "Real-time timeline with updates"
-                            },
-                            {
-                                value: "Custom timeline document - Personalized for their transaction",
+                                value: "I focus on reading the key sections of each document type",
                                 icon: "document-text",
-                                label: "Custom timeline document",
-                                description: "Personalized for their transaction"
+                                label: "Key Sections Only",
+                                description: "Focus on important parts"
                             },
                             {
-                                value: "Generic checklist/guide - Standard document for all clients",
-                                icon: "clipboard",
-                                label: "Generic checklist/guide",
-                                description: "Standard document for all clients"
-                            },
-                            {
-                                value: "Agent sends periodic updates - Email/text as things progress",
-                                icon: "mail",
-                                label: "Agent sends periodic updates",
-                                description: "Email/text as things progress"
-                            },
-                            {
-                                value: "Verbal communication only - Agent explains during calls",
-                                icon: "phone",
-                                label: "Verbal communication only",
-                                description: "Agent explains during calls"
-                            },
-                            {
-                                value: "Clients figure it out - They ask when confused",
-                                icon: "question",
-                                label: "Clients figure it out",
-                                description: "They ask when confused"
+                                value: "I rely on title companies and escrow to catch major issues",
+                                icon: "shield",
+                                label: "Rely on Partners",
+                                description: "Title and escrow catch issues"
                             }
                         ]
                     }
                 ]
             },
-            clientEngagement: {
-                title: "Transactional Risk Assessment",
+            question5: {
+                title: "Agent Performance Assessment",
                 questions: [
                     {
-                        id: "client_document_reading",
-                        label: "What percentage of your clients actually read and understand all transaction documents?",
+                        id: "document_review_thoroughness",
+                        label: "What percentage of the time do you read ALL documents thoroughly in your transactions?",
                         type: "cards",
                         required: true,
                         options: [
                             {
-                                value: "Honestly, very few read it all - They rely on us to explain",
-                                icon: "exclamation",
-                                label: "Honestly, very few read it all",
-                                description: "They rely on us to explain"
-                            },
-                            {
-                                value: "Under 20% read thoroughly - Most clients just trust us",
-                                icon: "chart-low",
-                                label: "Under 20% read thoroughly",
-                                description: "Most clients just trust us"
-                            },
-                            {
-                                value: "20-50% skim at best - Many just sign",
-                                icon: "chart-mid-low",
-                                label: "20-50% skim at best",
-                                description: "Many just sign"
-                            },
-                            {
-                                value: "50-80% read most documents - Decent engagement",
-                                icon: "chart-mid-high",
-                                label: "50-80% read most documents",
-                                description: "Decent engagement"
-                            },
-                            {
-                                value: "80%+ read everything - Highly engaged clients",
-                                icon: "chart-high",
-                                label: "80%+ read everything",
-                                description: "Highly engaged clients"
-                            },
-                            {
-                                value: "We don't really know - Never tracked this",
-                                icon: "question",
-                                label: "We don't really know",
-                                description: "Never tracked this"
-                            }
-                        ]
-                    }
-                ]
-            },
-            clientQuestions: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "client_question_handling",
-                        label: "How can clients get questions answered about their transaction documents?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            {
-                                value: "24/7 AI chatbot - Instant answers anytime, all interactions logged",
-                                icon: "robot",
-                                label: "24/7 AI chatbot",
-                                description: "Instant answers anytime, all interactions logged"
-                            },
-                            {
-                                value: "Email agent, wait for reply - Usually within 24 hours",
-                                icon: "mail",
-                                label: "Email agent, wait for reply",
-                                description: "Usually within 24 hours"
-                            },
-                            {
-                                value: "Call/text agent during business hours - Agent availability limited",
-                                icon: "phone",
-                                label: "Call/text agent during business hours",
-                                description: "Agent availability limited"
-                            },
-                            {
-                                value: "Ask at scheduled check-ins - Weekly or milestone meetings",
-                                icon: "calendar",
-                                label: "Ask at scheduled check-ins",
-                                description: "Weekly or milestone meetings"
-                            },
-                            {
-                                value: "Refer to documents/FAQs - Clients search on their own",
-                                icon: "book",
-                                label: "Refer to documents/FAQs",
-                                description: "Clients search on their own"
-                            },
-                            {
-                                value: "Hope they ask if confused - No formal system for questions",
-                                icon: "question",
-                                label: "Hope they ask if confused",
-                                description: "No formal system for questions"
-                            }
-                        ]
-                    }
-                ]
-            },
-            liabilityAssessment: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "client_understanding_liability",
-                        label: "What's your liability if a client claims they didn't understand a document?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            {
-                                value: "High exposure - We're liable if they claim inadequate disclosure",
-                                icon: "alert-high",
-                                label: "High exposure",
-                                description: "We're liable if they claim inadequate disclosure"
-                            },
-                            {
-                                value: "Significant exposure - Hard to prove adequate explanation/education",
-                                icon: "alert-medium",
-                                label: "Significant exposure",
-                                description: "Hard to prove adequate explanation/education"
-                            },
-                            {
-                                value: "Situational - Depends if we can prove we made ourselves available",
-                                icon: "scale",
-                                label: "Situational",
-                                description: "Depends if we can prove we made ourselves available"
-                            },
-                            {
-                                value: "Partially protected - We document delivery and verbal explanations",
-                                icon: "shield-check",
-                                label: "Partially protected",
-                                description: "We document delivery and verbal explanations"
-                            },
-                            {
-                                value: "Well-protected - We document education access with logged Q&A interactions",
-                                icon: "shield-lock",
-                                label: "Well-protected",
-                                description: "We document education access with logged Q&A interactions"
-                            },
-                            {
-                                value: "Honestly uncertain - Never really assessed our liability in this area",
-                                icon: "question",
-                                label: "Honestly uncertain",
-                                description: "Never really assessed our liability in this area"
-                            }
-                        ]
-                    }
-                ]
-            },
-            claimsHistory: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "eo_claims_history",
-                        label: "In the past 3 years, have you had E&O claims or close calls related to transaction issues?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            {
-                                value: "No claims, no close calls - Clean record",
+                                value: "100% - I read every page of every document in every transaction",
                                 icon: "check-circle",
-                                label: "No claims, no close calls",
-                                description: "Clean record"
+                                label: "100% Thorough",
+                                description: "Every page, every time"
                             },
                             {
-                                value: "Close calls, but avoided claims - Caught issues just in time",
-                                icon: "alert-warning",
-                                label: "Close calls, but avoided claims",
-                                description: "Caught issues just in time"
+                                value: "75-99% - I read most documents thoroughly with rare exceptions",
+                                icon: "chart-high",
+                                label: "75-99% Coverage",
+                                description: "Rare exceptions"
                             },
                             {
-                                value: "One claim or serious incident - Learned expensive lessons",
-                                icon: "alert-medium",
-                                label: "One claim or serious incident",
-                                description: "Learned expensive lessons"
+                                value: "50-74% - I read critical sections and skim the rest",
+                                icon: "chart-mid-high",
+                                label: "50-74% Coverage",
+                                description: "Critical sections only"
                             },
                             {
-                                value: "Multiple claims or incidents - Ongoing concern",
-                                icon: "alert-high",
-                                label: "Multiple claims or incidents",
-                                description: "Ongoing concern"
-                            },
-                            {
-                                value: "Not sure of our claim history - Would need to check records",
-                                icon: "question",
-                                label: "Not sure of our claim history",
-                                description: "Would need to check records"
-                            },
-                            {
-                                value: "Prefer not to disclose",
-                                icon: "eye-off",
-                                label: "Prefer not to disclose",
-                                description: ""
+                                value: "Under 50% - I focus on key points and action items",
+                                icon: "chart-low",
+                                label: "Under 50%",
+                                description: "Key points only"
                             }
                         ]
                     }
                 ]
             },
-            agentCount: {
-                title: "Transactional Risk Assessment",
+            question6: {
+                title: "Agent Performance Assessment",
                 questions: [
                     {
-                        id: "agent_count",
-                        label: "Number of Agents",
-                        type: "select",
-                        options: ["25 or less", "26-50", "51-100", "100+"],
+                        id: "broker_oversight",
+                        label: "Does your broker or TC review every document in your transactions for compliance issues and potential errors before you proceed?",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "Yes, every document gets reviewed for errors and compliance",
+                                icon: "shield-check",
+                                label: "Full Review",
+                                description: "Every document checked"
+                            },
+                            {
+                                value: "Only on complex transactions or deals above a certain value",
+                                icon: "scale",
+                                label: "Selective Review",
+                                description: "Complex/high-value only"
+                            },
+                            {
+                                value: "Occasionally or on a random sampling basis",
+                                icon: "question",
+                                label: "Random Sampling",
+                                description: "Occasional review"
+                            },
+                            {
+                                value: "No, I'm responsible for reviewing my own transactions",
+                                icon: "user",
+                                label: "Self-Reviewed",
+                                description: "I handle my own"
+                            }
+                        ]
+                    }
+                ]
+            },
+            question7: {
+                title: "Agent Performance Assessment",
+                questions: [
+                    {
+                        id: "issue_communication",
+                        label: "How do you relay concerns from HOA restrictions, title issues, or inspection findings to your clients?",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "I proactively identify and explain potential issues in clear terms before they become problems",
+                                icon: "alert-warning",
+                                label: "Proactive Communication",
+                                description: "Before issues become problems"
+                            },
+                            {
+                                value: "I communicate issues when they're officially brought to my attention by other parties",
+                                icon: "mail",
+                                label: "Reactive Communication",
+                                description: "When officially notified"
+                            },
+                            {
+                                value: "I mention them if they seem significant enough to affect the transaction",
+                                icon: "chat",
+                                label: "Selective Communication",
+                                description: "If significant"
+                            },
+                            {
+                                value: "I handle most issues behind the scenes to avoid worrying clients unnecessarily",
+                                icon: "eye-off",
+                                label: "Behind the Scenes",
+                                description: "Avoid worrying clients"
+                            }
+                        ]
+                    }
+                ]
+            },
+            question8: {
+                title: "Agent Performance Assessment",
+                questions: [
+                    {
+                        id: "technology_advantage",
+                        label: "What technology do you use that your competitors don't to keep clients informed and confident throughout the transaction?",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "AI-powered transaction intelligence that provides 24/7 client access and proactive alerts",
+                                icon: "robot",
+                                label: "AI Transaction Intelligence",
+                                description: "24/7 access & proactive alerts"
+                            },
+                            {
+                                value: "A robust CRM system with automated email updates and reminders",
+                                icon: "database",
+                                label: "CRM System",
+                                description: "Automated updates"
+                            },
+                            {
+                                value: "Standard MLS and transaction management software that most agents use",
+                                icon: "computer",
+                                label: "Standard Software",
+                                description: "MLS & transaction mgmt"
+                            },
+                            {
+                                value: "I differentiate through personal service and responsiveness, not technology",
+                                icon: "user",
+                                label: "Personal Service",
+                                description: "Not technology-focused"
+                            }
+                        ]
+                    }
+                ]
+            },
+            question9: {
+                title: "Agent Performance Assessment",
+                questions: [
+                    {
+                        id: "client_retention",
+                        label: "What percentage of your business comes from repeat clients and their referrals?",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "75-100% - Most of my business is repeat and referral based",
+                                icon: "chart-high",
+                                label: "75-100%",
+                                description: "Repeat & referral based"
+                            },
+                            {
+                                value: "50-74% - About half of my business comes from past clients",
+                                icon: "chart-mid-high",
+                                label: "50-74%",
+                                description: "About half from past clients"
+                            },
+                            {
+                                value: "25-49% - I get some repeat business but mostly work with new clients",
+                                icon: "chart-mid-low",
+                                label: "25-49%",
+                                description: "Some repeat business"
+                            },
+                            {
+                                value: "Under 25% - I'm primarily working with first-time clients",
+                                icon: "chart-low",
+                                label: "Under 25%",
+                                description: "Mostly new clients"
+                            }
+                        ]
+                    }
+                ]
+            },
+            question10: {
+                title: "Agent Performance Assessment",
+                questions: [
+                    {
+                        id: "transaction_failures",
+                        label: "Have you ever experienced any of the following? (Select the closest answer)",
+                        type: "cards",
+                        required: true,
+                        options: [
+                            {
+                                value: "No - I've never had a deal fall through due to missed deadlines or had an E&O claim",
+                                icon: "check-circle",
+                                label: "No Issues",
+                                description: "Clean track record"
+                            },
+                            {
+                                value: "I've had deals delayed or stressed due to timeline confusion, but nothing catastrophic",
+                                icon: "clock-alert",
+                                label: "Minor Delays",
+                                description: "Timeline confusion"
+                            },
+                            {
+                                value: "I've lost at least one deal due to missed contingency deadlines or contract issues",
+                                icon: "alert-medium",
+                                label: "Lost Deals",
+                                description: "Due to missed deadlines"
+                            },
+                            {
+                                value: "I've had an E&O claim or near-miss related to documentation or deadline errors",
+                                icon: "alert-high",
+                                label: "E&O Claim/Near-Miss",
+                                description: "Documentation/deadline errors"
+                            }
+                        ]
+                    }
+                ]
+            },
+            locationInfo: {
+                title: "Where are you located?",
+                questions: [
+                    {
+                        id: "city",
+                        label: "What city is your primary market of operation?",
+                        type: "text",
+                        required: true
+                    },
+                    {
+                        id: "state",
+                        label: "What state?",
+                        type: "text",
                         required: true
                     }
                 ]
             },
             monthlyTransactions: {
-                title: "Transactional Risk Assessment",
+                title: "Transaction Volume",
                 questions: [
                     {
                         id: "monthly_deals",
-                        label: "Number of Transactions Per Month",
-                        type: "select",
-                        options: ["25 or less", "26-50", "51-100", "100+"],
-                        required: true
-                    }
-                ]
-            },
-            primaryMarket: {
-                title: "Transactional Risk Assessment",
-                questions: [
-                    {
-                        id: "location",
-                        label: "Primary Market/City",
+                        label: "How many transactions do you close per month on average?",
                         type: "text",
                         required: true
                     }
@@ -743,49 +566,144 @@
 
         // Scoring calculation function
         const calculateScores = (responses) => {
-            let scores = {
-                transactionOversight: 0,
-                operationalSystems: 0,
-                knowledgeManagement: 0,
-                clientExperience: 0,
-                riskManagement: 0,
-                growthReadiness: 0,
-                overall: 0
+            // Scoring mapping for each question (10 points per question, total 100 points)
+            const scoringMap = {
+                deadline_tracking: {
+                    "I have an automated system that calculates both types and sends alerts": 10,
+                    "I manually track on a spreadsheet/calendar with notes about which is which": 7,
+                    "I count them out as each deadline approaches": 4,
+                    "I rely on my TC or escrow officer to remind me of upcoming deadlines": 2
+                },
+                client_timeline: {
+                    "Yes, I provide a comprehensive written timeline document with all milestones explained": 10,
+                    "I verbally walk them through the process but don't provide a written timeline": 6,
+                    "I send updates as we hit each milestone during the transaction": 5,
+                    "Clients reach out to me when they need updates on what's happening": 2
+                },
+                after_hours_communication: {
+                    "They have 24/7 access to transaction information through technology I provide": 10,
+                    "They text or call me, and I respond when I'm available": 7,
+                    "They wait until the next business day to contact me": 4,
+                    "They usually figure it out or ask friends/family": 1
+                },
+                cross_document_analysis: {
+                    "I use technology that automatically flags conflicts and inconsistencies across documents": 10,
+                    "I read everything carefully and take detailed notes to cross-reference": 8,
+                    "I focus on reading the key sections of each document type": 5,
+                    "I rely on title companies and escrow to catch major issues": 2
+                },
+                document_review_thoroughness: {
+                    "100% - I read every page of every document in every transaction": 10,
+                    "75-99% - I read most documents thoroughly with rare exceptions": 8,
+                    "50-74% - I read critical sections and skim the rest": 5,
+                    "Under 50% - I focus on key points and action items": 2
+                },
+                broker_oversight: {
+                    "Yes, every document gets reviewed for errors and compliance": 10,
+                    "Only on complex transactions or deals above a certain value": 6,
+                    "Occasionally or on a random sampling basis": 3,
+                    "No, I'm responsible for reviewing my own transactions": 1
+                },
+                issue_communication: {
+                    "I proactively identify and explain potential issues in clear terms before they become problems": 10,
+                    "I communicate issues when they're officially brought to my attention by other parties": 6,
+                    "I mention them if they seem significant enough to affect the transaction": 4,
+                    "I handle most issues behind the scenes to avoid worrying clients unnecessarily": 2
+                },
+                technology_advantage: {
+                    "AI-powered transaction intelligence that provides 24/7 client access and proactive alerts": 10,
+                    "A robust CRM system with automated email updates and reminders": 7,
+                    "Standard MLS and transaction management software that most agents use": 4,
+                    "I differentiate through personal service and responsiveness, not technology": 3
+                },
+                client_retention: {
+                    "75-100% - Most of my business is repeat and referral based": 10,
+                    "50-74% - About half of my business comes from past clients": 7,
+                    "25-49% - I get some repeat business but mostly work with new clients": 4,
+                    "Under 25% - I'm primarily working with first-time clients": 2
+                },
+                transaction_failures: {
+                    "No - I've never had a deal fall through due to missed deadlines or had an E&O claim": 10,
+                    "I've had deals delayed or stressed due to timeline confusion, but nothing catastrophic": 6,
+                    "I've lost at least one deal due to missed contingency deadlines or contract issues": 3,
+                    "I've had an E&O claim or near-miss related to documentation or deadline errors": 0
+                }
             };
 
-            // Calculate category scores
-            Object.entries(assessmentQuestions).forEach(([category, data]) => {
-                if (category !== 'companyInfo') {
-                    let categoryScore = 0;
-                    data.questions.forEach(question => {
-                        if (question.scoring && responses[question.id]) {
-                            categoryScore += question.scoring[responses[question.id]] || 0;
-                        }
-                    });
-                    scores[category] = categoryScore;
+            // Calculate total score
+            let totalScore = 0;
+            let answeredQuestions = 0;
+
+            Object.keys(scoringMap).forEach(questionId => {
+                if (responses[questionId]) {
+                    const score = scoringMap[questionId][responses[questionId]] || 0;
+                    totalScore += score;
+                    answeredQuestions++;
                 }
             });
 
-            // Calculate overall score (out of 100)
-            const coreTotal = scores.transactionOversight + scores.operationalSystems +
-                             scores.knowledgeManagement + scores.clientExperience +
-                             scores.riskManagement;
+            // Calculate overall percentage score
+            const maxPossibleScore = 100; // 10 questions × 10 points each
+            const overall = Math.round((totalScore / maxPossibleScore) * 100);
 
-            scores.overall = Math.round((coreTotal / 467) * 100);
+            // Determine performance level
+            let performanceLevel;
+            let performanceDescription;
+            if (overall >= 85) {
+                performanceLevel = "ELITE AGENT";
+                performanceDescription = "Top 10% - You're operating at an elite level";
+            } else if (overall >= 70) {
+                performanceLevel = "HIGH PERFORMER";
+                performanceDescription = "Top 25% - Above average with room for optimization";
+            } else if (overall >= 50) {
+                performanceLevel = "MODERATE RISK";
+                performanceDescription = "Average - Significant gaps need attention";
+            } else {
+                performanceLevel = "HIGH RISK";
+                performanceDescription = "Below Average - Critical improvements needed";
+            }
 
-            // Determine risk level
-            if (scores.overall >= 85) scores.riskLevel = "LOW";
-            else if (scores.overall >= 70) scores.riskLevel = "MODERATE";
-            else if (scores.overall >= 50) scores.riskLevel = "HIGH";
-            else scores.riskLevel = "CRITICAL";
+            // Calculate category scores for visualization
+            const categories = {
+                deadlineManagement: Math.round(((
+                    (scoringMap.deadline_tracking[responses.deadline_tracking] || 0) +
+                    (scoringMap.client_timeline[responses.client_timeline] || 0)
+                ) / 20) * 100),
 
-            // Determine percentile
-            if (scores.overall >= 85) scores.percentile = "Top 5%";
-            else if (scores.overall >= 70) scores.percentile = "Top 25%";
-            else if (scores.overall >= 50) scores.percentile = "Top 50%";
-            else scores.percentile = "Bottom 50%";
+                clientCommunication: Math.round(((
+                    (scoringMap.after_hours_communication[responses.after_hours_communication] || 0) +
+                    (scoringMap.issue_communication[responses.issue_communication] || 0) +
+                    (scoringMap.client_retention[responses.client_retention] || 0)
+                ) / 30) * 100),
 
-            return scores;
+                documentReview: Math.round(((
+                    (scoringMap.cross_document_analysis[responses.cross_document_analysis] || 0) +
+                    (scoringMap.document_review_thoroughness[responses.document_review_thoroughness] || 0) +
+                    (scoringMap.broker_oversight[responses.broker_oversight] || 0)
+                ) / 30) * 100),
+
+                technologyAdoption: Math.round(((
+                    (scoringMap.technology_advantage[responses.technology_advantage] || 0) +
+                    (scoringMap.after_hours_communication[responses.after_hours_communication] || 0)
+                ) / 20) * 100),
+
+                riskManagement: Math.round(((
+                    (scoringMap.transaction_failures[responses.transaction_failures] || 0) +
+                    (scoringMap.broker_oversight[responses.broker_oversight] || 0)
+                ) / 20) * 100)
+            };
+
+            return {
+                overall,
+                totalScore,
+                maxPossibleScore,
+                performanceLevel,
+                performanceDescription,
+                categories,
+                // For backward compatibility
+                riskLevel: performanceLevel,
+                percentile: performanceDescription
+            };
         };
 
         // New Landing Page Component (based on Figma design)
@@ -1050,7 +968,7 @@
 
                             {/* Subheadline */}
                             <p className="text-xl text-gray-600 text-center mb-12 font-manrope">
-                                This assessment takes about <strong>2 minutes</strong> (17 quick questions).
+                                This assessment takes about <strong>90 seconds</strong> (10 quick questions).
                             </p>
 
                             {/* Value Bullet Points */}
@@ -1290,7 +1208,7 @@
                             {/* Question - HERO */}
                             <div className="text-center mb-12">
                                 <h1 className="text-4xl md:text-5xl lg:text-6xl text-gray-800 font-bebas text-center mb-4 uppercase tracking-wide leading-tight">
-                                    {currentQuestions.questions[0].label}
+                                    {currentQuestions.questions.length > 1 ? currentQuestions.title : currentQuestions.questions[0].label}
                                 </h1>
                                 {currentQuestions.questions[0].subtext && (
                                     <p className="text-sm md:text-base text-gray-500 mt-4 font-manrope italic">
@@ -1301,20 +1219,33 @@
 
                             {/* Answer Area */}
                             <div className="max-w-3xl mx-auto mb-12">
-                                {/* Text Input */}
+                                {/* Text Input - Single or Multiple */}
                                 {currentQuestions.questions[0].type === 'text' && (
-                                    <input
-                                        type="text"
-                                        className="w-full px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fern focus:border-fern font-manrope text-lg text-gray-800 text-center"
-                                        placeholder={
-                                            currentQuestions.questions[0].id === 'company_name' ? 'Enter your brokerage name...' :
-                                            currentQuestions.questions[0].id === 'location' ? 'Enter your market of operation...' :
-                                            'Enter your answer...'
-                                        }
-                                        value={responses[currentQuestions.questions[0].id] || ''}
-                                        onChange={(e) => handleInputChange(currentQuestions.questions[0].id, e.target.value)}
-                                        required={currentQuestions.questions[0].required}
-                                    />
+                                    <div className="space-y-6">
+                                        {currentQuestions.questions.map((question, idx) => (
+                                            <div key={question.id}>
+                                                {currentQuestions.questions.length > 1 && (
+                                                    <label className="block text-lg font-manrope font-semibold text-gray-700 mb-2 text-center">
+                                                        {question.label}
+                                                    </label>
+                                                )}
+                                                <input
+                                                    type="text"
+                                                    className="w-full px-6 py-4 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-fern focus:border-fern font-manrope text-lg text-gray-800 text-center"
+                                                    placeholder={
+                                                        question.id === 'company_name' ? 'Enter your name...' :
+                                                        question.id === 'city' ? 'Enter city...' :
+                                                        question.id === 'state' ? 'Enter state...' :
+                                                        question.id === 'monthly_deals' ? 'e.g., 2-3 per month' :
+                                                        'Enter your answer...'
+                                                    }
+                                                    value={responses[question.id] || ''}
+                                                    onChange={(e) => handleInputChange(question.id, e.target.value)}
+                                                    required={question.required}
+                                                />
+                                            </div>
+                                        ))}
+                                    </div>
                                 )}
 
                                 {/* Card Grid */}
@@ -1643,17 +1574,16 @@
                     const assessmentData = {
                         companyInfo: {
                             company_name: responses.company_name,
-                            agent_count: responses.agent_count,
                             monthly_deals: responses.monthly_deals,
-                            location: responses.location
+                            location: `${responses.city || ''}, ${responses.state || ''}`.trim()
                         },
                         responses,
                         scores,
                         timestamp: new Date().toISOString()
                     };
 
-                    console.log('[EMAIL SUBMIT] Calling /api/assessment-submit...');
-                    const submitResponse = await fetch('/api/assessment-submit', {
+                    console.log('[EMAIL SUBMIT] Calling /api/agents-assessment-submit...');
+                    const submitResponse = await fetch('/api/agents-assessment-submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(assessmentData)
@@ -1674,16 +1604,15 @@
                         assessmentId,
                         reportData: {
                             companyName: responses.company_name,
-                            brokerageSize: responses.agent_count,
-                            city: responses.location,
+                            city: `${responses.city || ''}, ${responses.state || ''}`.trim(),
                             overallScore: scores.overall,
                             riskLevel: scores.riskLevel,
                             monthlyTransactions: responses.monthly_deals
                         }
                     };
 
-                    console.log('[EMAIL SUBMIT] Calling /api/email-capture...');
-                    const emailResponse = await fetch('/api/email-capture', {
+                    console.log('[EMAIL SUBMIT] Calling /api/agents-email-capture...');
+                    const emailResponse = await fetch('/api/agents-email-capture', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(emailData)
@@ -1696,7 +1625,7 @@
                     }
 
                     window.assessmentId = assessmentId;
-                    window.reportUrl = `${window.location.origin}/report.html?id=${assessmentId}`;
+                    window.reportUrl = `${window.location.origin}/agents-report.html?id=${assessmentId}`;
 
                     console.log('[EMAIL SUBMIT] Success! Redirecting to:', window.reportUrl);
 
@@ -1705,7 +1634,7 @@
 
                 } catch (error) {
                     console.error('[EMAIL SUBMIT] Error submitting assessment:', error);
-                    alert('There was an error saving your assessment. Please try again.');
+                    // Error handling - user will see that report doesn't load
                 }
             };
 
@@ -1907,15 +1836,14 @@
                     // Extract company info and filter out from responses
                     const companyInfo = {
                         company_name: assessmentResponses.company_name,
-                        agent_count: assessmentResponses.agent_count,
                         monthly_deals: assessmentResponses.monthly_deals,
-                        location: assessmentResponses.location
+                        location: `${assessmentResponses.city || ''}, ${assessmentResponses.state || ''}`.trim()
                     };
 
                     // Filter responses to only include question answers (not company info)
                     const questionResponses = {};
                     Object.keys(assessmentResponses).forEach(key => {
-                        if (!['company_name', 'agent_count', 'monthly_deals', 'location'].includes(key)) {
+                        if (!['company_name', 'monthly_deals', 'city', 'state'].includes(key)) {
                             questionResponses[key] = assessmentResponses[key];
                         }
                     });
@@ -1927,11 +1855,11 @@
                         timestamp: new Date().toISOString()
                     };
 
-                    console.log('[ASSESSMENT COMPLETE] Submitting to /api/assessment-submit...');
+                    console.log('[ASSESSMENT COMPLETE] Submitting to /api/agents-assessment-submit...');
                     console.log('[ASSESSMENT COMPLETE] Assessment data:', assessmentData);
 
                     // Save assessment to database
-                    const submitResponse = await fetch('/api/assessment-submit', {
+                    const submitResponse = await fetch('/api/agents-assessment-submit', {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(assessmentData)
@@ -1948,7 +1876,7 @@
 
                     // Get the shareable token from the response
                     const shareableToken = submitResult.shareableToken;
-                    const reportUrl = `${window.location.origin}/report.html?id=${shareableToken}`;
+                    const reportUrl = `${window.location.origin}/agents-report.html?id=${shareableToken}`;
 
                     console.log('[ASSESSMENT COMPLETE] Redirecting to:', reportUrl);
 
@@ -1957,7 +1885,7 @@
 
                 } catch (error) {
                     console.error('[ASSESSMENT COMPLETE] Error saving assessment:', error);
-                    alert('There was an error saving your assessment. Please try again.');
+                    // Error handling - fallback to embedded report
 
                     // Fallback: show embedded report if API fails
                     setResponses(assessmentResponses);
