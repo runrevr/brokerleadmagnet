@@ -9,9 +9,10 @@ const supabase = createClient(
 /**
  * Save a complete assessment to the database
  * @param {Object} data - Assessment data from frontend
+ * @param {string} assessmentType - Type of assessment ('brokerage' or 'agent')
  * @returns {Promise<string>} - Assessment ID (UUID)
  */
-async function saveAssessment(data) {
+async function saveAssessment(data, assessmentType = 'brokerage') {
   try {
     // Insert main assessment record
     const { data: assessment, error: assessmentError } = await supabase
@@ -23,7 +24,8 @@ async function saveAssessment(data) {
         primary_market: data.primaryMarket,
         overall_score: data.overallScore,
         risk_level: data.riskLevel,
-        percentile: data.percentile
+        percentile: data.percentile,
+        assessment_type: assessmentType
       }])
       .select()
       .single();
@@ -155,18 +157,28 @@ async function updateAssessmentEmail(id, email) {
 
 /**
  * Get assessment statistics (for admin dashboard)
+ * @param {string} assessmentType - Type of assessment to filter by (optional)
  * @returns {Promise<Object>} - Statistics object
  */
-async function getAssessmentStats() {
+async function getAssessmentStats(assessmentType = null) {
   try {
-    const { count: totalAssessments } = await supabase
+    let totalQuery = supabase
       .from('assessments')
       .select('*', { count: 'exact', head: true });
 
-    const { count: completedAssessments } = await supabase
+    let completedQuery = supabase
       .from('assessments')
       .select('*', { count: 'exact', head: true })
       .not('email', 'is', null);
+
+    // Apply type filter if specified
+    if (assessmentType) {
+      totalQuery = totalQuery.eq('assessment_type', assessmentType);
+      completedQuery = completedQuery.eq('assessment_type', assessmentType);
+    }
+
+    const { count: totalAssessments } = await totalQuery;
+    const { count: completedAssessments } = await completedQuery;
 
     const { data: avgScore } = await supabase
       .rpc('avg_overall_score');
@@ -179,7 +191,8 @@ async function getAssessmentStats() {
       totalAssessments,
       completedAssessments,
       conversionRate,
-      averageScore: avgScore || 0
+      averageScore: avgScore || 0,
+      assessmentType: assessmentType || 'all'
     };
 
   } catch (error) {

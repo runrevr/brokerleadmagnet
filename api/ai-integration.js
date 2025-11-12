@@ -145,12 +145,15 @@ async function callClaudeAPI(prompt, maxTokens = 4000) {
 
 /**
  * Generate Executive Summary (Tier 1 - Free Preview)
+ * @param {Object} assessmentData - Assessment data
+ * @param {string|null} customPrompt - Optional custom prompt (for agent-specific prompts)
  */
-async function generateExecutiveSummary(assessmentData) {
+async function generateExecutiveSummary(assessmentData, customPrompt = null) {
   const { companyName, primaryMarket } = assessmentData;
 
-  // Check cache first
-  const cacheKey = generateCacheKey(assessmentData, 'executive_summary');
+  // Check cache first (use different cache key if custom prompt provided)
+  const cacheType = customPrompt ? 'custom_executive_summary' : 'executive_summary';
+  const cacheKey = generateCacheKey(assessmentData, cacheType);
   const cached = getFromCache(cacheKey);
 
   if (cached) {
@@ -164,8 +167,8 @@ async function generateExecutiveSummary(assessmentData) {
     primaryMarket: '[MARKET]'
   };
 
-  // Generate prompt
-  const prompt = generateExecutiveSummaryPrompt(cacheableData);
+  // Generate prompt (use custom prompt if provided, otherwise use default)
+  const prompt = customPrompt || generateExecutiveSummaryPrompt(cacheableData);
 
   // Call Claude API
   const summary = await callClaudeAPI(prompt, 1000);
@@ -179,12 +182,15 @@ async function generateExecutiveSummary(assessmentData) {
 
 /**
  * Generate Full Analysis (Tier 2 - Email-Gated)
+ * @param {Object} assessmentData - Assessment data
+ * @param {string|null} customPrompt - Optional custom prompt (for agent-specific prompts)
  */
-async function generateFullAnalysis(assessmentData) {
+async function generateFullAnalysis(assessmentData, customPrompt = null) {
   const { companyName, primaryMarket } = assessmentData;
 
-  // Check cache first
-  const cacheKey = generateCacheKey(assessmentData, 'full_analysis');
+  // Check cache first (use different cache key if custom prompt provided)
+  const cacheType = customPrompt ? 'custom_full_analysis' : 'full_analysis';
+  const cacheKey = generateCacheKey(assessmentData, cacheType);
   const cached = getFromCache(cacheKey);
 
   if (cached) {
@@ -199,8 +205,8 @@ async function generateFullAnalysis(assessmentData) {
     primaryMarket: '[MARKET]'
   };
 
-  // Generate prompt
-  const prompt = generateFullAnalysisPrompt(cacheableData);
+  // Generate prompt (use custom prompt if provided, otherwise use default)
+  const prompt = customPrompt || generateFullAnalysisPrompt(cacheableData);
 
   // Call Claude API (needs LOTS of tokens for comprehensive analysis - responses can be 30K+ chars)
   const analysisText = await callClaudeAPI(prompt, 16000);
