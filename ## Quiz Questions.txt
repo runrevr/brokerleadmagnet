@@ -1,0 +1,192 @@
+Transaction Failure Risk Assessment
+Revised Question Set - "Transaction Failure Risk Assessment"
+
+New Philosophy: Every question should either:
+- Quantify actual losses happening RIGHT NOW
+- Expose a blind spot they didn't know they had
+- Make them realize "oh shit, we can't actually do that"
+
+================================================================================
+Section 1: Company Profile (Non-Scoring)
+================================================================================
+
+- Brokerage Name (text)
+- Number of Agents (1-10, 11-25, 26-50, 51-100, 100+)
+- Average Monthly Transactions (1-10, 11-20, 21-50, 51-100, 101-200, 200+)
+- Primary Market/City (text)
+- What transaction management system do you use? (SkySlope, LoneWolf, Dotloop, Other, None)
+
+This helps tailor the follow-up pitch.
+
+================================================================================
+Section 2: Deal Failure Reality (Max 45 pts)
+================================================================================
+
+Q1: In the last 12 months, how many deals fell through AFTER being under contract?
+- We don't track this (0 pts - worst answer)
+- 0 deals (5 pts - tiny brokerage or lying)
+- 1-3 deals (20 pts - honest)
+- 4-8 deals (15 pts)
+- 9-15 deals (10 pts)
+- 15+ deals (5 pts)
+
+Q2: Of those failed deals, what percentage were due to missed deadlines, inspection issues, or document problems?
+- Don't know/Can't say (0 pts - you don't track = you don't learn)
+- Less than 25% (20 pts)
+- 25-50% (15 pts - industry average is 15-20% deadline-related)
+- 50-75% (10 pts - serious problem)
+- 75-100% (5 pts - crisis)
+
+Q3: Based on your average commission per deal, what's the approximate dollar value of lost commissions from failed deals in the last 12 months?
+- Haven't calculated (0 pts - "what you don't measure, you don't manage")
+- Under $50K (25 pts)
+- $50K-$150K (20 pts)
+- $150K-$300K (15 pts)
+- $300K-$500K (10 pts)
+- Over $500K (5 pts)
+
+Scoring Insight: This section establishes baseline pain. If they score low here, the rest of the assessment shows them WHY.
+
+================================================================================
+Section 3: Deadline Visibility Gap (Max 100 pts)
+================================================================================
+
+Q4: Right now, without looking anything up, how many of your agents have inspection deadlines in the next 7 days?
+- Can tell you the exact number (35 pts - they have real-time visibility)
+- Could find out in under 5 minutes (25 pts - have a system but not automated)
+- Would need to ask TCs or agents (15 pts - no central visibility)
+- Would take 30+ minutes to compile (5 pts - flying blind)
+- Don't know and can't easily find out (0 pts - crisis level)
+
+Q5: How many deals closing THIS MONTH could be at risk due to financing delays or appraisal issues?
+- Can tell you exactly which deals and why (35 pts)
+- Could find out with some calls/research (20 pts)
+- Would need to ask each agent (10 pts)
+- No way to know until problems surface (0 pts)
+
+Q6: When an addendum changes a closing date, what happens to all the related deadlines (inspection, financing, appraisal)?
+- System automatically recalculates everything (30 pts)
+- TC manually updates all dependent dates (20 pts)
+- Agent is responsible for catching it (10 pts)
+- We hope everyone notices and adjusts (5 pts)
+- Usually gets missed until there's a problem (0 pts)
+
+Scoring Insight: This section reveals whether they have actual oversight or just think they do.
+
+================================================================================
+Section 4: Document Intelligence (Max 105 pts)
+================================================================================
+
+Q7: When a TC uploads a purchase agreement, how long until all critical dates are in your tracking system?
+- Extracted automatically in under 30 seconds (35 pts)
+- TC enters manually within same day (20 pts)
+- Agent enters when they get around to it (10 pts)
+- We don't systematically extract all dates (5 pts)
+- What tracking system? (0 pts)
+
+Q8: How do you know if an inspection deadline is too short for your market?
+- System compares to our standards and flags it (35 pts)
+- Experienced TC/broker notices during review (20 pts)
+- We realize it during inspection period when time is tight (10 pts)
+- We don't proactively check this (0 pts)
+
+Q9: When HOA documents contradict something in the purchase agreement (e.g., rental restrictions), how do you catch it?
+- AI cross-references all transaction documents automatically (35 pts)
+- TC manually reviews for conflicts (20 pts)
+- Hoping agent notices during their review (10 pts)
+- Usually only catch it if client asks or title finds it (5 pts)
+- We've had deals fall apart from this (0 pts)
+
+Scoring Insight: This shows whether they're actually analyzing documents or just storing them.
+
+================================================================================
+Section 5: Agent Knowledge & Consistency (Max 100 pts)
+================================================================================
+
+Q10: At 11 PM on a Saturday, can your agents instantly find your brokerage's policy on [dual agency disclosure / commission splits / required forms]?
+- Yes, AI assistant trained on our docs, available 24/7 (35 pts)
+- Yes, searchable knowledge base (25 pts)
+- They'd text/email someone and wait for response (15 pts)
+- They'd have to wait until Monday to ask (5 pts)
+- They'd probably just guess based on what they remember (0 pts)
+
+Q11: How many different ways do your agents handle the same situation (e.g., writing up dual agency)?
+- One consistent way - we have documented standards (30 pts)
+- Mostly consistent with minor variations (20 pts)
+- Each experienced agent has their own approach (10 pts)
+- New agents copy whoever trained them (5 pts)
+- Wide variation - "every agent does it differently" (0 pts)
+
+Q12: When you update a brokerage policy, how do you ensure compliance?
+- System requires acknowledgment, tracks who's read it, tests understanding (35 pts)
+- Email to all agents with tracking (20 pts)
+- Announce in meeting, hope they remember (10 pts)
+- Post to shared drive, assume they'll see it (5 pts)
+- Tell people informally as it comes up (0 pts)
+
+Scoring Insight: Reveals whether institutional knowledge exists or if it's all tribal knowledge.
+
+================================================================================
+Section 6: Client Experience & Liability (Max 95 pts)
+================================================================================
+
+Q13: How do your clients get answers to transaction questions at 10 PM on a Sunday?
+- AI chatbot with their specific transaction documents (35 pts)
+- Agent responds to texts/calls when available (20 pts)
+- They wait until Monday morning (10 pts)
+- They Google it and might get wrong answers (5 pts)
+- They get anxious and call multiple people (0 pts)
+
+Q14: What percentage of your clients actually understand what they're signing?
+- 90%+ thanks to AI summaries and chatbot (35 pts)
+- 75%+ through good agent explanation (25 pts)
+- 50-75% - depends on agent and client (15 pts)
+- 25-50% - most just trust their agent (8 pts)
+- Under 25% - they mostly just sign (0 pts)
+
+Q15: How often do document/paperwork issues delay your closings?
+- Never - we catch everything early (35 pts)
+- Rarely - maybe 1-2 times per year (25 pts)
+- Occasionally - 3-5 times per year (15 pts)
+- Regularly - 6-10 times per year (8 pts)
+- Frequently - happens all the time (0 pts)
+
+Scoring Insight: Shows their actual client experience and liability exposure.
+
+================================================================================
+Section 7: E&O Risk & Protection (Max 67 pts)
+================================================================================
+
+Q16: E&O claims or near-misses in the last 2 years?
+- 0 claims, 0 near-misses (34 pts)
+- 0 claims, 1-2 near-misses (25 pts)
+- 0 claims, 3+ near-misses (15 pts)
+- 1 claim (8 pts)
+- 2+ claims (0 pts)
+
+Q17: Do you know which of your current transactions have the highest liability risk?
+- Yes - system scores risk and flags issues automatically (33 pts)
+- Somewhat - experienced broker/TC flags concerning deals (20 pts)
+- Not really - we treat all deals the same (10 pts)
+- No - we only know when something goes wrong (0 pts)
+
+Scoring Insight: Final gut-punch on whether they're protected or exposed.
+
+================================================================================
+Revised Scoring Framework (Total 512 points)
+================================================================================
+
+500-512 points (88%+): Transaction Intelligence Leader
+You're operating at the highest level. You have visibility, automation, and proactive systems that prevent failures before they happen. Your risk exposure is minimal.
+
+400-499 points (71-87%): Moderate Risk with Gaps
+You have some good systems, but significant blind spots exist. You're probably losing $75-150K annually to preventable failures. Your manual processes are creating bottlenecks and risk.
+
+300-399 points (53-70%): High Risk - Flying Blind
+Major visibility gaps. You don't know what you don't know. You're likely losing $150-300K+ annually and operating reactively rather than proactively. One bad quarter could be catastrophic.
+
+200-299 points (35-52%): Critical Risk
+Your brokerage is in danger. Deal failures are common, agent inconsistency is rampant, and you have little oversight until problems explode. Immediate intervention needed.
+
+Under 200 points (<35%): Existential Threat
+You are one major E&O claim away from serious financial consequences. The lack of transaction intelligence and deadline management puts every single deal at risk.

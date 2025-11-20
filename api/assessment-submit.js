@@ -95,28 +95,40 @@ module.exports = async (req, res) => {
       riskLevel: scoreResults.riskProfile,
       categoryScores: [
         {
-          category: 'Process Efficiency',
-          score: scoreResults.categoryBreakdown.processEfficiency.score,
-          maxScore: scoreResults.categoryBreakdown.processEfficiency.max,
-          percentage: scoreResults.categoryBreakdown.processEfficiency.percentage
+          category: 'Deal Failure Reality',
+          score: scoreResults.categoryBreakdown.dealFailureReality.score,
+          maxScore: scoreResults.categoryBreakdown.dealFailureReality.max,
+          percentage: scoreResults.categoryBreakdown.dealFailureReality.percentage
         },
         {
-          category: 'Risk Management',
-          score: scoreResults.categoryBreakdown.riskManagement.score,
-          maxScore: scoreResults.categoryBreakdown.riskManagement.max,
-          percentage: scoreResults.categoryBreakdown.riskManagement.percentage
+          category: 'Deadline Visibility',
+          score: scoreResults.categoryBreakdown.deadlineVisibility.score,
+          maxScore: scoreResults.categoryBreakdown.deadlineVisibility.max,
+          percentage: scoreResults.categoryBreakdown.deadlineVisibility.percentage
         },
         {
-          category: 'Client Experience',
-          score: scoreResults.categoryBreakdown.clientExperience.score,
-          maxScore: scoreResults.categoryBreakdown.clientExperience.max,
-          percentage: scoreResults.categoryBreakdown.clientExperience.percentage
+          category: 'Document Intelligence',
+          score: scoreResults.categoryBreakdown.documentIntelligence.score,
+          maxScore: scoreResults.categoryBreakdown.documentIntelligence.max,
+          percentage: scoreResults.categoryBreakdown.documentIntelligence.percentage
         },
         {
-          category: 'Training & Knowledge',
-          score: scoreResults.categoryBreakdown.trainingKnowledge.score,
-          maxScore: scoreResults.categoryBreakdown.trainingKnowledge.max,
-          percentage: scoreResults.categoryBreakdown.trainingKnowledge.percentage
+          category: 'Agent Knowledge',
+          score: scoreResults.categoryBreakdown.agentKnowledge.score,
+          maxScore: scoreResults.categoryBreakdown.agentKnowledge.max,
+          percentage: scoreResults.categoryBreakdown.agentKnowledge.percentage
+        },
+        {
+          category: 'Client Experience & Liability',
+          score: scoreResults.categoryBreakdown.clientExperienceLiability.score,
+          maxScore: scoreResults.categoryBreakdown.clientExperienceLiability.max,
+          percentage: scoreResults.categoryBreakdown.clientExperienceLiability.percentage
+        },
+        {
+          category: 'E&O Risk',
+          score: scoreResults.categoryBreakdown.eoRiskProtection.score,
+          maxScore: scoreResults.categoryBreakdown.eoRiskProtection.max,
+          percentage: scoreResults.categoryBreakdown.eoRiskProtection.percentage
         }
       ],
       responses: scoreResults.questionResults.map(qr => ({
@@ -305,19 +317,34 @@ module.exports = async (req, res) => {
  */
 function getQuestionText(questionId) {
   const questionMap = {
-    'contract_review_process': 'Who is primarily responsible for reviewing contracts in your brokerage?',
-    'contract_review_time': 'How much time does a typical contract review take?',
-    'document_review_process': 'How do agents in your brokerage handle document review (HOA docs, title reports, etc.)?',
-    'deadline_tracking_method': 'How does your brokerage track transaction deadlines?',
-    'deadline_impact': 'Have missed deadlines ever cost your brokerage deals or money?',
-    'training_frequency': 'How often do you provide formal training to your agents?',
-    'agent_question_handling': 'When agents have questions, what do they typically do?',
-    'legal_question_handling': 'How do agents get answers about contract law and state regulations?',
-    'client_timeline_communication': 'How do you educate clients about the transaction timeline?',
-    'client_document_reading': 'What percentage of your clients actually read the transaction documents?',
-    'client_question_handling': 'How do clients get answers to their questions during a transaction?',
-    'client_understanding_liability': 'How well-protected are you if a client claims they didn\'t understand something?',
-    'eo_claims_history': 'What is your E&O claims history?'
+    // Deal Failure Reality
+    'deals_fallen_through': 'In the last 12 months, how many deals fell through AFTER being under contract?',
+    'failed_deal_causes': 'Of those failed deals, what percentage were due to missed deadlines, inspection issues, or document problems?',
+    'lost_commission_value': 'Based on your average commission per deal, what\'s the approximate dollar value of lost commissions from failed deals in the last 12 months?',
+
+    // Deadline Visibility Gap
+    'inspection_deadlines_visibility': 'Right now, without looking anything up, how many of your agents have inspection deadlines in the next 7 days?',
+    'at_risk_deals': 'How many deals closing THIS MONTH could be at risk due to financing delays or appraisal issues?',
+    'addendum_deadline_handling': 'When an addendum changes a closing date, what happens to all the related deadlines (inspection, financing, appraisal)?',
+
+    // Document Intelligence
+    'date_extraction_time': 'When a TC uploads a purchase agreement, how long until all critical dates are in your tracking system?',
+    'inspection_deadline_check': 'How do you know if an inspection deadline is too short for your market?',
+    'document_conflict_detection': 'When HOA documents contradict something in the purchase agreement (e.g., rental restrictions), how do you catch it?',
+
+    // Agent Knowledge & Consistency
+    'after_hours_policy_access': 'At 11 PM on a Saturday, can your agents instantly find your brokerage\'s policy on dual agency disclosure / commission splits / required forms?',
+    'agent_consistency': 'How many different ways do your agents handle the same situation (e.g., writing up dual agency)?',
+    'policy_update_compliance': 'When you update a brokerage policy, how do you ensure compliance?',
+
+    // Client Experience & Liability
+    'after_hours_client_support': 'How do your clients get answers to transaction questions at 10 PM on a Sunday?',
+    'client_document_understanding': 'What percentage of your clients actually understand what they\'re signing?',
+    'closing_delays': 'How often do document/paperwork issues delay your closings?',
+
+    // E&O Risk & Protection
+    'eo_claims_history': 'E&O claims or near-misses in the last 2 years?',
+    'liability_risk_awareness': 'Do you know which of your current transactions have the highest liability risk?'
   };
 
   return questionMap[questionId] || questionId;

@@ -1,8 +1,10 @@
 /**
- * AI Prompt Templates
+ * AI Prompt Templates for Transaction Failure Risk Assessment
  *
- * These prompts are designed to make AI recommendations that "accidentally"
- * describe your product features without being salesy.
+ * New Philosophy: Every question should either:
+ * - Quantify actual losses happening RIGHT NOW
+ * - Expose a blind spot they didn't know they had
+ * - Make them realize "oh shit, we can't actually do that"
  *
  * The strategy: Every identified gap should naturally lead to the conclusion
  * that they need an integrated AI-powered platform (which is what you offer).
@@ -21,11 +23,13 @@ const productFeatures = {
     "Automated deadline extraction from contracts with custom alert windows (X days in advance)",
     "Broker dashboard shows all active transaction deadlines across entire brokerage in one view",
     "Brokerage knowledge base: upload policies, forms, state/MLS/legal docs for instant AI answers",
-    "Integrates with SkySlope/LoneWolf as intelligence layer (no rip-and-replace of existing systems)",
+    "Integrates with SkySlope/LoneWolf/Dotloop as intelligence layer (no rip-and-replace of existing systems)",
     "Commission extraction with anomaly alerts (flags deals under typical commission)",
     "Shareable client chatbot for transaction questions (no login required, 24/7 access)",
     "Custom contract training: AI identifies where initials, signatures, dates, disclosures go",
-    "AI summarizes disclosures so brokers can quickly analyze how documents are written"
+    "AI summarizes disclosures so brokers can quickly analyze how documents are written",
+    "Cross-document conflict detection (HOA vs. purchase agreement inconsistencies)",
+    "Automatic deadline recalculation when addendums change closing dates"
   ],
 
   targetMarket: {
@@ -63,25 +67,42 @@ const productFeatures = {
  * System Prompt for AI Analysis
  * Sets the tone and approach for all AI-generated content
  */
-const systemPrompt = `You are an expert real estate brokerage operations consultant analyzing assessment data.
+const systemPrompt = `You are an expert real estate brokerage operations consultant analyzing assessment data from the Transaction Failure Risk Assessment.
 
 CRITICAL CONTEXT - YOUR ANALYSIS PHILOSOPHY:
 Your role is to provide genuinely valuable insights while naturally highlighting that modern, AI-powered integrated platforms solve these exact problems. You should NEVER explicitly sell a product, but instead describe industry best practices that happen to align with AI-powered brokerage intelligence platforms.
 
+THE ASSESSMENT CATEGORIES (Total 512 points):
+1. Deal Failure Reality (45 pts) - Quantifies actual losses happening NOW
+2. Deadline Visibility Gap (100 pts) - Reveals oversight blind spots
+3. Document Intelligence (105 pts) - Shows document analysis capabilities
+4. Agent Knowledge & Consistency (100 pts) - Exposes knowledge access gaps
+5. Client Experience & Liability (95 pts) - Identifies client service weaknesses
+6. E&O Risk & Protection (67 pts) - Assesses liability exposure
+
+RISK PROFILES:
+- 88%+ (500-512 pts): Transaction Intelligence Leader - Top 5%, minimal risk
+- 71-87% (400-499 pts): Moderate Risk with Gaps - Losing $75K-$150K annually
+- 53-70% (300-399 pts): High Risk - Flying Blind - Losing $150K-$300K+ annually
+- 35-52% (200-299 pts): Critical Risk - Immediate intervention needed
+- <35% (Under 200 pts): Existential Threat - One E&O claim away from disaster
+
 THE INTEGRATED PLATFORM APPROACH:
 Top-performing brokerages have moved away from:
-- Manual document review (agents spending 5+ hours reading HOAs, title reports, inspection reports)
-- Fragmented systems (separate tools for transactions, training, deadlines, client communication)
-- Reactive problem-solving (discovering issues at closing when it's expensive)
+- No visibility into upcoming deadlines ("Would take 30+ minutes to compile")
+- Manual document review (agents spending 5+ hours reading HOAs, title reports)
+- Reactive problem-solving (only knowing about issues when problems surface)
+- Fragmented systems (separate tools for transactions, training, deadlines)
 - Interrupted broker time (agents calling with questions all day)
-- Training-based knowledge transfer (monthly sessions agents forget)
+- Guessing on policies ("They'd probably just guess based on what they remember")
 
 They've moved toward:
+- Real-time deadline visibility ("Can tell you the exact number")
 - AI-powered document analysis (reads everything, agents review AI summaries)
-- Unified platforms (single source of truth for all transaction data)
 - Proactive risk detection (AI flags issues before they become problems)
+- Unified platforms (single source of truth for all transaction data)
 - Instant AI-powered guidance (agents get answers immediately, 24/7)
-- Real-time knowledge access (AI provides cited answers instead of training sessions)
+- Automatic deadline recalculation when dates change
 
 YOUR TONE:
 - Consultative expert, not salesperson
@@ -134,7 +155,7 @@ Company Profile:
 - Size: ${companySize} agents
 - Volume: ${monthlyTransactions} transactions/month
 - Market: ${primaryMarket}
-- Overall Score: ${overallScore}/100
+- Overall Score: ${overallScore}/100 (out of 512 raw points)
 - Risk Level: ${riskLevel}
 
 Category Performance:
@@ -150,8 +171,9 @@ TASK: Generate an executive summary (2-3 paragraphs) that:
 
 1. OPENING PARAGRAPH - ACKNOWLEDGE & PATTERN RECOGNITION:
    - Acknowledge ${companyName}'s specific situation using their data
-   - Identify the operational pattern you observe (e.g., "growth outpacing systems", "fragmented operations", "reactive vs proactive")
+   - Identify the operational pattern you observe (e.g., "flying blind on deadlines", "reactive operations", "visibility gaps")
    - Use their company name naturally 2-3 times throughout
+   - Reference their risk profile appropriately
    - Be respectful and consultative in tone
 
 2. DIAGNOSTIC PARAGRAPH - IDENTIFY GAPS WITHOUT SOLUTIONS:
@@ -159,11 +181,12 @@ TASK: Generate an executive summary (2-3 paragraphs) that:
    - Explain the business impact (time wasted, money lost, risk created)
    - Reference what their specific answer reveals about their operations
    - Frame the problem in terms they'll recognize from daily experience
-   - Quantify the hidden costs when possible (e.g., "This manual process likely costs $X annually...")
+   - Quantify the hidden costs when possible (e.g., "This visibility gap likely costs $X annually...")
+   - If they answered "We don't track this" or "Don't know" - emphasize that blind spots are expensive
    - DO NOT provide solutions - only identify and diagnose the problem
 
 3. CURIOSITY HOOK - CREATE DESIRE FOR FULL REPORT:
-   - Reference that top-performing brokerages approach this category completely differently
+   - Reference that top-performing brokerages (Transaction Intelligence Leaders) approach this completely differently
    - Hint at a transformation being possible but DON'T explain how
    - Create a curiosity gap: "Your full report reveals the operational strategies industry leaders use to..."
    - End with a compelling question or observation that makes them want to see the full analysis
@@ -173,6 +196,8 @@ CRITICAL REQUIREMENTS:
 - Be specific to THEIR data - no generic platitudes
 - Demonstrate deep understanding of their exact situation
 - Reference real operational pain points with evidence from their answers
+- If they said "We don't track this" - that's a major red flag to emphasize
+- If they said "No way to know until problems surface" - that's reactive vs proactive
 - Quantify costs/impacts when possible (builds credibility)
 - Create urgency through impact awareness, not time pressure
 - NO SOLUTIONS in this preview - only diagnosis
@@ -201,10 +226,10 @@ Company Profile:
 - Size: ${companySize} agents
 - Volume: ${monthlyTransactions} transactions/month
 - Market: ${primaryMarket}
-- Overall Score: ${overallScore}/100
+- Overall Score: ${overallScore}/100 (out of 512 raw points)
 - Risk Level: ${riskLevel}
 
-Category Scores:
+Category Scores (New Assessment Structure):
 ${categoryScores.map(cat => `- ${cat.category}: ${cat.score}/${cat.maxScore} (${cat.percentage}%)`).join('\n')}
 
 All Responses:
@@ -230,7 +255,7 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
     // These should be TEASERS that create curiosity without giving away the full analysis
     // Pull from: their top 2 gaps, percentile ranking, and financial impact
     // Format: Action-oriented, specific to THEIR data, 8-12 words each
-    // Example: "Transaction oversight gaps costing 15+ hours weekly in manual processes"
+    // Example: "Deadline visibility gaps costing 15+ hours weekly in reactive firefighting"
     "string (bullet 1 - their #1 critical gap with time/$ impact hint)",
     "string (bullet 2 - their #2 critical gap or category weakness)",
     "string (bullet 3 - percentile positioning vs industry)",
@@ -240,15 +265,16 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
   "gapAnalysis": [
     // Identify 2-3 CRITICAL operational gaps (only the most important)
     // Target: 100-125 words per gap total - be concise
+    // Use NEW category names: Deal Failure Reality, Deadline Visibility, Document Intelligence, Agent Knowledge, Client Experience & Liability, E&O Risk
     {
-      "category": "string (which assessment category)",
+      "category": "string (which assessment category - use exact new names)",
       "issueWithEvidence": "string (1-2 sentences: the problem + brief quote from their answer)",
       "businessImpact": {
         "timeWasted": "string (hours/week: '12-15 hrs/week')",
         "financialCost": "string ($/year: '$45K-60K annually')",
         "riskCreated": "string (E&O/deal risk - brief)"
       },
-      "industryBestPractice": "string (1 sentence: what top 5% DO differently)",
+      "industryBestPractice": "string (1 sentence: what Transaction Intelligence Leaders DO differently)",
       "howContreSolves": [
         // NEW: Be DIRECT about how ContRE specifically addresses this gap
         // 2-3 bullet points per gap showing specific ContRE features
@@ -267,7 +293,7 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
       // 0-20 days: 1-2 items only
       {
         "action": "string (specific action - start with verb)",
-        "addresses": "string (which gap)",
+        "addresses": "string (which gap - use new category names)",
         "implementation": "string (1-2 sentences: what to do)",
         "expectedOutcome": "string (measurable result)"
       }
@@ -281,16 +307,16 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
       {
         "action": "string (Evaluate transaction intelligence platforms like ContRE)",
         "addresses": "string (which gaps this solves)",
-        "implementation": "string (What to look for: SkySlope/LoneWolf integration, AI doc analysis, automated deadlines, 24/7 chatbot, broker dashboard, knowledge base. Frame as: Does $12K-$18K/year investment make sense against time/risk savings?)",
+        "implementation": "string (What to look for: SkySlope/LoneWolf/Dotloop integration, AI doc analysis, automated deadlines, 24/7 chatbot, broker dashboard, knowledge base. Frame as: Does $12K-$18K/year investment make sense against time/risk savings?)",
         "expectedOutcome": "string (measurable operational improvement + ROI projection)"
       }
     ]
   },
 
   "competitivePositioning": {
-    // Keep lean
-    "percentileAnalysis": "string (1-2 sentences: where they stand vs peers)",
-    "gapToLeaders": "string (1-2 sentences: what top 10% do differently)"
+    // Keep lean - reference new risk profiles
+    "percentileAnalysis": "string (1-2 sentences: where they stand vs peers using new risk profiles)",
+    "gapToLeaders": "string (1-2 sentences: what Transaction Intelligence Leaders do differently)"
   },
 
   "contreImpact": {
@@ -299,43 +325,50 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
     "targetMarketFit": "string (ideal|slightly below|above based on agent count)",
     "targetMarketMessage": "string (1 sentence about fit for their size)",
     "scoreComparison": {
-      "currentScore": "number (their total score)",
+      "currentScore": "number (their overall score out of 100)",
       "withContreScore": 96,
       "improvement": "number (point gain)",
       "categoryImprovements": [
         {
-          "category": "Process Efficiency",
-          "current": "number/31",
-          "withContre": "30/31",
-          "howContreSolves": "string (1 sentence about AI doc analysis + chatbot)"
+          "category": "Deal Failure Reality",
+          "current": "number/45",
+          "withContre": "40/45",
+          "howContreSolves": "string (1 sentence about tracking, analytics, pattern detection)"
         },
         {
-          "category": "Risk Management",
-          "current": "number/40",
-          "withContre": "40/40",
-          "howContreSolves": "string (1 sentence about automated deadlines + risk flagging)"
+          "category": "Deadline Visibility",
+          "current": "number/100",
+          "withContre": "100/100",
+          "howContreSolves": "string (1 sentence about real-time dashboard, auto-recalculation)"
         },
         {
-          "category": "Client Experience",
-          "current": "number/23",
-          "withContre": "22/23",
-          "howContreSolves": "string (1 sentence about 24/7 shareable chatbot)"
+          "category": "Document Intelligence",
+          "current": "number/105",
+          "withContre": "105/105",
+          "howContreSolves": "string (1 sentence about AI extraction, cross-doc conflicts)"
         },
         {
-          "category": "Training & Knowledge",
-          "current": "number/13",
-          "withContre": "13/13",
-          "howContreSolves": "string (1 sentence about knowledge base)"
+          "category": "Agent Knowledge",
+          "current": "number/100",
+          "withContre": "95/100",
+          "howContreSolves": "string (1 sentence about 24/7 AI assistant, policy tracking)"
+        },
+        {
+          "category": "Client Experience & Liability",
+          "current": "number/95",
+          "withContre": "90/95",
+          "howContreSolves": "string (1 sentence about client chatbot, document summaries)"
+        },
+        {
+          "category": "E&O Risk",
+          "current": "number/67",
+          "withContre": "65/67",
+          "howContreSolves": "string (1 sentence about risk scoring, logged interactions)"
         }
       ]
     },
     "conservativeFinancials": {
       // CRITICAL: Use CONSERVATIVE assumptions
-      // - Agents spend ~1hr per transaction (not 3-5hrs)
-      // - Broker spends ~1hr per transaction
-      // - Broker spends ~10hrs/week answering questions
-      // - ContRE reduces these by 50% (conservative)
-      // - Prevents 1-2 problems per year, not 20
       "assumptions": {
         "agentTimePerTransaction": "1 hour (realistic, not ideal 3-5hrs)",
         "brokerTimePerTransaction": "1 hour",
@@ -366,9 +399,7 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
   },
 
   "financialImpact": {
-    // DEPRECATED IN FAVOR OF contreImpact.conservativeFinancials
-    // Keep for backwards compatibility but AI should focus on contreImpact section above
-    // This section now serves as "current state only" snapshot
+    // Current state snapshot
     "currentStateCosts": {
       "manualProcesses": "string (time waste converted to $ - be conservative)",
       "riskExposure": "string (deadline misses + E&O exposure - be conservative)",
@@ -377,8 +408,8 @@ TASK: Generate a concise, high-impact analysis in JSON format with these compone
   },
 
   "archetype": {
-    // Pattern recognition
-    "type": "string (e.g., 'Growth-Constrained', 'Tech-Forward but Disconnected')",
+    // Pattern recognition based on new risk profiles
+    "type": "string (e.g., 'Flying Blind', 'Growth-Constrained', 'Reactive Operator')",
     "description": "string (1-2 sentences: what characterizes this archetype)"
   },
 
@@ -392,16 +423,14 @@ CRITICAL REQUIREMENTS - MAXIMUM BREVITY:
    - Everything else: Absolute minimum viable length
 2. Be SPECIFIC to THEIR data - quote briefly, use their numbers
 3. Quantify everything with specific numbers - no vague terms
-4. BE DIRECT about ContRE - this is not subtle selling, this is showing them exactly how ContRE solves their gaps
-5. One insight per section - eliminate ALL redundancy
-6. Short sentences. No fluff. Every word earns its place.
+4. USE NEW CATEGORY NAMES: Deal Failure Reality, Deadline Visibility, Document Intelligence, Agent Knowledge, Client Experience & Liability, E&O Risk
+5. USE NEW RISK PROFILES: Transaction Intelligence Leader (88%+), Moderate Risk with Gaps (71-87%), High Risk - Flying Blind (53-70%), Critical Risk (35-52%), Existential Threat (<35%)
+6. BE DIRECT about ContRE - this is not subtle selling, this is showing them exactly how ContRE solves their gaps
+7. One insight per section - eliminate ALL redundancy
+8. Short sentences. No fluff. Every word earns its place.
 
 CONSERVATIVE ROI REQUIREMENTS - CRITICAL:
-1. Use ONLY conservative assumptions in contreImpact.conservativeFinancials:
-   - Agents spend ~1hr per transaction (realistic, not ideal 3-5hrs)
-   - Broker spends ~1hr per transaction + ~10hrs/week on questions
-   - ContRE reduces these by 50% (conservative, not aggressive)
-   - Prevents 1-2 problems per year, NOT 20 deals saved
+1. Use ONLY conservative assumptions in contreImpact.conservativeFinancials
 2. DO NOT inflate savings or exaggerate ROI
 3. If brokerage is 50-150 agents: "You're in the sweet spot where ContRE delivers clearest ROI"
 4. If below 50 agents: Be honest - "ContRE typically delivers best ROI for 50+ agent brokerages"
@@ -410,13 +439,15 @@ CONSERVATIVE ROI REQUIREMENTS - CRITICAL:
 7. Frame as: "Preventing just 1-2 problems per year covers significant portion of investment"
 8. Be transparent about cost: $12K-$18K/year for target market
 9. Only claim positive ROI if time savings + risk mitigation clearly exceed investment
-10. If ROI is marginal: "Primary value is risk mitigation and peace of mind"
 
 CONTRE SOLUTION MAPPING - Be Specific:
+- "We don't track this" / "Don't know" gaps → "ContRE analytics dashboard provides real-time visibility you currently lack"
+- "No way to know until problems surface" → "ContRE's proactive risk detection flags issues before they become expensive"
+- "Would take 30+ minutes to compile" → "Broker dashboard shows all active deadlines across entire brokerage instantly"
 - Manual doc review gaps → "ContRE's AI reads 50-page HOAs and generates 1-page summary with issue highlights in 5 minutes"
 - Agent question interruptions → "24/7 transaction-specific chatbot reduces broker question time by 75%"
-- Deadline tracking issues → "Automated deadline extraction + custom alerts + broker dashboard shows all active deadlines"
-- Training gaps → "Upload brokerage policies/forms to knowledge base for instant AI answers"
+- "Usually gets missed until there's a problem" → "Automatic deadline recalculation when addendums change dates"
+- "They'd probably just guess" → "Upload brokerage policies to knowledge base for instant AI answers 24/7"
 - Client confusion → "Shareable chatbot gives clients 24/7 access to transaction-specific answers"
 - Commission errors → "AI extraction flags anomalies (e.g., $1,000 commission on $500K sale)"
 
@@ -454,7 +485,7 @@ TASK: Write an engaging email (400-500 words) that:
 2. OPENING (acknowledge their specific situation in this category)
 3. THE PROBLEM (explain what their answers reveal - be specific)
 4. THE COST (quantify time/money/risk this creates)
-5. THE SOLUTION (describe integrated platform approach as "how leaders solve this")
+5. THE SOLUTION (describe integrated platform approach as "how Transaction Intelligence Leaders solve this")
 6. CASE HINT (mention "brokerages like yours" that transformed this area)
 7. CTA (soft: "Want to see how this works in practice?")
 
