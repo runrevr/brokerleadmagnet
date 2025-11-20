@@ -372,9 +372,148 @@
             return scores;
         };
 
+        // Intro View Component with Industry Statistics
+        const IntroView = ({ onStart }) => {
+            return (
+                <div className="min-h-screen bg-mist">
+                    {/* Header */}
+                    <header className="bg-white shadow-sm">
+                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                            <h1 className="text-2xl font-bebas text-storm-gray">Brokerage Intelligence Assessment</h1>
+                        </div>
+                    </header>
+
+                    <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        {/* Hero Section */}
+                        <div className="bg-white rounded-lg shadow-lg p-8 mb-8 text-center">
+                            <h2 className="text-4xl md:text-5xl font-bebas text-spruce mb-4 tracking-wide leading-tight">
+                                Is Your Brokerage Bleeding Money from Preventable Deal Failures?
+                            </h2>
+                            <p className="text-xl font-manrope text-storm-gray max-w-3xl mx-auto">
+                                Take this 5-minute assessment to uncover operational blind spots that are costing you deals,
+                                time, and money—then get a customized roadmap to fix them.
+                            </p>
+                        </div>
+
+                        {/* Industry Statistics Grid */}
+                        <div className="mb-8">
+                            <h3 className="text-2xl font-bebas text-storm-gray mb-6 text-center tracking-wide">
+                                The Hidden Cost of Operational Gaps
+                            </h3>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                                {/* Stat 1 */}
+                                <div className="bg-white rounded-lg shadow p-6 text-center border-t-4 border-spruce">
+                                    <div className="text-4xl font-jetbrains font-bold text-spruce mb-2">32%</div>
+                                    <p className="text-sm font-manrope text-storm-gray mb-2">
+                                        of buyers feel paperwork is overwhelming during purchase
+                                    </p>
+                                    <p className="text-xs font-manrope text-river-stone">Source: Nasdaq</p>
+                                </div>
+
+                                {/* Stat 2 */}
+                                <div className="bg-white rounded-lg shadow p-6 text-center border-t-4 border-amber">
+                                    <div className="text-4xl font-jetbrains font-bold text-amber mb-2">90%</div>
+                                    <p className="text-sm font-manrope text-storm-gray mb-2">
+                                        of Realtors encounter document challenges with clients
+                                    </p>
+                                    <p className="text-xs font-manrope text-river-stone">Source: Adobe 2024</p>
+                                </div>
+
+                                {/* Stat 3 */}
+                                <div className="bg-white rounded-lg shadow p-6 text-center border-t-4 border-signal-red">
+                                    <div className="text-4xl font-jetbrains font-bold text-signal-red mb-2">59%</div>
+                                    <p className="text-sm font-manrope text-storm-gray mb-2">
+                                        experience delayed or stalled transactions from poor document management
+                                    </p>
+                                    <p className="text-xs font-manrope text-river-stone">Source: Adobe 2024</p>
+                                </div>
+
+                                {/* Stat 4 */}
+                                <div className="bg-white rounded-lg shadow p-6 text-center border-t-4 border-bark-brown">
+                                    <div className="text-4xl font-jetbrains font-bold text-bark-brown mb-2">19%</div>
+                                    <p className="text-sm font-manrope text-storm-gray mb-2">
+                                        of home sale closings face delays in a typical period
+                                    </p>
+                                    <p className="text-xs font-manrope text-river-stone">Source: NAR</p>
+                                </div>
+                            </div>
+
+                            {/* Additional Context Cards */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="bg-mist border-2 border-sea-glass rounded-lg p-6">
+                                    <div className="flex items-start gap-3">
+                                        <div className="text-2xl">📄</div>
+                                        <div>
+                                            <h4 className="font-manrope font-bold text-storm-gray mb-2">Document Problems</h4>
+                                            <p className="text-sm font-manrope text-storm-gray">
+                                                <strong>1 in 4</strong> clients don't understand the importance of paperwork.
+                                                <strong> 36%</strong> of Realtors see contractual disputes or legal issues arise from document misunderstandings.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="bg-mist border-2 border-sea-glass rounded-lg p-6">
+                                    <div className="flex items-start gap-3">
+                                        <div className="text-2xl">⏰</div>
+                                        <div>
+                                            <h4 className="font-manrope font-bold text-storm-gray mb-2">Deadline Failures</h4>
+                                            <p className="text-sm font-manrope text-storm-gray">
+                                                <strong>~10%</strong> of terminated deals are due to contingency and timing issues.
+                                                Missing a contract deadline can void obligations or let parties withdraw without penalty.
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* CTA Section */}
+                        <div className="bg-gradient-to-br from-spruce to-storm-gray rounded-lg shadow-lg p-8 text-center text-white">
+                            <h3 className="text-3xl font-bebas mb-4 tracking-wide">
+                                Find Out Where Your Brokerage Stands
+                            </h3>
+                            <p className="text-lg font-manrope mb-6 text-white/90 max-w-2xl mx-auto">
+                                Answer 17 questions about your current operations and get an instant score with
+                                personalized recommendations to eliminate these costly gaps.
+                            </p>
+
+                            <button
+                                onClick={onStart}
+                                className="px-10 py-4 bg-signal-red text-white font-manrope font-bold rounded-md hover:bg-signal-red/90 transition-colors text-xl shadow-lg"
+                            >
+                                Start Your Assessment →
+                            </button>
+
+                            {/* Trust Indicators */}
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-6 text-sm text-white/80">
+                                <div className="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>Takes only 5 minutes</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>Instant results</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span>✓</span>
+                                    <span>Based on 1,000+ assessments</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span>🔒</span>
+                                    <span>Your data is secure</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
         // Main App Component
         const BrokerageIntelligenceApp = () => {
-            const [currentStep, setCurrentStep] = useState(0);
+            const [currentStep, setCurrentStep] = useState(-1);
             const [responses, setResponses] = useState({});
             const [scores, setScores] = useState(null);
             const [showReport, setShowReport] = useState(false);
@@ -382,9 +521,9 @@
             const [emailCaptured, setEmailCaptured] = useState(false);
 
             const categories = Object.keys(assessmentQuestions);
-            const currentCategory = categories[currentStep];
-            const currentQuestions = assessmentQuestions[currentCategory];
-            const progress = ((currentStep + 1) / categories.length) * 100;
+            const currentCategory = currentStep >= 0 ? categories[currentStep] : null;
+            const currentQuestions = currentStep >= 0 ? assessmentQuestions[currentCategory] : null;
+            const progress = currentStep >= 0 ? ((currentStep + 1) / categories.length) * 100 : 0;
 
             const handleInputChange = (questionId, value) => {
                 setResponses(prev => ({
@@ -487,14 +626,19 @@
             };
 
             if (showReport) {
-                return <ReportView 
-                    responses={responses} 
-                    scores={scores} 
+                return <ReportView
+                    responses={responses}
+                    scores={scores}
                     emailCaptured={emailCaptured}
                     email={email}
                     setEmail={setEmail}
                     handleEmailSubmit={handleEmailSubmit}
                 />;
+            }
+
+            // Show intro view before assessment begins
+            if (currentStep === -1) {
+                return <IntroView onStart={() => setCurrentStep(0)} />;
             }
 
             return (
