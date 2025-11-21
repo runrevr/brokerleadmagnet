@@ -1,8 +1,7 @@
 {
   "rewrites": [
-    { "source": "/", "destination": "/agents.html" },
-    { "source": "/report", "destination": "/agents-report.html" },
-    { "source": "/agents-report.html", "destination": "/agents-report.html" },
+    { "source": "/", "destination": "/brokerage-intelligence-platform.html" },
+    { "source": "/report", "destination": "/report.html" },
     { "source": "/api/(.*)", "destination": "/api/$1" }
   ],
   "headers": [
