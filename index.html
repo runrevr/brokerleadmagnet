@@ -374,25 +374,6 @@
                     }
                 ]
             },
-            agentConsistency: {
-                title: "Process Consistency",
-                questions: [
-                    {
-                        id: "agent_consistency",
-                        label: "How Many Different Ways Do Your Agents Handle the Same Situation (e.g., Dual Agency)?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            { value: "One consistent way - we have documented standards", icon: "document-check", label: "One Consistent Way", description: "Documented standards" },
-                            { value: "Mostly consistent with minor variations", icon: "clipboard", label: "Mostly Consistent", description: "Minor variations" },
-                            { value: "Each experienced agent has their own approach", icon: "users", label: "Own Approach", description: "Varies by agent" },
-                            { value: "New agents copy whoever trained them", icon: "user", label: "Copy Trainer", description: "Informal learning" },
-                            { value: "Wide variation - \"every agent does it differently\"", icon: "question", label: "Wide Variation", description: "No consistency" }
-                        ],
-                        scoring: { "One consistent way - we have documented standards": 30, "Mostly consistent with minor variations": 20, "Each experienced agent has their own approach": 10, "New agents copy whoever trained them": 5, "Wide variation - \"every agent does it differently\"": 0 }
-                    }
-                ]
-            },
             policyUpdateCompliance: {
                 title: "Policy Compliance",
                 questions: [
@@ -409,25 +390,6 @@
                             { value: "Tell people informally as it comes up", icon: "chat", label: "Informal", description: "Ad hoc communication" }
                         ],
                         scoring: { "System requires acknowledgment, tracks who's read it, tests understanding": 35, "Email to all agents with tracking": 20, "Announce in meeting, hope they remember": 10, "Post to shared drive, assume they'll see it": 5, "Tell people informally as it comes up": 0 }
-                    }
-                ]
-            },
-            afterHoursClientSupport: {
-                title: "Client Support",
-                questions: [
-                    {
-                        id: "after_hours_client_support",
-                        label: "How Do Your Clients Get Answers to Transaction Questions at 10 PM on a Sunday?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            { value: "AI chatbot with their specific transaction documents", icon: "robot", label: "AI Chatbot", description: "24/7 with their docs" },
-                            { value: "Agent responds to texts/calls when available", icon: "phone", label: "Agent When Available", description: "Best effort response" },
-                            { value: "They wait until Monday morning", icon: "clock", label: "Wait Until Monday", description: "Business hours only" },
-                            { value: "They Google it and might get wrong answers", icon: "question", label: "Google It", description: "Risk of bad info" },
-                            { value: "They get anxious and call multiple people", icon: "alert-medium", label: "Call Multiple People", description: "Creates stress" }
-                        ],
-                        scoring: { "AI chatbot with their specific transaction documents": 35, "Agent responds to texts/calls when available": 20, "They wait until Monday morning": 10, "They Google it and might get wrong answers": 5, "They get anxious and call multiple people": 0 }
                     }
                 ]
             },
@@ -450,25 +412,6 @@
                     }
                 ]
             },
-            closingDelays: {
-                title: "Closing Performance",
-                questions: [
-                    {
-                        id: "closing_delays",
-                        label: "How Often Do Document/Paperwork Issues Delay Your Closings?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            { value: "Never - we catch everything early", icon: "check-circle", label: "Never", description: "Catch everything early" },
-                            { value: "Rarely - maybe 1-2 times per year", icon: "clock", label: "Rarely (1-2/year)", description: "Occasional delays" },
-                            { value: "Occasionally - 3-5 times per year", icon: "clock-alert", label: "Occasionally (3-5)", description: "Some delays" },
-                            { value: "Regularly - 6-10 times per year", icon: "alert-medium", label: "Regularly (6-10)", description: "Frequent delays" },
-                            { value: "Frequently - happens all the time", icon: "alert-high", label: "Frequently", description: "Constant issue" }
-                        ],
-                        scoring: { "Never - we catch everything early": 35, "Rarely - maybe 1-2 times per year": 25, "Occasionally - 3-5 times per year": 15, "Regularly - 6-10 times per year": 8, "Frequently - happens all the time": 0 }
-                    }
-                ]
-            },
             eoClaimsHistory: {
                 title: "E&O Risk Assessment",
                 questions: [
@@ -487,24 +430,6 @@
                         scoring: { "0 claims, 0 near-misses": 34, "0 claims, 1-2 near-misses": 25, "0 claims, 3+ near-misses": 15, "1 claim": 8, "2+ claims": 0 }
                     }
                 ]
-            },
-            liabilityRiskAwareness: {
-                title: "Risk Visibility",
-                questions: [
-                    {
-                        id: "liability_risk_awareness",
-                        label: "Do You Know Which of Your Current Transactions Have the Highest Liability Risk?",
-                        type: "cards",
-                        required: true,
-                        options: [
-                            { value: "Yes - system scores risk and flags issues automatically", icon: "robot", label: "System Scores Risk", description: "Automatic flagging" },
-                            { value: "Somewhat - experienced broker/TC flags concerning deals", icon: "user", label: "Broker/TC Flags", description: "Human judgment" },
-                            { value: "Not really - we treat all deals the same", icon: "clipboard", label: "Treat All Same", description: "No differentiation" },
-                            { value: "No - we only know when something goes wrong", icon: "question", label: "Know When Wrong", description: "Reactive only" }
-                        ],
-                        scoring: { "Yes - system scores risk and flags issues automatically": 33, "Somewhat - experienced broker/TC flags concerning deals": 20, "Not really - we treat all deals the same": 10, "No - we only know when something goes wrong": 0 }
-                    }
-                ]
             }
         };
 
@@ -515,9 +440,9 @@
                 dealFailureReality: ['deals_fallen_through', 'failed_deal_causes', 'lost_commission_value'],
                 deadlineVisibility: ['inspection_deadlines_visibility', 'at_risk_deals', 'addendum_deadline_handling'],
                 documentIntelligence: ['date_extraction_time', 'inspection_deadline_check', 'document_conflict_detection'],
-                agentKnowledge: ['after_hours_policy_access', 'agent_consistency', 'policy_update_compliance'],
-                clientExperienceLiability: ['after_hours_client_support', 'client_document_understanding', 'closing_delays'],
-                eoRiskProtection: ['eo_claims_history', 'liability_risk_awareness']
+                agentKnowledge: ['after_hours_policy_access', 'policy_update_compliance'],
+                clientExperienceLiability: ['client_document_understanding'],
+                eoRiskProtection: ['eo_claims_history']
             };
 
             let scores = {
