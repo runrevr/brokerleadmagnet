@@ -6,7 +6,13 @@
  * - Expose a blind spot they didn't know they had
  * - Make them realize "oh shit, we can't actually do that"
  *
- * Total: 512 points
+ * Total: 379 points (after removing 4 questions)
+ * - Deal Failure Reality: 45 points
+ * - Deadline Visibility: 100 points
+ * - Document Intelligence: 105 points
+ * - Agent Knowledge: 70 points
+ * - Client Experience & Liability: 35 points
+ * - E&O Risk Protection: 34 points
  */
 
 const scoringRules = {
@@ -130,7 +136,7 @@ const scoringRules = {
         aiOptimized: "AI cross-references all transaction documents automatically"
     },
 
-    // Section 5: Agent Knowledge & Consistency (100 points max)
+    // Section 5: Agent Knowledge & Consistency (70 points max)
     after_hours_policy_access: {
         weight: 35,
         scores: {
@@ -142,19 +148,6 @@ const scoringRules = {
         },
         category: "agent_knowledge",
         aiOptimized: "Yes, AI assistant trained on our docs, available 24/7"
-    },
-
-    agent_consistency: {
-        weight: 30,
-        scores: {
-            "One consistent way - we have documented standards": 30,
-            "Mostly consistent with minor variations": 20,
-            "Each experienced agent has their own approach": 10,
-            "New agents copy whoever trained them": 5,
-            "Wide variation - \"every agent does it differently\"": 0
-        },
-        category: "agent_knowledge",
-        aiOptimized: "One consistent way - we have documented standards"
     },
 
     policy_update_compliance: {
@@ -170,20 +163,7 @@ const scoringRules = {
         aiOptimized: "System requires acknowledgment, tracks who's read it, tests understanding"
     },
 
-    // Section 6: Client Experience & Liability (95 points max)
-    after_hours_client_support: {
-        weight: 35,
-        scores: {
-            "AI chatbot with their specific transaction documents": 35,
-            "Agent responds to texts/calls when available": 20,
-            "They wait until Monday morning": 10,
-            "They Google it and might get wrong answers": 5,
-            "They get anxious and call multiple people": 0
-        },
-        category: "client_experience_liability",
-        aiOptimized: "AI chatbot with their specific transaction documents"
-    },
-
+    // Section 6: Client Experience & Liability (35 points max)
     client_document_understanding: {
         weight: 35,
         scores: {
@@ -197,20 +177,7 @@ const scoringRules = {
         aiOptimized: "90%+ thanks to AI summaries and chatbot"
     },
 
-    closing_delays: {
-        weight: 35,
-        scores: {
-            "Never - we catch everything early": 35,
-            "Rarely - maybe 1-2 times per year": 25,
-            "Occasionally - 3-5 times per year": 15,
-            "Regularly - 6-10 times per year": 8,
-            "Frequently - happens all the time": 0
-        },
-        category: "client_experience_liability",
-        aiOptimized: "Never - we catch everything early"
-    },
-
-    // Section 7: E&O Risk & Protection (67 points max)
+    // Section 7: E&O Risk & Protection (34 points max)
     eo_claims_history: {
         weight: 34,
         scores: {
@@ -222,18 +189,6 @@ const scoringRules = {
         },
         category: "eo_risk_protection",
         aiOptimized: "0 claims, 0 near-misses"
-    },
-
-    liability_risk_awareness: {
-        weight: 33,
-        scores: {
-            "Yes - system scores risk and flags issues automatically": 33,
-            "Somewhat - experienced broker/TC flags concerning deals": 20,
-            "Not really - we treat all deals the same": 10,
-            "No - we only know when something goes wrong": 0
-        },
-        category: "eo_risk_protection",
-        aiOptimized: "Yes - system scores risk and flags issues automatically"
     }
 };
 
@@ -393,26 +348,26 @@ function calculateScoreWithContre(currentScoring) {
             reasoning: "AI cross-references all documents, extracts dates instantly, and flags conflicts automatically"
         },
         agentKnowledge: {
-            score: 95, // Out of 100
-            max: 100,
-            percentage: 95,
+            score: 68, // Out of 70
+            max: 70,
+            percentage: 97,
             reasoning: "24/7 AI assistant with brokerage policies and compliance tracking"
         },
         clientExperienceLiability: {
-            score: 90, // Out of 95
-            max: 95,
-            percentage: 95,
-            reasoning: "AI chatbot provides 24/7 client support with document summaries and logged interactions"
+            score: 33, // Out of 35
+            max: 35,
+            percentage: 94,
+            reasoning: "AI-generated document summaries improve client understanding"
         },
         eoRiskProtection: {
-            score: 65, // Out of 67
-            max: 67,
-            percentage: 97,
-            reasoning: "Automated risk scoring and documented client interactions protect against E&O claims"
+            score: 32, // Out of 34
+            max: 34,
+            percentage: 94,
+            reasoning: "Documented client interactions protect against E&O claims"
         }
     };
 
-    const contreTotalScore = 495; // Out of 512
+    const contreTotalScore = 368; // Out of 379
     const currentTotalScore = currentScoring.totalScore;
     const improvement = contreTotalScore - currentTotalScore;
 
@@ -425,7 +380,7 @@ function calculateScoreWithContre(currentScoring) {
         },
         withContre: {
             totalScore: contreTotalScore,
-            maxScore: 512,
+            maxScore: 379,
             percentage: 97,
             categoryBreakdown: contreScores
         },

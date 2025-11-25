@@ -334,17 +334,13 @@ function getQuestionText(questionId) {
 
     // Agent Knowledge & Consistency
     'after_hours_policy_access': 'At 11 PM on a Saturday, can your agents instantly find your brokerage\'s policy on dual agency disclosure / commission splits / required forms?',
-    'agent_consistency': 'How many different ways do your agents handle the same situation (e.g., writing up dual agency)?',
     'policy_update_compliance': 'When you update a brokerage policy, how do you ensure compliance?',
 
     // Client Experience & Liability
-    'after_hours_client_support': 'How do your clients get answers to transaction questions at 10 PM on a Sunday?',
     'client_document_understanding': 'What percentage of your clients actually understand what they\'re signing?',
-    'closing_delays': 'How often do document/paperwork issues delay your closings?',
 
     // E&O Risk & Protection
-    'eo_claims_history': 'E&O claims or near-misses in the last 2 years?',
-    'liability_risk_awareness': 'Do you know which of your current transactions have the highest liability risk?'
+    'eo_claims_history': 'E&O claims or near-misses in the last 2 years?'
   };
 
   return questionMap[questionId] || questionId;
